@@ -49,10 +49,15 @@ class TripsController < ApplicationController
 
   def go
     # Trip execution view - shopping lists, expenses, day-of activities
+    @journal_entries = @trip.journal_entries.by_date.includes(:user)
+    @new_journal_entry = @trip.journal_entries.build(entry_date: Date.current)
   end
 
   def reminisce
     # Trip memories view - photos, summaries, templates
+    @journal_entries = @trip.journal_entries.by_date.includes(:user)
+    @favorite_moments = @trip.favorite_moments
+    @journal_summary = @trip.journal_summary
   end
 
   private

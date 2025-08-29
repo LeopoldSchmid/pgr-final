@@ -10,6 +10,11 @@ Rails.application.routes.draw do
     get :plan, on: :member
     get :go, on: :member  
     get :reminisce, on: :member
+    
+    # Journal entries nested under trips
+    resources :journal_entries, except: [:show, :index] do
+      patch :toggle_favorite, on: :member
+    end
   end
   
   # Global phase routes

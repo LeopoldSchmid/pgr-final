@@ -1,5 +1,6 @@
 class Trip < ApplicationRecord
   belongs_to :user
+  has_many :journal_entries, dependent: :destroy
   
   validates :name, presence: true, length: { maximum: 100 }
   validates :status, inclusion: { in: %w[planning active completed] }
@@ -24,5 +25,17 @@ class Trip < ApplicationRecord
   
   def completed?
     status == 'completed'
+  end
+  
+  def favorite_moments
+    journal_entries.favorites.by_date
+  end
+  
+  def journal_summary
+    {
+      total_entries: journal_entries.count,
+      favorite_moments: journal_entries.favorites.count,
+      locations_visited: journal_entries.where.not(location: [nil, '']).distinct.count(:location)
+    }
   end
 end

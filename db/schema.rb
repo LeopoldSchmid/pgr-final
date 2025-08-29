@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_29_172949) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_29_174928) do
+  create_table "journal_entries", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.text "content"
+    t.string "location"
+    t.boolean "favorite"
+    t.date "entry_date"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_journal_entries_on_trip_id"
+    t.index ["user_id"], name: "index_journal_entries_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "user_agent"
@@ -40,6 +53,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_172949) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "journal_entries", "trips"
+  add_foreign_key "journal_entries", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "trips", "users"
 end

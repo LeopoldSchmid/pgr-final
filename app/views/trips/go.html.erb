@@ -25,67 +25,102 @@
     </div>
   </div>
 
-  <!-- Active Trip Sections -->
-  <div class="grid gap-6 md:grid-cols-2">
-    <!-- Today's Schedule -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">📅 Today's Schedule</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">Add Item</button>
-      </div>
+  <!-- Trip Journal -->
+  <div class="mb-8">
+    <!-- Add New Journal Entry -->
+    <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-8 mb-6">
+      <h3 class="text-xl font-bold text-emerald-900 mb-6 flex items-center">
+        <span class="mr-3">📝</span> Capture This Moment
+      </h3>
       
-      <div class="space-y-3">
-        <div class="text-center py-8 text-gray-500">
-          <div class="text-4xl mb-2">📋</div>
-          <p class="text-sm">No activities scheduled for today</p>
-          <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add today's plans</button>
+      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-4" do |form| %>
+        <div>
+          <%= form.text_area :content, 
+              placeholder: "What are you doing right now? Where are you? How does it feel?",
+              class: "w-full p-4 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none",
+              rows: 3 %>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= form.text_field :location, 
+                placeholder: "Where are you? (e.g., 'Central Park', 'That amazing cafe')",
+                class: "w-full p-3 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= form.date_field :entry_date, 
+                class: "w-full p-3 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" %>
+          </div>
+        </div>
+        
+        <div class="flex items-center justify-between">
+          <label class="flex items-center">
+            <%= form.check_box :favorite, class: "mr-2 rounded" %>
+            <span class="text-emerald-700 font-medium">⭐ Mark as favorite moment</span>
+          </label>
+          
+          <%= form.submit "📝 Save Moment", 
+              class: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg transform hover:scale-105" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Journal Entries -->
+    <% if @journal_entries.any? %>
+      <div class="space-y-6">
+        <h3 class="text-xl font-bold text-emerald-900 flex items-center">
+          <span class="mr-3">📖</span> Trip Journal
+        </h3>
+        
+        <% @journal_entries.each do |entry| %>
+          <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="text-emerald-700 font-bold">
+                  <%= entry.entry_date.strftime("%b %d") %>
+                </div>
+                <% if entry.location.present? %>
+                  <div class="text-emerald-600 text-sm bg-emerald-100 px-3 py-1 rounded-full">
+                    📍 <%= entry.location %>
+                  </div>
+                <% end %>
+                <% if entry.favorite? %>
+                  <div class="text-yellow-600">⭐</div>
+                <% end %>
+              </div>
+              
+              <div class="flex space-x-2">
+                <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), method: :patch, 
+                    class: "text-yellow-600 hover:text-yellow-700 #{entry.favorite? ? 'opacity-100' : 'opacity-50'}" do %>
+                  ⭐
+                <% end %>
+                <%= link_to trip_journal_entry_path(@trip, entry), method: :delete, 
+                    class: "text-red-500 hover:text-red-700 text-sm",
+                    data: { confirm: "Delete this journal entry?" } do %>
+                  🗑️
+                <% end %>
+              </div>
+            </div>
+            
+            <div class="text-emerald-800 leading-relaxed">
+              <%= simple_format(entry.content) %>
+            </div>
+            
+            <div class="mt-4 text-xs text-emerald-600">
+              Added <%= time_ago_in_words(entry.created_at) %> ago
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-12">
+        <div class="text-center">
+          <div class="text-6xl mb-4 opacity-60">📖</div>
+          <h3 class="text-xl font-bold text-emerald-900 mb-3">Start Your Trip Journal</h3>
+          <p class="text-emerald-700 mb-6">Capture the moments, feelings, and discoveries as they happen. Your future self will thank you! 🌟</p>
         </div>
       </div>
-    </div>
-
-    <!-- Shopping Lists -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">🛒 Shopping Lists</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">New List</button>
-      </div>
-      
-      <div class="text-center py-8 text-gray-500">
-        <div class="text-4xl mb-2">🛍️</div>
-        <p class="text-sm">No shopping lists yet</p>
-        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Create shopping list</button>
-      </div>
-    </div>
-
-    <!-- Recent Expenses -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">💰 Recent Expenses</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">Add Expense</button>
-      </div>
-      
-      <div class="space-y-3">
-        <div class="text-center py-8 text-gray-500">
-          <div class="text-4xl mb-2">💵</div>
-          <p class="text-sm">No expenses recorded yet</p>
-          <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add your first expense</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Trip Updates -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">📱 Trip Updates</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">Share Update</button>
-      </div>
-      
-      <div class="text-center py-8 text-gray-500">
-        <div class="text-4xl mb-2">📢</div>
-        <p class="text-sm">No updates yet</p>
-        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Share what's happening</button>
-      </div>
-    </div>
+    <% end %>
   </div>
 
   <!-- Quick Actions for Active Trip -->

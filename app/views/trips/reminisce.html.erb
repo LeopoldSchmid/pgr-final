@@ -26,45 +26,108 @@
   </div>
 
   <!-- Trip Summary Stats -->
-  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Trip Summary</h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl shadow-lg border border-purple-200 p-8 mb-8">
+    <h3 class="text-xl font-bold text-purple-900 mb-6 flex items-center">
+      <span class="mr-3">📊</span> Trip Summary
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
       <div class="text-center">
-        <div class="text-2xl font-bold text-purple-600">
+        <div class="text-3xl font-bold text-purple-600 mb-2">
           <%= (@trip.start_date && @trip.end_date) ? (@trip.end_date - @trip.start_date).to_i + 1 : "—" %>
         </div>
-        <div class="text-sm text-gray-600">Days</div>
+        <div class="text-sm text-purple-700 font-medium">Days</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-purple-600">1</div>
-        <div class="text-sm text-gray-600">Members</div>
+        <div class="text-3xl font-bold text-purple-600 mb-2"><%= @journal_summary[:total_entries] %></div>
+        <div class="text-sm text-purple-700 font-medium">Journal Entries</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-purple-600">—</div>
-        <div class="text-sm text-gray-600">Total Spent</div>
+        <div class="text-3xl font-bold text-purple-600 mb-2"><%= @journal_summary[:favorite_moments] %></div>
+        <div class="text-sm text-purple-700 font-medium">Favorite Moments</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-purple-600">—</div>
-        <div class="text-sm text-gray-600">Meals Made</div>
+        <div class="text-3xl font-bold text-purple-600 mb-2"><%= @journal_summary[:locations_visited] %></div>
+        <div class="text-sm text-purple-700 font-medium">Places Visited</div>
       </div>
     </div>
   </div>
 
-  <!-- Memories Sections -->
-  <div class="grid gap-6 md:grid-cols-2">
-    <!-- Photos & Moments -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">📸 Photos & Moments</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">Add Photos</button>
-      </div>
-      
-      <div class="text-center py-8 text-gray-500">
-        <div class="text-4xl mb-2">📷</div>
-        <p class="text-sm">No photos uploaded yet</p>
-        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Share your memories</button>
+  <!-- Trip Journal Memories -->
+  <% if @journal_entries.any? %>
+    <div class="mb-8">
+      <!-- Favorite Moments -->
+      <% if @favorite_moments.any? %>
+        <div class="mb-8">
+          <h3 class="text-2xl font-bold text-yellow-700 mb-6 flex items-center">
+            <span class="mr-3">⭐</span> Favorite Moments
+          </h3>
+          <div class="grid gap-6 md:grid-cols-2">
+            <% @favorite_moments.each do |entry| %>
+              <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl shadow-lg border border-yellow-200 p-6 ring-2 ring-yellow-300">
+                <div class="flex items-center mb-4">
+                  <div class="text-yellow-700 font-bold mr-3">
+                    <%= entry.entry_date.strftime("%b %d") %>
+                  </div>
+                  <% if entry.location.present? %>
+                    <div class="text-yellow-600 text-sm bg-yellow-100 px-3 py-1 rounded-full">
+                      📍 <%= entry.location %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="text-yellow-800 leading-relaxed">
+                  <%= simple_format(entry.content) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- All Journal Entries -->
+      <h3 class="text-2xl font-bold text-purple-900 mb-6 flex items-center">
+        <span class="mr-3">📖</span> Complete Trip Journal
+      </h3>
+      <div class="space-y-6">
+        <% @journal_entries.each do |entry| %>
+          <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="text-purple-700 font-bold">
+                <%= entry.entry_date.strftime("%b %d, %Y") %>
+              </div>
+              <% if entry.location.present? %>
+                <div class="text-purple-600 text-sm bg-purple-100 px-3 py-1 rounded-full">
+                  📍 <%= entry.location %>
+                </div>
+              <% end %>
+              <% if entry.favorite? %>
+                <div class="text-yellow-600">⭐ Favorite</div>
+              <% end %>
+            </div>
+            
+            <div class="text-purple-800 leading-relaxed">
+              <%= simple_format(entry.content) %>
+            </div>
+            
+            <div class="mt-4 text-xs text-purple-600">
+              Captured <%= time_ago_in_words(entry.created_at) %> ago
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
+  <% else %>
+    <!-- Empty Journal State -->
+    <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-12 mb-8">
+      <div class="text-center">
+        <div class="text-6xl mb-4 opacity-60">📔</div>
+        <h3 class="text-xl font-bold text-purple-900 mb-3">No Journal Entries Yet</h3>
+        <p class="text-purple-700 mb-6">This trip didn't have any journal entries. Next time, capture the moments as they happen!</p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Other Memories Sections -->
+  <div class="grid gap-6 md:grid-cols-2">
 
     <!-- Favorite Recipes -->
     <div class="bg-white rounded-lg shadow-sm border p-6">
