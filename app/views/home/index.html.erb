@@ -1,0 +1,92 @@
+<% if authenticated? %>
+  <!-- Dashboard for logged-in users -->
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-8">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Welcome back, <%= @current_user.email_address %>!</h1>
+          <p class="mt-2 text-gray-600">Ready to plan your next adventure?</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Create New Trip</h3>
+            <p class="text-gray-600 mb-4">Start planning a new adventure with friends</p>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+              Create Trip
+            </button>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Join Trip</h3>
+            <p class="text-gray-600 mb-4">Join a trip you've been invited to</p>
+            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+              Join Trip
+            </button>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">My Trips</h3>
+            <p class="text-gray-600 mb-4">View all your current and past trips</p>
+            <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
+              View Trips
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-lg shadow-sm border">
+          <div class="px-6 py-4 border-b">
+            <h2 class="text-xl font-semibold text-gray-900">Recent Activity</h2>
+          </div>
+          <div class="px-6 py-8">
+            <p class="text-gray-500 text-center">No recent activity yet. Create your first trip to get started!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <!-- Landing page for guests -->
+  <div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="pt-20 pb-16 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+          Plan. Go. Reminisce.
+        </h1>
+        <p class="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
+          Transform trip planning from a solo effort into a shared, enjoyable experience with friends.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <%= link_to "Get Started", new_registration_path, 
+              class: "bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200" %>
+          <%= link_to "Sign In", new_session_path, 
+              class: "border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-200" %>
+        </div>
+
+        <!-- Features -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <div class="text-3xl mb-4">📅</div>
+            <h3 class="text-xl font-semibold text-white mb-2">Plan Together</h3>
+            <p class="text-blue-100">Coordinate dates, destinations, and activities collaboratively</p>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <div class="text-3xl mb-4">🎒</div>
+            <h3 class="text-xl font-semibold text-white mb-2">Trip Companion</h3>
+            <p class="text-blue-100">Manage expenses, shopping lists, and meal plans on the go</p>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <div class="text-3xl mb-4">📸</div>
+            <h3 class="text-xl font-semibold text-white mb-2">Reminisce</h3>
+            <p class="text-blue-100">Preserve memories and learn from past trips for future planning</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
