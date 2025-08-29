@@ -1,0 +1,141 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Trip Header -->
+  <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-8 mb-8">
+    <div class="mb-6">
+      <%= link_to reminisce_path, class: "text-purple-700 hover:text-purple-900 font-medium flex items-center group mb-4" do %>
+        <span class="transform group-hover:-translate-x-1 transition-transform mr-2">📸</span> Trip Memories
+      <% end %>
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-800 to-pink-700 bg-clip-text text-transparent">
+        <%= @trip.name %>
+      </h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+        💭 Completed
+      </span>
+      <% if @trip.start_date && @trip.end_date %>
+        <span class="text-purple-700 font-medium">
+          📅 <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
+        </span>
+        <span class="text-purple-700 font-medium">
+          ⏳ <%= (@trip.end_date - @trip.start_date).to_i + 1 %> days
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Trip Summary Stats -->
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Trip Summary</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="text-center">
+        <div class="text-2xl font-bold text-purple-600">
+          <%= (@trip.start_date && @trip.end_date) ? (@trip.end_date - @trip.start_date).to_i + 1 : "—" %>
+        </div>
+        <div class="text-sm text-gray-600">Days</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-purple-600">1</div>
+        <div class="text-sm text-gray-600">Members</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-purple-600">—</div>
+        <div class="text-sm text-gray-600">Total Spent</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-purple-600">—</div>
+        <div class="text-sm text-gray-600">Meals Made</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Memories Sections -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <!-- Photos & Moments -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">📸 Photos & Moments</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Add Photos</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">📷</div>
+        <p class="text-sm">No photos uploaded yet</p>
+        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Share your memories</button>
+      </div>
+    </div>
+
+    <!-- Favorite Recipes -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">⭐ Favorite Recipes</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Save Recipe</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">🍽️</div>
+        <p class="text-sm">No favorite recipes saved</p>
+        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add recipes to remember</button>
+      </div>
+    </div>
+
+    <!-- Expense Summary -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">💰 Final Expense Summary</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">View Details</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">📊</div>
+        <p class="text-sm">No expenses recorded</p>
+        <p class="text-xs text-gray-400 mt-1">Expenses from the Go phase would appear here</p>
+      </div>
+    </div>
+
+    <!-- Learnings & Notes -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">📝 Trip Notes</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Add Notes</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">💭</div>
+        <p class="text-sm">No notes or learnings saved</p>
+        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add what you learned</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-8 bg-purple-50 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Use This Trip</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <button class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">📋</span>
+        <div class="text-left">
+          <div class="font-medium text-gray-900">Copy as Template</div>
+          <div class="text-sm text-gray-600">Create new trip with same plan</div>
+        </div>
+      </button>
+      
+      <button class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">🍽️</span>
+        <div class="text-left">
+          <div class="font-medium text-gray-900">Save Recipes</div>
+          <div class="text-sm text-gray-600">Add successful meals to cookbook</div>
+        </div>
+      </button>
+      
+      <button class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">📤</span>
+        <div class="text-left">
+          <div class="font-medium text-gray-900">Export Summary</div>
+          <div class="text-sm text-gray-600">Download trip report</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>

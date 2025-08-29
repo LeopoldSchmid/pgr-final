@@ -22,20 +22,29 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-white">
+  <body class="min-h-screen bg-gradient-to-br from-stone-50 via-amber-25 to-orange-50">
     <% if authenticated? %>
-      <!-- Navigation for authenticated users -->
-      <nav class="bg-white shadow-sm border-b">
+      <!-- Top Navigation for authenticated users -->
+      <nav class="bg-gradient-to-r from-amber-50 to-orange-50 shadow-sm border-b border-amber-200 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <%= link_to root_path, class: "flex items-center" do %>
-              <span class="text-xl font-bold text-gray-900">PlanGoReminisce</span>
+              <span class="text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+                🌿 PlanGoReminisce
+              </span>
             <% end %>
             
+            <!-- Desktop navigation - hidden on mobile -->
+            <div class="hidden md:flex items-center space-x-6">
+              <%= link_to "Plan", "/plan", class: "text-amber-800 hover:text-amber-600 font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-amber-100" %>
+              <%= link_to "Go", "/go", class: "text-amber-800 hover:text-amber-600 font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-amber-100" %>
+              <%= link_to "Reminisce", "/reminisce", class: "text-amber-800 hover:text-amber-600 font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-amber-100" %>
+            </div>
+            
             <div class="flex items-center space-x-4">
-              <span class="text-gray-700"><%= Current.user.email_address %></span>
+              <span class="text-amber-700 hidden sm:block font-medium"><%= Current.user.email_address %></span>
               <%= link_to "Sign out", session_path, method: :delete, 
-                  class: "bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition duration-200" %>
+                  class: "bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm" %>
             </div>
           </div>
         </div>
@@ -55,8 +64,14 @@
       </div>
     <% end %>
 
-    <main>
+    <!-- Main content with padding for mobile navigation -->
+    <main class="pb-20 md:pb-0">
       <%= yield %>
     </main>
+
+    <!-- Bottom Navigation - only for authenticated users on mobile -->
+    <% if authenticated? %>
+      <%= render 'shared/bottom_navigation' %>
+    <% end %>
   </body>
 </html>

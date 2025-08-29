@@ -1,0 +1,120 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Trip Header -->
+  <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-8 mb-8">
+    <div class="mb-6">
+      <%= link_to go_path, class: "text-emerald-700 hover:text-emerald-900 font-medium flex items-center group mb-4" do %>
+        <span class="transform group-hover:-translate-x-1 transition-transform mr-2">🎒</span> Active Trips
+      <% end %>
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-800 to-teal-700 bg-clip-text text-transparent">
+        <%= @trip.name %>
+      </h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <span class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+        🏃 Active
+      </span>
+      <% if @trip.start_date && @trip.end_date %>
+        <span class="text-emerald-700 font-medium">
+          📅 <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
+        </span>
+      <% end %>
+      <span class="text-emerald-700 font-medium">
+        🌟 Day <%= (@trip.start_date ? (Date.current - @trip.start_date).to_i + 1 : 1) %> of trip
+      </span>
+    </div>
+  </div>
+
+  <!-- Active Trip Sections -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <!-- Today's Schedule -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">📅 Today's Schedule</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Add Item</button>
+      </div>
+      
+      <div class="space-y-3">
+        <div class="text-center py-8 text-gray-500">
+          <div class="text-4xl mb-2">📋</div>
+          <p class="text-sm">No activities scheduled for today</p>
+          <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add today's plans</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shopping Lists -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">🛒 Shopping Lists</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">New List</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">🛍️</div>
+        <p class="text-sm">No shopping lists yet</p>
+        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Create shopping list</button>
+      </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">💰 Recent Expenses</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Add Expense</button>
+      </div>
+      
+      <div class="space-y-3">
+        <div class="text-center py-8 text-gray-500">
+          <div class="text-4xl mb-2">💵</div>
+          <p class="text-sm">No expenses recorded yet</p>
+          <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Add your first expense</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trip Updates -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">📱 Trip Updates</h3>
+        <button class="text-blue-600 text-sm hover:text-blue-800">Share Update</button>
+      </div>
+      
+      <div class="text-center py-8 text-gray-500">
+        <div class="text-4xl mb-2">📢</div>
+        <p class="text-sm">No updates yet</p>
+        <button class="mt-2 text-blue-600 text-sm hover:text-blue-800">Share what's happening</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions for Active Trip -->
+  <div class="mt-8 bg-green-50 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mb-2">💰</span>
+        <span class="text-sm font-medium text-gray-700">Split Bill</span>
+      </button>
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mb-2">🛒</span>
+        <span class="text-sm font-medium text-gray-700">Check List</span>
+      </button>
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mb-2">📱</span>
+        <span class="text-sm font-medium text-gray-700">Share Photo</span>
+      </button>
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mb-2">⏰</span>
+        <span class="text-sm font-medium text-gray-700">Set Reminder</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- End Trip Option -->
+  <div class="mt-8 text-center">
+    <button class="bg-gray-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors">
+      End Trip
+    </button>
+  </div>
+</div>

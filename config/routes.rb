@@ -4,6 +4,19 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resources :registrations, only: [:new, :create]
   
+  # Trip resources
+  resources :trips do
+    # Trip-specific phase routes
+    get :plan, on: :member
+    get :go, on: :member  
+    get :reminisce, on: :member
+  end
+  
+  # Global phase routes
+  get "plan" => "phases#plan"
+  get "go" => "phases#go"
+  get "reminisce" => "phases#reminisce"
+  
   # Main application routes
   root "home#index"
 

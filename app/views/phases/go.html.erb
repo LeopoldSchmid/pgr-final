@@ -1,0 +1,68 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Active Trips</h1>
+
+  <!-- Active Trips -->
+  <% if @active_trips.any? %>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <% @active_trips.each do |trip| %>
+        <div class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-semibold text-gray-900"><%= trip.name %></h3>
+            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
+          </div>
+          <p class="text-gray-600 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+          
+          <div class="space-y-2 mb-4">
+            <% if trip.start_date && trip.end_date %>
+              <div class="text-xs text-gray-500">
+                <%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d, %Y") %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex space-x-2">
+            <%= link_to go_trip_path(trip), class: "flex-1 bg-blue-600 text-white text-sm px-3 py-2 rounded font-medium text-center hover:bg-blue-700 transition-colors" do %>
+              Trip Dashboard
+            <% end %>
+            <%= link_to trip_path(trip), class: "px-3 py-2 text-blue-600 text-sm font-medium hover:text-blue-800" do %>
+              View
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">🏃</div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">No active trips</h2>
+      <p class="text-gray-600 mb-6">Your active trips will appear here when you start your adventures!</p>
+      <%= link_to "Plan a New Trip", plan_path, class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+    </div>
+  <% end %>
+
+  <!-- Quick Actions -->
+  <% if @active_trips.any? %>
+    <div class="mt-8 bg-gray-50 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <span class="text-2xl mb-2">🛒</span>
+          <span class="text-sm font-medium text-gray-700">Shopping Lists</span>
+        </button>
+        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <span class="text-2xl mb-2">💰</span>
+          <span class="text-sm font-medium text-gray-700">Add Expense</span>
+        </button>
+        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <span class="text-2xl mb-2">📋</span>
+          <span class="text-sm font-medium text-gray-700">Today's Tasks</span>
+        </button>
+        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <span class="text-2xl mb-2">📱</span>
+          <span class="text-sm font-medium text-gray-700">Share Update</span>
+        </button>
+      </div>
+    </div>
+  <% end %>
+</div>

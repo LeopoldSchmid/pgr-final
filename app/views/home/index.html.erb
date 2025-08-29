@@ -1,48 +1,77 @@
 <% if authenticated? %>
   <!-- Dashboard for logged-in users -->
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="py-8">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900">Welcome back, <%= @current_user.email_address %>!</h1>
-          <p class="mt-2 text-gray-600">Ready to plan your next adventure?</p>
-        </div>
+  <div class="container mx-auto px-4 py-6">
+    <div class="mb-8 text-center">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-800 via-orange-700 to-red-700 bg-clip-text text-transparent mb-3">
+        Welcome back!
+      </h1>
+      <p class="text-amber-700 text-lg font-medium">Ready for your next adventure? 🌟</p>
+    </div>
 
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Create New Trip</h3>
-            <p class="text-gray-600 mb-4">Start planning a new adventure with friends</p>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-              Create Trip
-            </button>
+    <!-- Phase-based Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <%= link_to plan_path, class: "group transform transition-all duration-300 hover:scale-105" do %>
+        <div class="bg-gradient-to-br from-white to-amber-50 p-8 rounded-2xl shadow-lg border border-amber-200 hover:shadow-xl hover:from-amber-50 hover:to-orange-50 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-3 rounded-xl mr-4 shadow-md">
+              <span class="text-3xl filter drop-shadow-sm">📋</span>
+            </div>
+            <h3 class="text-xl font-bold text-amber-900">Plan</h3>
           </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Join Trip</h3>
-            <p class="text-gray-600 mb-4">Join a trip you've been invited to</p>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
-              Join Trip
-            </button>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">My Trips</h3>
-            <p class="text-gray-600 mb-4">View all your current and past trips</p>
-            <button class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
-              View Trips
-            </button>
+          <p class="text-amber-700 mb-6 leading-relaxed">Create new trips or continue planning existing adventures with friends</p>
+          <div class="text-amber-600 font-bold group-hover:text-amber-800 flex items-center">
+            Start Planning 
+            <span class="ml-2 transform group-hover:translate-x-1 transition-transform">🌿</span>
           </div>
         </div>
+      <% end %>
 
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-lg shadow-sm border">
-          <div class="px-6 py-4 border-b">
-            <h2 class="text-xl font-semibold text-gray-900">Recent Activity</h2>
+      <%= link_to go_path, class: "group transform transition-all duration-300 hover:scale-105" do %>
+        <div class="bg-gradient-to-br from-white to-emerald-50 p-8 rounded-2xl shadow-lg border border-emerald-200 hover:shadow-xl hover:from-emerald-50 hover:to-teal-50 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 p-3 rounded-xl mr-4 shadow-md">
+              <span class="text-3xl filter drop-shadow-sm">🏃</span>
+            </div>
+            <h3 class="text-xl font-bold text-emerald-900">Go</h3>
           </div>
-          <div class="px-6 py-8">
-            <p class="text-gray-500 text-center">No recent activity yet. Create your first trip to get started!</p>
+          <p class="text-emerald-700 mb-6 leading-relaxed">Manage active trips, track expenses, and stay connected in real-time</p>
+          <div class="text-emerald-600 font-bold group-hover:text-emerald-800 flex items-center">
+            Active Trips 
+            <span class="ml-2 transform group-hover:translate-x-1 transition-transform">🎒</span>
           </div>
+        </div>
+      <% end %>
+
+      <%= link_to reminisce_path, class: "group transform transition-all duration-300 hover:scale-105" do %>
+        <div class="bg-gradient-to-br from-white to-purple-50 p-8 rounded-2xl shadow-lg border border-purple-200 hover:shadow-xl hover:from-purple-50 hover:to-pink-50 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl mr-4 shadow-md">
+              <span class="text-3xl filter drop-shadow-sm">💭</span>
+            </div>
+            <h3 class="text-xl font-bold text-purple-900">Reminisce</h3>
+          </div>
+          <p class="text-purple-700 mb-6 leading-relaxed">Browse cherished memories and reuse learnings from past adventures</p>
+          <div class="text-purple-600 font-bold group-hover:text-purple-800 flex items-center">
+            Trip Memories 
+            <span class="ml-2 transform group-hover:translate-x-1 transition-transform">📸</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-gradient-to-r from-white to-amber-50 rounded-2xl shadow-lg border border-amber-200">
+      <div class="px-8 py-6 border-b border-amber-200">
+        <h2 class="text-2xl font-bold text-amber-900 flex items-center">
+          <span class="mr-3">📈</span>
+          Recent Activity
+        </h2>
+      </div>
+      <div class="px-8 py-12">
+        <div class="text-center">
+          <div class="text-6xl mb-4 opacity-60">🌱</div>
+          <p class="text-amber-700 text-lg mb-6">No recent activity yet. Plant the seed for your first adventure!</p>
+          <%= link_to "Create Your First Trip", new_trip_path, class: "bg-gradient-to-r from-amber-600 to-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-lg transform hover:scale-105" %>
         </div>
       </div>
     </div>
