@@ -1,15 +1,31 @@
 <div class="mx-auto max-w-sm">
   <div class="mb-8 text-center">
-    <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
-    <p class="mt-2 text-gray-600">Join PlanGoReminisce to start planning trips with friends</p>
+    <% if @invitation %>
+      <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-xl mb-6">
+        <div class="text-3xl mb-2">🎒</div>
+        <h1 class="text-xl font-bold">You're Almost In!</h1>
+        <p class="text-purple-100 text-sm mt-1">Create your account to join <%= @invitation.trip.name %></p>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
+      <p class="mt-2 text-gray-600">Just a password needed to get started!</p>
+    <% else %>
+      <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+      <p class="mt-2 text-gray-600">Join PlanGoReminisce to start planning trips with friends</p>
+    <% end %>
   </div>
 
   <%= form_with model: @user || User.new, url: registrations_path, local: true, class: "space-y-6" do |form| %>
     <div>
       <%= form.label :email_address, "Email", class: "block text-sm font-medium text-gray-700 mb-2" %>
-      <%= form.email_field :email_address, required: true, autocomplete: "email", 
-          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
-      <% if @user&.errors&.[:email_address]&.any? %>
+      <%= form.email_field :email_address, 
+          required: true, 
+          autocomplete: "email",
+          readonly: @invitation.present?,
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent#{' bg-gray-100' if @invitation}" %>
+      <% if @invitation %>
+        <p class="mt-1 text-sm text-gray-500">✓ This email was invited to join the trip</p>
+      <% end %>
+      <% if @user&.errors&.key?(:email_address) && @user.errors[:email_address].any? %>
         <p class="mt-1 text-sm text-red-600"><%= @user.errors[:email_address].first %></p>
       <% end %>
     </div>
@@ -18,7 +34,7 @@
       <%= form.label :password, class: "block text-sm font-medium text-gray-700 mb-2" %>
       <%= form.password_field :password, required: true, autocomplete: "new-password",
           class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
-      <% if @user&.errors&.[:password]&.any? %>
+      <% if @user&.errors&.key?(:password) && @user.errors[:password].any? %>
         <p class="mt-1 text-sm text-red-600"><%= @user.errors[:password].first %></p>
       <% end %>
     </div>
@@ -27,14 +43,15 @@
       <%= form.label :password_confirmation, "Confirm Password", class: "block text-sm font-medium text-gray-700 mb-2" %>
       <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password",
           class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
-      <% if @user&.errors&.[:password_confirmation]&.any? %>
+      <% if @user&.errors&.key?(:password_confirmation) && @user.errors[:password_confirmation].any? %>
         <p class="mt-1 text-sm text-red-600"><%= @user.errors[:password_confirmation].first %></p>
       <% end %>
     </div>
 
     <div>
       <%= form.submit "Create Account", 
-          class: "w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200" %>
+          class: "w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200",
+          data: { disable_with: "Creating Account..." } %>
     </div>
   <% end %>
 

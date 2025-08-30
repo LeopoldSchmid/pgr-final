@@ -76,8 +76,54 @@
             </div>
           </div>
         </div>
-        <div class="text-sm text-gray-500 text-center py-4">
-          No other members yet. Invite friends to join!
+        <!-- Trip Members -->
+        <% if @trip.active_members.any? %>
+          <div class="space-y-3 mb-4">
+            <% @trip.active_members.each do |member| %>
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  <%= member.email_address[0].upcase %>
+                </div>
+                <div class="ml-3">
+                  <div class="text-sm font-medium text-gray-900"><%= member.email_address %></div>
+                  <div class="text-xs text-gray-500">
+                    <%= @trip.member_role(member)&.titleize || 'Member' %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Pending Invitations -->
+        <% if @trip.invitations.pending.any? %>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <div class="text-xs font-medium text-yellow-800 mb-2">Pending Invitations</div>
+            <% @trip.invitations.pending.each do |invitation| %>
+              <div class="text-sm text-yellow-700 mb-1">
+                📧 <%= invitation.email %> (<%= invitation.role %>)
+                <span class="text-xs text-yellow-600">
+                  - expires <%= time_ago_in_words(invitation.expires_at) %> from now
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Invite Section -->
+        <div class="text-center py-4 border-t border-gray-200">
+          <%= link_to new_trip_invitation_path(@trip), 
+              class: "inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md" do %>
+            <span class="mr-2">💌</span> Invite Friends
+          <% end %>
+          <% if @trip.invitations.any? %>
+            <div class="mt-2">
+              <%= link_to trip_invitations_path(@trip), 
+                  class: "text-purple-600 text-sm hover:text-purple-800 font-medium" do %>
+                Manage Invitations
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

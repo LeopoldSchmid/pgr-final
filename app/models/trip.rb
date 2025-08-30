@@ -4,6 +4,7 @@ class Trip < ApplicationRecord
   has_many :trip_members, dependent: :destroy
   has_many :members, through: :trip_members, source: :user
   has_many :expenses, dependent: :destroy
+  has_many :invitations, dependent: :destroy
   
   validates :name, presence: true, length: { maximum: 100 }
   validates :status, inclusion: { in: %w[planning active completed] }

@@ -9,6 +9,27 @@ Instagram-light travel journal with OpenStreetMap integration for creating a pri
 
 ## ✅ IMPLEMENTED FEATURES
 
+### 💰 Expense Tracking & Splitting ✨ *NEW*
+- **Splitwise-style expense management** - Add expenses with flexible participant selection
+- **Smart expense splitting** - Automatic equal splitting among selected participants
+- **Multi-user support** - Handle cases where not everyone participates in every expense
+- **Trip membership system** - Owner/admin/member/guest roles with proper permissions
+- **Expense categories** - Food, accommodation, transport, activities, shopping, other
+- **Receipt uploads** - Optional photo receipts with Active Storage integration
+- **Settlement calculations** - Smart suggestions for who owes whom
+- **Currency support** - EUR default with extensible currency system
+- **Phase integration** - Expense tracking across Plan/Go/Reminisce phases
+
+### 💌 User Invitation System ✨ *NEW*
+- **Email-based invitations** - Send secure invitation links to friends via email
+- **Role-based access** - Invite as member (expenses) or admin (trip management)
+- **Account creation flow** - Friends can create accounts directly from invitations
+- **Secure token system** - Time-limited (7 days) cryptographically secure invitation tokens
+- **Invitation management** - View pending/accepted invitations with copy-to-clipboard links
+- **Registration integration** - Seamless account creation → trip joining workflow
+- **Duplicate prevention** - Prevents re-inviting existing members or duplicate invitations
+- **Beautiful invitation UI** - Instagram-style invitation acceptance page
+
 ### 🏗️ Core Infrastructure
 - **Rails 8.0 Application** - Modern Rails setup with built-in authentication
 - **Database Schema** - Users, sessions, trips, journal_entries with proper relationships
@@ -42,11 +63,12 @@ Instagram-light travel journal with OpenStreetMap integration for creating a pri
 ### 🗺️ Mapping & Location Features
 - **OpenStreetMap integration** - Lightweight, free alternative to Google Maps
 - **Leaflet.js mapping** - Interactive maps with custom markers
-- **GPS coordinate storage** - Precise latitude/longitude (decimal 10,6)
+- **High-precision GPS storage** - Precise latitude/longitude (decimal 12,8 for ~1cm accuracy) ✨ *ENHANCED*
 - **Reverse geocoding** - Automatic location name lookup via Nominatim API
 - **Memory markers** - Visual distinction between favorite ⭐ and regular 📍 entries
 - **Map popups** - Entry details, images, and location info on marker click
 - **Auto-fit bounds** - Map automatically centers on all memories
+- **Error handling** - Graceful fallback when maps temporarily unavailable ✨ *NEW*
 
 ### 🎨 Instagram-Light UI/UX
 - **Photo grid layout** - Instagram-style photo gallery in reminisce view
@@ -139,18 +161,22 @@ Instagram-light travel journal with OpenStreetMap integration for creating a pri
 
 ## 🎉 MAJOR MILESTONES ACHIEVED
 
-### ✅ August 29-30, 2025: Core Journal Implementation
+### ✅ August 29-30, 2025: Core Journal & Expense System
 - **Complete travel journal system** built from scratch
 - **Instagram-style photo handling** with immediate preview
 - **OpenStreetMap integration** with interactive memory mapping
-- **GPS coordinate capture** with reverse geocoding
+- **GPS coordinate capture** with enhanced precision and error handling
+- **Splitwise-style expense tracking** with flexible participant selection
 - **Three-phase trip lifecycle** (Plan → Go → Reminisce) implemented
 - **Mobile-responsive design** with beautiful UI/UX
+- **Multi-user trip collaboration** with proper role management
 
 ### 🎯 Ready for Weekend Trip Test
 The application is now ready for real-world usage during the user's upcoming weekend trip, providing:
 - Easy memory capture with photos and location
+- Real-time expense tracking with friends
 - Beautiful visualization of the trip journey
+- Settlement suggestions to handle who-owes-whom
 - Instagram-light sharing potential
 - Solid foundation for future enhancements
 
@@ -172,14 +198,29 @@ The application is now ready for real-world usage during the user's upcoming wee
 ## 📚 CODE STRUCTURE
 
 ### Key Files & Components
+**Journal System:**
 - `app/models/journal_entry.rb` - Core journal model with image/location support
 - `app/controllers/journal_entries_controller.rb` - CRUD operations with proper params
-- `app/javascript/controllers/location_controller.js` - Geolocation capture with error handling
+- `app/javascript/controllers/location_controller.js` - High-precision geolocation capture
 - `app/javascript/controllers/image_preview_controller.js` - Instagram-style image preview
-- `app/javascript/controllers/map_controller.js` - OpenStreetMap integration with custom markers
+- `app/javascript/controllers/map_controller.js` - OpenStreetMap integration with error handling
+
+**Expense System:**
+- `app/models/expense.rb` - Expense splitting logic and settlement calculations
+- `app/models/trip_member.rb` - Trip membership with role-based permissions
+- `app/controllers/expenses_controller.rb` - Full CRUD with participant selection
+- `app/views/expenses/` - Beautiful expense forms and settlement displays
+
+**Invitation System:**
+- `app/models/invitation.rb` - Secure token-based invitations with validation
+- `app/controllers/invitations_controller.rb` - Invitation CRUD and acceptance flow
+- `app/views/invitations/` - Beautiful invitation forms and acceptance pages
+- Registration integration for seamless account creation → trip joining
+
+**Trip Views:**
 - `app/views/trips/go.html.erb` - Active trip journal creation interface
 - `app/views/trips/reminisce.html.erb` - Instagram-style memory viewing
-- Database migrations for coordinates and Active Storage setup
+- Database migrations for coordinates, expenses, and Active Storage setup
 
 ### Testing Status
 - **Models**: Basic validation testing needed

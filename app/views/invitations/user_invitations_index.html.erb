@@ -1,0 +1,89 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-800 to-pink-700 bg-clip-text text-transparent">
+      Your Invitations
+    </h1>
+    <p class="text-purple-700 mt-2">Trip invitations waiting for your response</p>
+  </div>
+
+  <% if @pending_invitations.any? %>
+    <div class="max-w-2xl mx-auto space-y-6">
+      <% @pending_invitations.each do |invitation| %>
+        <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 overflow-hidden">
+          <!-- Trip Header -->
+          <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+            <div class="flex items-center justify-between text-white">
+              <div>
+                <h2 class="text-xl font-bold"><%= invitation.trip.name %></h2>
+                <p class="text-purple-100 text-sm">
+                  <%= invitation.role == 'admin' ? '👑 Admin' : invitation.role == 'member' ? '👤 Member' : '👥 Guest' %> invitation
+                </p>
+              </div>
+              <div class="text-4xl">🎒</div>
+            </div>
+          </div>
+          
+          <!-- Trip Details -->
+          <div class="p-6">
+            <% if invitation.trip.description.present? %>
+              <p class="text-gray-700 mb-4"><%= invitation.trip.description %></p>
+            <% end %>
+            
+            <div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Invited by:</span>
+                <span class="font-medium"><%= invitation.invited_by.email_address %></span>
+              </div>
+              <% if invitation.trip.start_date %>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-600">Trip dates:</span>
+                  <span class="font-medium">
+                    <%= invitation.trip.start_date.strftime('%b %d') %> - 
+                    <%= invitation.trip.end_date.strftime('%b %d, %Y') %>
+                  </span>
+                </div>
+              <% end %>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Invitation expires:</span>
+                <span class="text-orange-600">in <%= time_ago_in_words(invitation.expires_at) %></span>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex space-x-4">
+              <%= link_to invitation_path(invitation.token), 
+                  class: "flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg text-center" do %>
+                ✅ View & Accept
+              <% end %>
+              
+              <%= link_to decline_invitation_path(invitation.token), 
+                  method: :patch,
+                  data: { confirm: "Are you sure you want to decline this invitation?" },
+                  class: "flex-1 bg-gray-500 text-white px-4 py-3 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200 text-center" do %>
+                ❌ Decline
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="max-w-md mx-auto text-center py-12">
+      <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-12">
+        <div class="text-6xl mb-4 opacity-50">📭</div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">No Pending Invitations</h2>
+        <p class="text-gray-600 text-sm">
+          You're all caught up! When friends invite you to trips, they'll appear here.
+        </p>
+        <div class="mt-6">
+          <%= link_to root_path, 
+              class: "bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200" do %>
+            🏠 Go Home
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

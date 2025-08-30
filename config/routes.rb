@@ -1,4 +1,15 @@
 Rails.application.routes.draw do
+  # Standalone invitation routes (for accepting via email links)
+  resources :invitations, only: [:show], param: :token do
+    member do
+      patch :accept
+      patch :decline
+    end
+  end
+  
+  # User's invitation inbox (specific route to avoid conflict)
+  get 'invitations' => 'invitations#index', as: :user_invitations
+  
   # Authentication routes
   resource :session
   resources :passwords, param: :token
@@ -23,6 +34,9 @@ Rails.application.routes.draw do
         get :duplicate
       end
     end
+    
+    # Invitations nested under trips
+    resources :invitations, only: [:new, :create, :index, :destroy]
   end
   
   # Global phase routes

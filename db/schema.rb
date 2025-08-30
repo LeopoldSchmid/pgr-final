@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_092432) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -67,6 +67,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_092432) do
     t.index ["expense_date"], name: "index_expenses_on_expense_date"
     t.index ["payer_id"], name: "index_expenses_on_payer_id"
     t.index ["trip_id"], name: "index_expenses_on_trip_id"
+  end
+
+  create_table "invitations", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.string "email", null: false
+    t.string "status", default: "pending", null: false
+    t.string "role", default: "member", null: false
+    t.integer "invited_by_id", null: false
+    t.string "token", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["status"], name: "index_invitations_on_status"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+    t.index ["trip_id", "email"], name: "index_invitations_on_trip_id_and_email", unique: true
+    t.index ["trip_id"], name: "index_invitations_on_trip_id"
   end
 
   create_table "journal_entries", force: :cascade do |t|
@@ -132,6 +149,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_092432) do
   add_foreign_key "expense_participants", "users"
   add_foreign_key "expenses", "trips"
   add_foreign_key "expenses", "users", column: "payer_id"
+  add_foreign_key "invitations", "trips"
+  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "journal_entries", "trips"
   add_foreign_key "journal_entries", "users"
   add_foreign_key "sessions", "users"
