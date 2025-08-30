@@ -45,6 +45,6 @@ class JournalEntriesController < ApplicationController
   end
 
   def journal_entry_params
-    params.require(:journal_entry).permit(:content, :location, :entry_date, :favorite)
+    params.require(:journal_entry).permit(:content, :location, :entry_date, :favorite, :latitude, :longitude, :image)
   end
 end

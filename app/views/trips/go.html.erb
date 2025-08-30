@@ -33,34 +33,89 @@
         <span class="mr-3">📝</span> Capture This Moment
       </h3>
       
-      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-4" do |form| %>
+      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-6", data: { controller: "location image-preview" } do |form| %>
+        <!-- Image Upload -->
+        <div class="bg-emerald-100 rounded-xl p-4">
+          <%= form.label :image, class: "block text-emerald-800 font-semibold mb-2" do %>
+            📷 Add a Photo (optional)
+          <% end %>
+          <%= form.file_field :image, 
+              accept: "image/*",
+              data: { 
+                image_preview_target: "input",
+                action: "change->image-preview#preview"
+              },
+              class: "w-full text-sm text-emerald-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-200 file:text-emerald-800 hover:file:bg-emerald-300 cursor-pointer" %>
+          
+          <!-- Image Preview -->
+          <div data-image-preview-target="container" class="mt-4 hidden">
+            <div class="relative inline-block">
+              <img data-image-preview-target="preview" 
+                   class="max-w-full h-48 object-cover rounded-lg shadow-md" 
+                   alt="Preview">
+              <button type="button" 
+                      data-action="click->image-preview#removeImage"
+                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors">
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
         <div>
           <%= form.text_area :content, 
-              placeholder: "What are you doing right now? Where are you? How does it feel?",
-              class: "w-full p-4 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none",
-              rows: 3 %>
+              placeholder: "What are you doing right now? Where are you? How does it feel? 🌟",
+              inputmode: "text",
+              autocapitalize: "sentences",
+              spellcheck: "true",
+              class: "w-full p-4 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none text-lg",
+              rows: 4 %>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Location Section -->
+        <div class="bg-emerald-50 rounded-xl p-4 space-y-4">
+          <h4 class="font-semibold text-emerald-900">📍 Location</h4>
+          
+          <!-- Current Location Button -->
+          <button type="button" 
+                  data-location-target="button" 
+                  data-action="click->location#getCurrentLocation"
+                  class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
+            📍 Use Current Location
+          </button>
+          
+          <!-- Location Name -->
           <div>
             <%= form.text_field :location, 
-                placeholder: "Where are you? (e.g., 'Central Park', 'That amazing cafe')",
+                placeholder: "Name this place (e.g., 'Central Park', 'That amazing cafe')",
+                data: { location_target: "locationName" },
                 class: "w-full p-3 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" %>
           </div>
+          
+          <!-- Hidden Coordinate Fields -->
+          <%= form.hidden_field :latitude, data: { location_target: "latitude" } %>
+          <%= form.hidden_field :longitude, data: { location_target: "longitude" } %>
+        </div>
+        
+        <!-- Date and Favorite -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
           <div>
+            <%= form.label :entry_date, class: "block text-emerald-700 font-medium mb-1" %>
             <%= form.date_field :entry_date, 
                 class: "w-full p-3 border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" %>
           </div>
+          
+          <label class="flex items-center p-3 bg-yellow-50 rounded-xl border border-yellow-300 cursor-pointer">
+            <%= form.check_box :favorite, class: "mr-3 rounded scale-125" %>
+            <span class="text-yellow-800 font-semibold">⭐ Mark as favorite moment</span>
+          </label>
         </div>
         
-        <div class="flex items-center justify-between">
-          <label class="flex items-center">
-            <%= form.check_box :favorite, class: "mr-2 rounded" %>
-            <span class="text-emerald-700 font-medium">⭐ Mark as favorite moment</span>
-          </label>
-          
-          <%= form.submit "📝 Save Moment", 
-              class: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg transform hover:scale-105" %>
+        <!-- Submit Button -->
+        <div class="text-center">
+          <%= form.submit "📝 Capture This Memory", 
+              class: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg transform hover:scale-105 text-lg" %>
         </div>
       <% end %>
     </div>
@@ -74,14 +129,15 @@
         
         <% @journal_entries.each do |entry| %>
           <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
+            <!-- Entry Header -->
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center space-x-3">
                 <div class="text-emerald-700 font-bold">
                   <%= entry.entry_date.strftime("%b %d") %>
                 </div>
-                <% if entry.location.present? %>
+                <% if entry.location_name %>
                   <div class="text-emerald-600 text-sm bg-emerald-100 px-3 py-1 rounded-full">
-                    📍 <%= entry.location %>
+                    <%= entry.location_name %>
                   </div>
                 <% end %>
                 <% if entry.favorite? %>
@@ -102,12 +158,26 @@
               </div>
             </div>
             
-            <div class="text-emerald-800 leading-relaxed">
-              <%= simple_format(entry.content) %>
+            <!-- Entry Image -->
+            <% if entry.image.attached? %>
+              <div class="mb-4">
+                <%= image_tag entry.image, class: "w-full h-64 object-cover rounded-xl shadow-md" %>
+              </div>
+            <% end %>
+            
+            <!-- Entry Content -->
+            <div class="text-emerald-800 leading-relaxed mb-4">
+              <%= format_journal_content(entry.content) %>
             </div>
             
-            <div class="mt-4 text-xs text-emerald-600">
-              Added <%= time_ago_in_words(entry.created_at) %> ago
+            <!-- Entry Footer -->
+            <div class="flex items-center justify-between text-xs text-emerald-600">
+              <span>Added <%= time_ago_in_words(entry.created_at) %> ago</span>
+              <% if entry.has_location? %>
+                <span class="bg-emerald-100 px-2 py-1 rounded-full">
+                  🗺️ Mapped
+                </span>
+              <% end %>
             </div>
           </div>
         <% end %>
@@ -122,6 +192,40 @@
       </div>
     <% end %>
   </div>
+
+  <!-- Memory Map -->
+  <% if @journal_entries.with_location.any? %>
+    <div class="mb-8">
+      <h3 class="text-xl font-bold text-emerald-900 mb-6 flex items-center">
+        <span class="mr-3">🗺️</span> Memory Map
+      </h3>
+      
+      <div class="bg-gradient-to-r from-white to-emerald-50 rounded-2xl shadow-lg border border-emerald-200 p-6">
+        <div id="trip-map" 
+             class="h-96 rounded-xl"
+             data-controller="map" 
+             data-map-entries-value="<%= @journal_entries.with_location.map do |entry|
+               {
+                 id: entry.id,
+                 latitude: entry.latitude.to_f,
+                 longitude: entry.longitude.to_f,
+                 content: entry.content,
+                 location: entry.location,
+                 entry_date: entry.entry_date.iso8601,
+                 favorite: entry.favorite?,
+                 image_url: entry.image.attached? ? rails_blob_path(entry.image, only_path: true) : nil
+               }
+             end.to_json %>"
+             data-map-target="container">
+        </div>
+        
+        <div class="mt-4 text-sm text-emerald-600 flex items-center justify-between">
+          <span>📍 <%= @journal_entries.with_location.count %> memories mapped</span>
+          <span>⭐ Starred memories, 📍 Regular memories</span>
+        </div>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Quick Actions for Active Trip -->
   <div class="mt-8 bg-green-50 rounded-lg p-6">

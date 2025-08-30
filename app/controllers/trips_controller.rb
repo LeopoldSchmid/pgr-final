@@ -58,6 +58,8 @@ class TripsController < ApplicationController
     @journal_entries = @trip.journal_entries.by_date.includes(:user)
     @favorite_moments = @trip.favorite_moments
     @journal_summary = @trip.journal_summary
+    @entries_with_images = @trip.journal_entries.with_images.recent
+    @entries_with_locations = @trip.journal_entries.with_location.includes(:user)
   end
 
   private

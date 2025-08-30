@@ -3,3 +3,6 @@ make a sort of private google maps. you can do it for yourself, like make notes 
 
 ## private instagram/strava
 in Echtzeit Bilder usw. hochladen. Wie ein privates Instagram nur im Kontext des Trips
+
+## create trip summaries
+e.g. like a printable photo book
