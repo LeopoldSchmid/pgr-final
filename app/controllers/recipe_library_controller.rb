@@ -1,6 +1,43 @@
 class RecipeLibraryController < ApplicationController
   before_action :require_authentication
   
+  def search_suggestions
+    query = params[:q]&.strip
+    
+    if query.present? && query.length >= 2
+      # Get accessible recipes for the user
+      user_trip_ids = Current.user.trips.pluck(:id) + 
+                     Trip.joins(:trip_members).where(trip_members: { user: Current.user }).pluck(:id)
+      
+      recipes = Recipe.where(
+        "source_type = 'public' OR " +
+        "(source_type = 'personal' AND user_id = ?) OR " +
+        "(source_type = 'trip' AND trip_id IN (?))",
+        Current.user.id,
+        user_trip_ids.any? ? user_trip_ids : [0]
+      ).where("name LIKE ? OR description LIKE ?", "%#{query}%", "%#{query}%")
+       .limit(8)
+       .select(:id, :name, :description, :source_type, :servings)
+      
+      render json: recipes.map { |recipe|
+        {
+          id: recipe.id,
+          name: recipe.name,
+          description: recipe.description&.truncate(60),
+          source_type: recipe.source_type,
+          servings: recipe.servings,
+          badge: case recipe.source_type
+                 when 'public' then '🌍 Public'
+                 when 'personal' then '👤 Personal'
+                 when 'trip' then '✈️ Trip'
+                 end
+        }
+      }
+    else
+      render json: []
+    end
+  end
+  
   def index
     @query = params[:q]&.strip
     @source_filter = params[:source_type]
@@ -8,9 +45,9 @@ class RecipeLibraryController < ApplicationController
     # Base query for all accessible recipes
     recipes_query = Recipe.includes(:user, :ingredients, :trip)
     
-    # Apply search filter
+    # Apply search filter (SQLite compatible)
     if @query.present?
-      recipes_query = recipes_query.where("name ILIKE ? OR description ILIKE ?", "%#{@query}%", "%#{@query}%")
+      recipes_query = recipes_query.where("name LIKE ? OR description LIKE ?", "%#{@query}%", "%#{@query}%")
     end
     
     # Apply source type filter

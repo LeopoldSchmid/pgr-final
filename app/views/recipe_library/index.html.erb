@@ -8,10 +8,13 @@
   <div class="mb-6 bg-white rounded-lg shadow-sm border p-4">
     <%= form_with url: recipe_library_path, method: :get, local: true, class: "space-y-4" do |form| %>
       <div class="flex flex-col md:flex-row gap-4">
-        <!-- Search -->
-        <div class="flex-1">
+        <!-- Search with Autocomplete -->
+        <div class="flex-1 relative">
           <%= form.text_field :q, value: @query, placeholder: "Search recipes...", 
-              class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+              id: "recipe-search-input",
+              autocomplete: "off" %>
+          <div id="search-suggestions" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-64 overflow-y-auto hidden shadow-lg"></div>
         </div>
         
         <!-- Filter -->
@@ -178,41 +181,217 @@
 </div>
 
 <script>
-  function toggleDropdown(button) {
-    const dropdown = button.nextElementSibling;
-    dropdown.classList.toggle('hidden');
+  // Wrap everything in an IIFE to avoid global variable conflicts
+  (function() {
+    let searchDebounceTimer;
+    let isSearching = false;
     
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      if (!button.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add('hidden');
+    // Initialize search functionality
+    function initializeSearch() {
+    const searchInput = document.getElementById('recipe-search-input');
+    const suggestionsContainer = document.getElementById('search-suggestions');
+    
+    if (searchInput) {
+      // Search as user types
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchDebounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+          suggestionsContainer.classList.add('hidden');
+          return;
+        }
+        
+        searchDebounceTimer = setTimeout(() => {
+          performSearch(query);
+        }, 300);
+      });
+      
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+          suggestionsContainer.classList.add('hidden');
+        }
+      });
+      
+      // Handle keyboard navigation
+      searchInput.addEventListener('keydown', function(e) {
+        const suggestions = suggestionsContainer.querySelectorAll('.search-suggestion');
+        const activeSuggestion = suggestionsContainer.querySelector('.search-suggestion.active');
+        
+        switch(e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (activeSuggestion) {
+              activeSuggestion.classList.remove('active');
+              const next = activeSuggestion.nextElementSibling;
+              if (next) next.classList.add('active');
+              else suggestions[0]?.classList.add('active');
+            } else {
+              suggestions[0]?.classList.add('active');
+            }
+            break;
+            
+          case 'ArrowUp':
+            e.preventDefault();
+            if (activeSuggestion) {
+              activeSuggestion.classList.remove('active');
+              const prev = activeSuggestion.previousElementSibling;
+              if (prev) prev.classList.add('active');
+              else suggestions[suggestions.length - 1]?.classList.add('active');
+            } else {
+              suggestions[suggestions.length - 1]?.classList.add('active');
+            }
+            break;
+            
+          case 'Enter':
+            if (activeSuggestion) {
+              e.preventDefault();
+              activeSuggestion.click();
+            }
+            break;
+            
+          case 'Escape':
+            suggestionsContainer.classList.add('hidden');
+            break;
+        }
+      });
+    }
+    
+    // Initialize when DOM is ready or immediately if already loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeSearch);
+    } else {
+      initializeSearch();
+    }
+    
+    function performSearch(query) {
+      if (isSearching) return;
+      isSearching = true;
+      
+      fetch(`/recipes/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          displaySearchSuggestions(data);
+        })
+        .catch(error => {
+          console.error('Search error:', error);
+        })
+        .finally(() => {
+          isSearching = false;
+        });
+    }
+    
+    function displaySearchSuggestions(suggestions) {
+      const container = document.getElementById('search-suggestions');
+      const searchInput = document.getElementById('recipe-search-input');
+      
+      container.innerHTML = '';
+      
+      if (suggestions.length > 0) {
+        suggestions.forEach((suggestion, index) => {
+          const suggestionEl = document.createElement('div');
+          suggestionEl.className = 'search-suggestion px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 flex items-center justify-between';
+          
+          suggestionEl.innerHTML = `
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">${suggestion.name}</div>
+              <div class="text-sm text-gray-600">
+                ${suggestion.description || ''} • ${suggestion.servings} servings
+              </div>
+            </div>
+            <span class="text-xs px-2 py-1 rounded ${getBadgeClass(suggestion.source_type)}">
+              ${suggestion.badge}
+            </span>
+          `;
+          
+          suggestionEl.addEventListener('click', function() {
+            selectSearchSuggestion(suggestion);
+          });
+          
+          container.appendChild(suggestionEl);
+        });
+        
+        // Show a "Search for all results" option at the bottom
+        const searchAllEl = document.createElement('div');
+        searchAllEl.className = 'px-4 py-2 bg-gray-50 text-center cursor-pointer hover:bg-gray-100 text-blue-600 font-medium text-sm';
+        searchAllEl.textContent = `Search for "${searchInput.value}" in all recipes`;
+        searchAllEl.addEventListener('click', function() {
+          submitFullSearch();
+        });
+        container.appendChild(searchAllEl);
+        
+        container.classList.remove('hidden');
+      } else {
+        // Show "No results" message
+        container.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm text-center">No recipes found</div>';
+        container.classList.remove('hidden');
       }
-    });
-  }
-  
-  function showRecipeDetails(button) {
-    const modal = document.getElementById('recipeModal');
-    const title = document.getElementById('modalTitle');
-    const content = document.getElementById('modalContent');
+    }
     
-    title.textContent = button.dataset.recipeName;
-    content.innerHTML = `
-      <div>
-        <p class="text-gray-600 mb-4">${button.dataset.recipeDescription}</p>
-        <div class="mb-4">
-          <span class="font-medium">Servings:</span> ${button.dataset.recipeServings}
-        </div>
+    function getBadgeClass(sourceType) {
+      switch(sourceType) {
+        case 'public': return 'bg-green-100 text-green-800';
+        case 'personal': return 'bg-blue-100 text-blue-800';
+        case 'trip': return 'bg-purple-100 text-purple-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    }
+    
+    function selectSearchSuggestion(suggestion) {
+      const searchInput = document.getElementById('recipe-search-input');
+      const suggestionsContainer = document.getElementById('search-suggestions');
+      
+      searchInput.value = suggestion.name;
+      suggestionsContainer.classList.add('hidden');
+      
+      // Automatically submit the search
+      submitFullSearch();
+    }
+    
+    function submitFullSearch() {
+      // Submit the form to perform full search
+      document.querySelector('form').submit();
+    }
+    
+    // Make these functions globally available for HTML onclick handlers
+    window.toggleDropdown = function(button) {
+      const dropdown = button.nextElementSibling;
+      dropdown.classList.toggle('hidden');
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+    };
+    
+    window.showRecipeDetails = function(button) {
+      const modal = document.getElementById('recipeModal');
+      const title = document.getElementById('modalTitle');
+      const content = document.getElementById('modalContent');
+      
+      title.textContent = button.dataset.recipeName;
+      content.innerHTML = `
         <div>
-          <div class="font-medium mb-2">Ingredients:</div>
-          <p class="text-gray-700">${button.dataset.recipeIngredients}</p>
+          <p class="text-gray-600 mb-4">${button.dataset.recipeDescription}</p>
+          <div class="mb-4">
+            <span class="font-medium">Servings:</span> ${button.dataset.recipeServings}
+          </div>
+          <div>
+            <div class="font-medium mb-2">Ingredients:</div>
+            <p class="text-gray-700">${button.dataset.recipeIngredients}</p>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+      
+      modal.classList.remove('hidden');
+    };
     
-    modal.classList.remove('hidden');
-  }
-  
-  function closeModal() {
-    document.getElementById('recipeModal').classList.add('hidden');
-  }
+    window.closeModal = function() {
+      document.getElementById('recipeModal').classList.add('hidden');
+    };
+    
+  })();
 </script>
