@@ -1,35 +1,35 @@
 <div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Trip Memories</h1>
+  <h1 class="text-2xl font-bold text-text-primary mb-6">Trip Memories</h1>
 
   <!-- Completed Trips -->
   <% if @completed_trips.any? %>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <% @completed_trips.each do |trip| %>
-        <div class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+        <div class="bg-background-secondary rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow flex flex-col">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold text-gray-900"><%= trip.name %></h3>
+            <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
             <div class="flex items-center space-x-2">
               <% if trip.user != Current.user %>
-                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Member</span>
+                <span class="bg-accent-yellow text-text-primary text-xs px-2 py-1 rounded-full">Member</span>
               <% end %>
-              <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Completed</span>
+              <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full">Completed</span>
             </div>
           </div>
-          <p class="text-gray-600 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+          <p class="text-text-secondary text-sm mb-3 line-clamp-2 flex-grow"><%= trip.description %></p>
           
           <div class="space-y-2 mb-4">
             <% if trip.start_date && trip.end_date %>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-text-secondary">
                 <%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d, %Y") %>
               </div>
             <% end %>
           </div>
 
-          <div class="flex space-x-2">
-            <%= link_to reminisce_trip_path(trip), class: "flex-1 bg-purple-600 text-white text-sm px-3 py-2 rounded font-medium text-center hover:bg-purple-700 transition-colors" do %>
+          <div class="flex space-x-2 mt-auto">
+            <%= link_to reminisce_trip_path(trip), class: "flex-1 bg-primary-accent text-white text-sm px-3 py-2 rounded font-medium text-center hover:bg-blue-400 transition-colors" do %>
               View Memories
             <% end %>
-            <button class="px-3 py-2 text-blue-600 text-sm font-medium hover:text-blue-800">
+            <button class="px-3 py-2 text-primary-accent text-sm font-medium hover:text-blue-400">
               Use Template
             </button>
           </div>
@@ -38,26 +38,26 @@
     </div>
 
     <!-- Statistics -->
-    <div class="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Travel Stats</h3>
+    <div class="mt-8 bg-background-secondary rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-text-primary mb-4">Your Travel Stats</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600"><%= @completed_trips.count %></div>
-          <div class="text-sm text-gray-600">Trips Completed</div>
+          <div class="text-2xl font-bold text-primary-accent"><%= @completed_trips.count %></div>
+          <div class="text-sm text-text-secondary">Trips Completed</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">
+          <div class="text-2xl font-bold text-primary-accent">
             <%= @completed_trips.sum { |trip| (trip.end_date - trip.start_date).to_i if trip.start_date && trip.end_date }.to_i %>
           </div>
-          <div class="text-sm text-gray-600">Days Traveled</div>
+          <div class="text-sm text-text-secondary">Days Traveled</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">—</div>
-          <div class="text-sm text-gray-600">Recipes Tried</div>
+          <div class="text-2xl font-bold text-primary-accent">—</div>
+          <div class="text-sm text-text-secondary">Recipes Tried</div>
         </div>
         <div class="text-center">
-          <div class="text-2xl font-bold text-purple-600">—</div>
-          <div class="text-sm text-gray-600">Total Expenses</div>
+          <div class="text-2xl font-bold text-primary-accent">—</div>
+          <div class="text-sm text-text-secondary">Total Expenses</div>
         </div>
       </div>
     </div>
@@ -65,15 +65,15 @@
     <!-- Empty State -->
     <div class="text-center py-12">
       <div class="text-6xl mb-4">💭</div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">No completed trips yet</h2>
-      <p class="text-gray-600 mb-6">Your trip memories and templates will appear here after you complete your adventures!</p>
-      <%= link_to "Plan Your First Trip", plan_path, class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+      <h2 class="text-xl font-semibold text-text-primary mb-2">No completed trips yet</h2>
+      <p class="text-text-secondary mb-6">Your trip memories and templates will appear here after you complete your adventures!</p>
+      <%= link_to "Plan Your First Trip", plan_path, class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-400 transition-colors" %>
     </div>
   <% end %>
   
   <!-- Floating Action Button -->
   <%= link_to new_trip_path, 
-      class: "fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-200 flex items-center justify-center text-2xl z-50",
+      class: "fixed bottom-6 right-6 bg-primary-accent text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:bg-blue-400 transition-all duration-200 flex items-center justify-center text-2xl z-50",
       title: "Create New Trip" do %>
     ➕
   <% end %>

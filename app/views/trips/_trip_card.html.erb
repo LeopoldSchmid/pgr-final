@@ -1,0 +1,21 @@
+<div class="bg-background-secondary rounded-lg shadow-sm p-5 flex flex-col justify-between h-full">
+  <div>
+    <div class="flex justify-between items-start mb-2">
+      <h3 class="font-bold text-lg text-text-primary"><%= trip.name %></h3>
+      <% if trip.user != Current.user %>
+        <span class="bg-accent-yellow text-text-primary text-xs font-bold px-2 py-1 rounded-full">MEMBER</span>
+      <% end %>
+    </div>
+    <p class="text-text-secondary text-sm mb-4 line-clamp-3"><%= trip.description %></p>
+  </div>
+  <div>
+    <% case phase %>
+    <% when 'plan' %>
+      <%= link_to "Continue Planning →", plan_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+    <% when 'go' %>
+      <%= link_to "Trip Dashboard →", go_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+    <% when 'reminisce' %>
+      <%= link_to "View Memories →", reminisce_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+    <% end %>
+  </div>
+</div>

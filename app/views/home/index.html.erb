@@ -2,34 +2,34 @@
   <!-- Dashboard for logged-in users -->
   <div class="container mx-auto px-4 py-6">
     <div class="mb-8 text-center">
-      <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-800 via-orange-700 to-red-700 bg-clip-text text-transparent mb-3">
+      <h1 class="text-4xl font-bold text-text-primary mb-3">
         Welcome back!
       </h1>
-      <p class="text-amber-700 text-lg font-medium">Ready for your next adventure? 🌟</p>
+      <p class="text-text-secondary text-lg font-medium">Ready for your next adventure? 🌟</p>
     </div>
 
     <!-- Planning Trips -->
     <% if @planning_trips.any? %>
       <section class="mb-8">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-amber-900 flex items-center">
+          <h2 class="text-xl font-bold text-text-primary flex items-center">
             <span class="mr-3">🗓️</span> Planning
           </h2>
-          <%= link_to plan_path, class: "text-amber-600 hover:text-amber-800 font-medium" do %>
+          <%= link_to plan_path, class: "text-primary-accent hover:text-blue-400 font-medium" do %>
             View All →
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <% @planning_trips.first(3).each do |trip| %>
-            <div class="bg-gradient-to-br from-white to-amber-50 rounded-lg shadow-sm border border-amber-200 p-4 hover:shadow-md transition-all">
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="font-semibold text-amber-900"><%= trip.name %></h3>
+                <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
-                  <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Member</span>
+                  <span class="bg-accent-yellow text-text-primary text-xs px-2 py-1 rounded-full">Member</span>
                 <% end %>
               </div>
-              <p class="text-amber-700 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
-              <%= link_to plan_trip_path(trip), class: "text-amber-600 text-sm font-medium hover:text-amber-800" do %>
+              <p class="text-text-secondary text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+              <%= link_to plan_trip_path(trip), class: "text-primary-accent text-sm font-medium hover:text-blue-400" do %>
                 Continue Planning →
               <% end %>
             </div>
@@ -42,24 +42,24 @@
     <% if @active_trips.any? %>
       <section class="mb-8">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-emerald-900 flex items-center">
+          <h2 class="text-xl font-bold text-text-primary flex items-center">
             <span class="mr-3">🏃</span> Active
           </h2>
-          <%= link_to go_path, class: "text-emerald-600 hover:text-emerald-800 font-medium" do %>
+          <%= link_to go_path, class: "text-primary-accent hover:text-blue-400 font-medium" do %>
             View All →
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <% @active_trips.first(3).each do |trip| %>
-            <div class="bg-gradient-to-br from-white to-emerald-50 rounded-lg shadow-sm border border-emerald-200 p-4 hover:shadow-md transition-all">
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="font-semibold text-emerald-900"><%= trip.name %></h3>
+                <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
-                  <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Member</span>
+                  <span class="bg-accent-yellow text-text-primary text-xs px-2 py-1 rounded-full">Member</span>
                 <% end %>
               </div>
-              <p class="text-emerald-700 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
-              <%= link_to go_trip_path(trip), class: "text-emerald-600 text-sm font-medium hover:text-emerald-800" do %>
+              <p class="text-text-secondary text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+              <%= link_to go_trip_path(trip), class: "text-primary-accent text-sm font-medium hover:text-blue-400" do %>
                 Trip Dashboard →
               <% end %>
             </div>
@@ -72,24 +72,24 @@
     <% if @completed_trips.any? %>
       <section class="mb-8">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-purple-900 flex items-center">
+          <h2 class="text-xl font-bold text-text-primary flex items-center">
             <span class="mr-3">💭</span> Recent Memories
           </h2>
-          <%= link_to reminisce_path, class: "text-purple-600 hover:text-purple-800 font-medium" do %>
+          <%= link_to reminisce_path, class: "text-primary-accent hover:text-blue-400 font-medium" do %>
             View All →
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <% @completed_trips.first(3).each do |trip| %>
-            <div class="bg-gradient-to-br from-white to-purple-50 rounded-lg shadow-sm border border-purple-200 p-4 hover:shadow-md transition-all">
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="font-semibold text-purple-900"><%= trip.name %></h3>
+                <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
-                  <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Member</span>
+                  <span class="bg-accent-yellow text-text-primary text-xs px-2 py-1 rounded-full">Member</span>
                 <% end %>
               </div>
-              <p class="text-purple-700 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
-              <%= link_to reminisce_trip_path(trip), class: "text-purple-600 text-sm font-medium hover:text-purple-800" do %>
+              <p class="text-text-secondary text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+              <%= link_to reminisce_trip_path(trip), class: "text-primary-accent text-sm font-medium hover:text-blue-400" do %>
                 View Memories →
               <% end %>
             </div>
@@ -100,61 +100,55 @@
 
     <!-- Empty State -->
     <% if @planning_trips.empty? && @active_trips.empty? && @completed_trips.empty? %>
-      <div class="bg-gradient-to-r from-white to-amber-50 rounded-2xl shadow-lg border border-amber-200">
+      <div class="bg-background-secondary rounded-2xl shadow-sm">
         <div class="px-8 py-12">
           <div class="text-center">
             <div class="text-6xl mb-4 opacity-60">🌱</div>
-            <p class="text-amber-700 text-lg mb-6">No trips yet. Plant the seed for your first adventure!</p>
-            <%= link_to "Create Your First Trip", new_trip_path, class: "bg-gradient-to-r from-amber-600 to-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-lg transform hover:scale-105" %>
+            <p class="text-text-secondary text-lg mb-6">No trips yet. Plant the seed for your first adventure!</p>
+            <%= link_to "Create Your First Trip", new_trip_path, class: "bg-primary-accent text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg transform hover:scale-105" %>
           </div>
         </div>
       </div>
     <% end %>
     
-    <!-- Floating Action Button -->
-    <%= link_to new_trip_path, 
-        class: "fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center text-2xl z-50",
-        title: "Create New Trip" do %>
-      ➕
-    <% end %>
   </div>
 <% else %>
   <!-- Landing page for guests -->
-  <div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+  <div class="min-h-screen bg-background-primary">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="pt-20 pb-16 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+        <h1 class="text-4xl md:text-6xl font-bold text-text-primary mb-6">
           Plan. Go. Reminisce.
         </h1>
-        <p class="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
+        <p class="text-xl md:text-2xl text-text-secondary mb-8 max-w-3xl mx-auto">
           Transform trip planning from a solo effort into a shared, enjoyable experience with friends.
         </p>
         
         <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <%= link_to "Get Started", new_registration_path, 
-              class: "bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200" %>
+              class: "bg-primary-accent text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-400 transition duration-200" %>
           <%= link_to "Sign In", new_session_path, 
-              class: "border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-200" %>
+              class: "border-2 border-primary-accent text-primary-accent px-8 py-3 rounded-lg font-semibold hover:bg-primary-accent hover:text-white transition duration-200" %>
         </div>
 
         <!-- Features -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+          <div class="bg-background-secondary rounded-lg p-6">
             <div class="text-3xl mb-4">📅</div>
-            <h3 class="text-xl font-semibold text-white mb-2">Plan Together</h3>
-            <p class="text-blue-100">Coordinate dates, destinations, and activities collaboratively</p>
+            <h3 class="text-xl font-semibold text-text-primary mb-2">Plan Together</h3>
+            <p class="text-text-secondary">Coordinate dates, destinations, and activities collaboratively</p>
           </div>
           
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+          <div class="bg-background-secondary rounded-lg p-6">
             <div class="text-3xl mb-4">🎒</div>
-            <h3 class="text-xl font-semibold text-white mb-2">Trip Companion</h3>
-            <p class="text-blue-100">Manage expenses, shopping lists, and meal plans on the go</p>
+            <h3 class="text-xl font-semibold text-text-primary mb-2">Trip Companion</h3>
+            <p class="text-text-secondary">Manage expenses, shopping lists, and meal plans on the go</p>
           </div>
           
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+          <div class="bg-background-secondary rounded-lg p-6">
             <div class="text-3xl mb-4">📸</div>
-            <h3 class="text-xl font-semibold text-white mb-2">Reminisce</h3>
-            <p class="text-blue-100">Preserve memories and learn from past trips for future planning</p>
+            <h3 class="text-xl font-semibold text-text-primary mb-2">Reminisce</h3>
+            <p class="text-text-secondary">Preserve memories and learn from past trips for future planning</p>
           </div>
         </div>
       </div>

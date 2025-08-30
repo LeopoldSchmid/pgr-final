@@ -1,17 +1,17 @@
 <div class="container mx-auto px-4 py-6">
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Recipe Library</h1>
-    <p class="text-gray-600 mt-1">Browse and save recipes from public, personal, and trip collections</p>
+    <h1 class="text-2xl font-bold text-text-primary">Recipe Library</h1>
+    <p class="text-text-secondary mt-1">Browse and save recipes from public, personal, and trip collections</p>
   </div>
 
   <!-- Search and Filters -->
-  <div class="mb-6 bg-white rounded-lg shadow-sm border p-4">
+  <div class="mb-6 bg-background-secondary rounded-lg shadow-sm p-4">
     <%= form_with url: recipe_library_path, method: :get, local: true, class: "space-y-4" do |form| %>
       <div class="flex flex-col md:flex-row gap-4">
         <!-- Search with Autocomplete -->
         <div class="flex-1 relative">
           <%= form.text_field :q, value: @query, placeholder: "Search recipes...", 
-              class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+              class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary",
               id: "recipe-search-input",
               autocomplete: "off" %>
           <div id="search-suggestions" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-64 overflow-y-auto hidden shadow-lg"></div>
@@ -27,23 +27,23 @@
                 ['✈️ Trip', 'trip']
               ], @source_filter),
               {},
-              { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" } %>
+              { class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" } %>
         </div>
         
         <!-- Search Button -->
         <div>
-          <%= form.submit "Search", class: "bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+          <%= form.submit "Search", class: "bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-400 transition-colors" %>
         </div>
       </div>
     <% end %>
     
     <!-- Filter Stats -->
     <div class="flex flex-wrap gap-4 mt-4 text-sm">
-      <span class="text-gray-600">
+      <span class="text-text-secondary">
         Showing <%= pluralize(@recipes.count, 'recipe') %>
       </span>
       <span class="text-gray-400">•</span>
-      <span class="text-gray-500">
+      <span class="text-text-secondary">
         <%= @recipe_counts[:public] %> public, 
         <%= @recipe_counts[:personal] %> personal, 
         <%= @recipe_counts[:trip] %> from trips
@@ -53,23 +53,23 @@
 
   <% if @recipes.any? %>
     <!-- Recipe Grid -->
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <% @recipes.each do |recipe| %>
-        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="bg-background-secondary border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow flex flex-col">
           <!-- Header with source badge -->
           <div class="flex items-start justify-between mb-2">
-            <h3 class="font-semibold text-gray-900 flex-1"><%= recipe.name %></h3>
+            <h3 class="font-semibold text-text-primary flex-1"><%= recipe.name %></h3>
             <div class="ml-2">
               <% if recipe.is_public? %>
-                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-accent-green text-white">
                   🌍 Public
                 </span>
               <% elsif recipe.is_personal? %>
-                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-primary-accent text-white">
                   👤 <% if recipe.user == Current.user %>My<% else %>Personal<% end %>
                 </span>
               <% else %>
-                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-accent-yellow text-text-primary">
                   ✈️ <%= recipe.trip.name if recipe.trip %>
                 </span>
               <% end %>
@@ -77,18 +77,18 @@
           </div>
           
           <!-- Recipe Info -->
-          <div class="text-sm text-gray-600 mb-3">
+          <div class="text-sm text-text-secondary mb-3">
             <%= pluralize(recipe.servings, 'serving') %> • <%= pluralize(recipe.ingredients.count, 'ingredient') %>
           </div>
           
           <% if recipe.description.present? %>
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2"><%= recipe.description %></p>
+            <p class="text-sm text-text-secondary mb-3 line-clamp-2 flex-grow"><%= recipe.description %></p>
           <% end %>
           
           <!-- Ingredients Preview -->
           <div class="mb-3">
             <div class="text-xs text-gray-500 mb-1">Ingredients:</div>
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-text-secondary">
               <%= recipe.ingredients.limit(3).map(&:name).join(', ') %>
               <% if recipe.ingredients.count > 3 %>
                 <span class="text-gray-400">+ <%= recipe.ingredients.count - 3 %> more</span>
@@ -97,44 +97,44 @@
           </div>
           
           <!-- Actions -->
-          <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+          <div class="flex justify-between items-center pt-3 border-t border-gray-200 mt-auto">
             <!-- Copy/Save Actions -->
             <div class="flex space-x-2">
               <% if recipe.is_public? || (recipe.is_trip_recipe? && recipe.user != Current.user) %>
                 <!-- Copy to Personal -->
                 <%= form_with url: copy_recipe_path(recipe), method: :post, local: true, class: "inline" do |form| %>
-                  <%= form.submit "💾 Save", class: "text-blue-600 hover:text-blue-800 text-sm font-medium bg-transparent border-0 p-0" %>
+                  <%= form.submit "💾 Save", class: "text-primary-accent hover:text-blue-400 text-sm font-medium bg-transparent border-0 p-0" %>
                 <% end %>
                 
                 <!-- Add to Trip -->
                 <div class="relative" data-dropdown>
-                  <button type="button" class="text-green-600 hover:text-green-800 text-sm font-medium" onclick="toggleDropdown(this)">
+                  <button type="button" class="text-primary-accent hover:text-blue-400 text-sm font-medium" onclick="toggleDropdown(this)">
                     ✈️ Add to Trip
                   </button>
                   <div class="dropdown-menu absolute z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden min-w-48">
                     <% Current.user.trips.where(status: ['planning', 'active']).limit(5).each do |trip| %>
                       <%= form_with url: copy_recipe_path(recipe), method: :post, local: true, class: "block" do |form| %>
                         <%= form.hidden_field :trip_id, value: trip.id %>
-                        <%= form.submit trip.name, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 border-0 bg-transparent" %>
+                        <%= form.submit trip.name, class: "w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-gray-100 border-0 bg-transparent" %>
                       <% end %>
                     <% end %>
                   </div>
                 </div>
               <% elsif recipe.is_personal? && recipe.user == Current.user %>
                 <!-- User's own personal recipe -->
-                <span class="text-sm text-gray-500">Your recipe</span>
+                <span class="text-sm text-text-secondary">Your recipe</span>
               <% else %>
                 <!-- Trip recipe owned by user -->
-                <span class="text-sm text-gray-500">Your trip recipe</span>
+                <span class="text-sm text-text-secondary">Your trip recipe</span>
               <% end %>
             </div>
             
             <!-- View Details -->
             <% if recipe.is_trip_recipe? %>
-              <%= link_to "View", trip_recipe_path(recipe.trip, recipe), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+              <%= link_to "View", trip_recipe_path(recipe.trip, recipe), class: "text-primary-accent hover:text-blue-400 text-sm font-medium" %>
             <% else %>
               <!-- For public/personal recipes, show a simple view -->
-              <button type="button" onclick="showRecipeDetails(this)" class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              <button type="button" onclick="showRecipeDetails(this)" class="text-primary-accent hover:text-blue-400 text-sm font-medium"
                 data-recipe-name="<%= recipe.name %>"
                 data-recipe-description="<%= recipe.description %>"
                 data-recipe-servings="<%= recipe.servings %>"
@@ -150,12 +150,12 @@
     <!-- Empty State -->
     <div class="text-center py-12">
       <div class="text-6xl mb-4">🔍</div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">No recipes found</h2>
+      <h2 class="text-xl font-semibold text-text-primary mb-2">No recipes found</h2>
       <% if @query.present? %>
-        <p class="text-gray-600 mb-6">No recipes match "<%= @query %>"</p>
-        <%= link_to "Clear search", recipe_library_path, class: "text-blue-600 hover:text-blue-800 font-medium" %>
+        <p class="text-text-secondary mb-6">No recipes match "<%= @query %>"</p>
+        <%= link_to "Clear search", recipe_library_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
       <% else %>
-        <p class="text-gray-600 mb-6">Start by creating your first recipe or browse public recipes!</p>
+        <p class="text-text-secondary mb-6">Start by creating your first recipe or browse public recipes!</p>
       <% end %>
     </div>
   <% end %>
@@ -164,15 +164,15 @@
 <!-- Recipe Details Modal -->
 <div id="recipeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeModal()">
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="bg-background-secondary rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto" onclick="event.stopPropagation()">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 id="modalTitle" class="text-xl font-bold text-gray-900"></h3>
+          <h3 id="modalTitle" class="text-xl font-bold text-text-primary"></h3>
           <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
             <span class="text-2xl">&times;</span>
           </button>
         </div>
-        <div id="modalContent" class="space-y-4">
+        <div id="modalContent" class="space-y-4 text-text-secondary">
           <!-- Content will be populated by JavaScript -->
         </div>
       </div>
@@ -291,12 +291,12 @@
       if (suggestions.length > 0) {
         suggestions.forEach((suggestion, index) => {
           const suggestionEl = document.createElement('div');
-          suggestionEl.className = 'search-suggestion px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 flex items-center justify-between';
+          suggestionEl.className = 'search-suggestion px-4 py-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 flex items-center justify-between';
           
           suggestionEl.innerHTML = `
             <div class="flex-1">
-              <div class="font-medium text-gray-900">${suggestion.name}</div>
-              <div class="text-sm text-gray-600">
+              <div class="font-medium text-text-primary">${suggestion.name}</div>
+              <div class="text-sm text-text-secondary">
                 ${suggestion.description || ''} • ${suggestion.servings} servings
               </div>
             </div>
@@ -314,7 +314,7 @@
         
         // Show a "Search for all results" option at the bottom
         const searchAllEl = document.createElement('div');
-        searchAllEl.className = 'px-4 py-2 bg-gray-50 text-center cursor-pointer hover:bg-gray-100 text-blue-600 font-medium text-sm';
+        searchAllEl.className = 'px-4 py-2 bg-gray-100 text-center cursor-pointer hover:bg-gray-200 text-primary-accent font-medium text-sm';
         searchAllEl.textContent = `Search for "${searchInput.value}" in all recipes`;
         searchAllEl.addEventListener('click', function() {
           submitFullSearch();
@@ -324,17 +324,17 @@
         container.classList.remove('hidden');
       } else {
         // Show "No results" message
-        container.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm text-center">No recipes found</div>';
+        container.innerHTML = '<div class="px-4 py-3 text-text-secondary text-sm text-center">No recipes found</div>';
         container.classList.remove('hidden');
       }
     }
     
     function getBadgeClass(sourceType) {
       switch(sourceType) {
-        case 'public': return 'bg-green-100 text-green-800';
-        case 'personal': return 'bg-blue-100 text-blue-800';
-        case 'trip': return 'bg-purple-100 text-purple-800';
-        default: return 'bg-gray-100 text-gray-800';
+        case 'public': return 'bg-accent-green text-white';
+        case 'personal': return 'bg-primary-accent text-white';
+        case 'trip': return 'bg-accent-yellow text-text-primary';
+        default: return 'bg-gray-200 text-text-secondary';
       }
     }
     
@@ -375,13 +375,13 @@
       title.textContent = button.dataset.recipeName;
       content.innerHTML = `
         <div>
-          <p class="text-gray-600 mb-4">${button.dataset.recipeDescription}</p>
+          <p class="text-text-secondary mb-4">${button.dataset.recipeDescription}</p>
           <div class="mb-4">
             <span class="font-medium">Servings:</span> ${button.dataset.recipeServings}
           </div>
           <div>
             <div class="font-medium mb-2">Ingredients:</div>
-            <p class="text-gray-700">${button.dataset.recipeIngredients}</p>
+            <p class="text-text-secondary">${button.dataset.recipeIngredients}</p>
           </div>
         </div>
       `;

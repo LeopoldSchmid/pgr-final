@@ -1,17 +1,43 @@
-<nav class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200 md:hidden z-50 backdrop-blur-sm">
-  <div class="flex justify-around py-3">
+<!--
+  Bottom Navigation Bar for mobile devices.
+  Features a clean, modern design with circular icons and a gold accent for the active link.
+  This component is hidden on medium and larger screens (md:hidden).
+-->
+<nav class="fixed bottom-0 left-0 right-0 bg-background-secondary border-t border-gray-200 md:hidden z-50">
+  <div class="flex justify-around items-center max-w-7xl mx-auto">
+    <%# Navigation items definition %>
     <% nav_items = [
-      { path: root_path, icon: "🏠", label: "Home", active: current_page?(root_path) },
-      { path: recipe_library_path, icon: "📚", label: "Recipes", active: current_page?(recipe_library_path) },
-      { path: "/plan", icon: "📋", label: "Plan", active: params[:phase] == "plan" || current_page?("/plan") },
-      { path: "/go", icon: "🏃", label: "Go", active: params[:phase] == "go" || current_page?("/go") },
-      { path: "/reminisce", icon: "💭", label: "Reminisce", active: params[:phase] == "reminisce" || current_page?("/reminisce") }
+      { path: root_path, icon: 'home', label: "Home", active: current_page?(root_path) },
+      { path: recipe_library_path, icon: 'book-open', label: "Recipes", active: current_page?(recipe_library_path) },
+      { path: "/plan", icon: 'clipboard-list', label: "Plan", active: current_page?("/plan") },
+      { path: "/go", icon: 'paper-airplane', label: "Go", active: current_page?("/go") },
+      { path: "/reminisce", icon: 'camera', label: "Reminisce", active: current_page?("/reminisce") }
     ] %>
     
+    <%# Loop through navigation items and render them %>
     <% nav_items.each do |item| %>
-      <%= link_to item[:path], class: "flex flex-col items-center py-2 px-4 rounded-xl transition-all duration-300 #{item[:active] ? 'bg-amber-600 text-white shadow-lg transform scale-105' : 'text-amber-800 hover:bg-amber-100 hover:scale-105'}" do %>
-        <span class="text-2xl mb-1 filter drop-shadow-sm"><%= item[:icon] %></span>
-        <span class="text-xs font-semibold tracking-wide"><%= item[:label] %></span>
+      <%= link_to item[:path], class: "flex flex-col items-center justify-center text-center w-full h-16 transition-colors duration-200 #{item[:active] ? 'text-primary-accent' : 'text-text-secondary hover:text-text-primary'}" do %>
+        <%# SVG Icon %>
+        <div class="w-8 h-8 p-1 mb-1 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <% if item[:icon] == 'home' %>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            <% elsif item[:icon] == 'book-open' %>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-5.75-8.494v11.494M17.75 6.253v11.494M2 12h10M12 12h10" />
+            <% elsif item[:icon] == 'clipboard-list' %>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            <% elsif item[:icon] == 'paper-airplane' %>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <% elsif item[:icon] == 'camera' %>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            <% end %>
+          </svg>
+        </div>
+        <%# Label %>
+        <span class="text-xs font-bold tracking-wider"><%= item[:label] %></span>
+        <%# Active indicator %>
+        <div class="w-12 h-1 mt-1 rounded-full #{item[:active] ? 'bg-primary-accent' : 'bg-transparent'}"></div>
       <% end %>
     <% end %>
   </div>

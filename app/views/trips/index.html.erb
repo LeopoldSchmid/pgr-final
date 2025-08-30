@@ -1,4 +1,50 @@
-<div>
-  <h1 class="font-bold text-4xl">Trips#index</h1>
-  <p>Find me in app/views/trips/index.html.erb</p>
+<div class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-text-primary">My Trips</h1>
+    <%= link_to "New Trip", new_trip_path, class: "bg-primary-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg" %>
+  </div>
+
+  <!-- Planning Trips -->
+  <% if @planning_trips.any? %>
+    <section class="mb-10">
+      <h2 class="text-2xl font-bold text-text-primary mb-4 border-b-2 border-gray-200 pb-2">Planning</h2>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <% @planning_trips.each do |trip| %>
+          <%= render 'trips/trip_card', trip: trip, phase: 'plan' %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Active Trips -->
+  <% if @active_trips.any? %>
+    <section class="mb-10">
+      <h2 class="text-2xl font-bold text-text-primary mb-4 border-b-2 border-gray-200 pb-2">Active</h2>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <% @active_trips.each do |trip| %>
+          <%= render 'trips/trip_card', trip: trip, phase: 'go' %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Completed Trips -->
+  <% if @completed_trips.any? %>
+    <section class="mb-10">
+      <h2 class="text-2xl font-bold text-text-primary mb-4 border-b-2 border-gray-200 pb-2">Completed</h2>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <% @completed_trips.each do |trip| %>
+          <%= render 'trips/trip_card', trip: trip, phase: 'reminisce' %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Empty State -->
+  <% if @planning_trips.empty? && @active_trips.empty? && @completed_trips.empty? %>
+    <div class="text-center py-16">
+      <p class="text-text-secondary text-lg mb-6">You haven't created or joined any trips yet.</p>
+      <%= link_to "Create Your First Trip", new_trip_path, class: "bg-primary-accent text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg" %>
+    </div>
+  <% end %>
 </div>

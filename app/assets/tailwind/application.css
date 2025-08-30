@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary-accent: #E4A094;
+  --color-background-primary: #F5F4F9;
+  --color-background-primary-dark: #D4D1D7;
+  --color-background-secondary: #C9E0DD;
+  --color-background-secondary-dark: #B2CECB;
+  --color-text-primary: #1C1C1E;
+  --color-text-secondary: #1C1C1E ;
+  --color-accent-yellow: #DDCA7E;
+  --color-accent-yellow-dark: #D0B64F;
+  --color-accent-green: #A9B9A2;
+  --color-accent-green-dark: #94A68F;
+  --color-accent-red: #E4A094;
+  --color-accent-red-dark: #D09484;
+  --color-accent-purple: #BEC8F9;
+  --color-accent-purple-dark: #7A83B3;
+  --color-accent-teal: #C9E0DD;
+  --color-accent-teal-dark: #B2CECB;
+  --color-accent-brown: #EFE2DB;
+  --color-accent-brown-dark: #E1CEC7;
+  
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #F5F4F9 0%, #D4D1D7 100%);
+}
+
+/* Ensure the gradient covers the full viewport */
+body.bg-gradient-primary {
+  background: linear-gradient(135deg, #F5F4F9 0%, #D4D1D7 100%);
+  background-attachment: fixed;
+}

@@ -1,0 +1,94 @@
+<% 
+  # Context-sensitive FAB configuration
+  fab_config = case request.path
+  when root_path
+    { 
+      path: new_trip_path, 
+      icon: "➕", 
+      tooltip: "Create New Trip",
+      color: "bg-accent hover:bg-amber-500"
+    }
+  when recipe_library_path
+    { 
+      path: "#", 
+      icon: "📝", 
+      tooltip: "Add Recipe", 
+      color: "bg-emerald-600 hover:bg-emerald-700",
+      onclick: "showCreateRecipeModal()"
+    }
+  when /\/trips\/\d+\/plan/
+    { 
+      path: new_trip_recipe_path(@trip), 
+      icon: "🍽️", 
+      tooltip: "Add Recipe",
+      color: "bg-blue-600 hover:bg-blue-700"
+    }
+  when /\/trips\/\d+\/go/
+    { 
+      path: new_trip_journal_entry_path(@trip), 
+      icon: "📝", 
+      tooltip: "Add Journal Entry",
+      color: "bg-green-600 hover:bg-green-700"
+    }
+  when /\/plan/
+    { 
+      path: new_trip_path, 
+      icon: "➕", 
+      tooltip: "Create New Trip",
+      color: "bg-accent hover:bg-amber-500"
+    }
+  when /\/go/
+    { 
+      path: new_trip_journal_entry_path(@current_trip), 
+      icon: "📝", 
+      tooltip: "Quick Journal",
+      color: "bg-green-600 hover:bg-green-700"
+    }
+  when /\/reminisce/
+    { 
+      path: "#", 
+      icon: "📸", 
+      tooltip: "Share Memory",
+      color: "bg-purple-600 hover:bg-purple-700",
+      onclick: "showShareMemoryModal()"
+    }
+  else
+    nil
+  end
+%>
+
+<% if fab_config && authenticated? %>
+  <div class="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40">
+    <!-- Main FAB -->
+    <%= link_to fab_config[:path], 
+        class: "flex items-center justify-center w-14 h-14 #{fab_config[:color]} text-white rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110 backdrop-blur-sm",
+        title: fab_config[:tooltip],
+        onclick: fab_config[:onclick],
+        data: { turbo: fab_config[:onclick] ? false : true } do %>
+      <span class="text-xl filter drop-shadow-sm"><%= fab_config[:icon] %></span>
+    <% end %>
+  </div>
+
+  <!-- Mini FAB for secondary actions (only on specific pages) -->
+  <% if request.path == root_path %>
+    <div class="fixed bottom-36 right-4 md:bottom-24 md:right-6 z-40">
+      <%= link_to recipe_library_path,
+          class: "flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110",
+          title: "Browse Recipes" do %>
+        <span class="text-lg">📚</span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Contextual help FAB for complex pages -->
+  <% if request.path.match?(/\/trips\/\d+\/plan/) %>
+    <div class="fixed bottom-36 right-4 md:bottom-24 md:right-6 z-40">
+      <button type="button"
+              class="flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110"
+              title="Planning Help"
+              onclick="showPlanningHelp()">
+        <span class="text-lg">❓</span>
+      </button>
+    </div>
+  <% end %>
+<% end %>

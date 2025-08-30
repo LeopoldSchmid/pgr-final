@@ -1,37 +1,37 @@
 <div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Active Trips</h1>
+  <h1 class="text-2xl font-bold text-text-primary mb-6">Active Trips</h1>
 
   <!-- Active Trips -->
   <% if @active_trips.any? %>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <% @active_trips.each do |trip| %>
-        <div class="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
+        <div class="bg-background-secondary rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow flex flex-col">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold text-gray-900"><%= trip.name %></h3>
+            <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
             <div class="flex items-center space-x-2">
               <% if trip.user == Current.user %>
-                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Owner</span>
+                <span class="bg-primary-accent text-white text-xs px-2 py-1 rounded-full">Owner</span>
               <% else %>
-                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Member</span>
+                <span class="bg-accent-yellow text-text-primary text-xs px-2 py-1 rounded-full">Member</span>
               <% end %>
-              <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
+              <span class="bg-accent-green text-white text-xs px-2 py-1 rounded-full">Active</span>
             </div>
           </div>
-          <p class="text-gray-600 text-sm mb-3 line-clamp-2"><%= trip.description %></p>
+          <p class="text-text-secondary text-sm mb-3 line-clamp-2 flex-grow"><%= trip.description %></p>
           
           <div class="space-y-2 mb-4">
             <% if trip.start_date && trip.end_date %>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs text-text-secondary">
                 <%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d, %Y") %>
               </div>
             <% end %>
           </div>
 
-          <div class="flex space-x-2">
-            <%= link_to go_trip_path(trip), class: "flex-1 bg-blue-600 text-white text-sm px-3 py-2 rounded font-medium text-center hover:bg-blue-700 transition-colors" do %>
+          <div class="flex space-x-2 mt-auto">
+            <%= link_to go_trip_path(trip), class: "flex-1 bg-primary-accent text-white text-sm px-3 py-2 rounded font-medium text-center hover:bg-blue-400 transition-colors" do %>
               Trip Dashboard
             <% end %>
-            <%= link_to trip_path(trip), class: "px-3 py-2 text-blue-600 text-sm font-medium hover:text-blue-800" do %>
+            <%= link_to trip_path(trip), class: "px-3 py-2 text-primary-accent text-sm font-medium hover:text-blue-400" do %>
               View
             <% end %>
           </div>
@@ -42,25 +42,25 @@
     <!-- Empty State -->
     <div class="text-center py-12">
       <div class="text-6xl mb-4">🏃</div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">No active trips</h2>
-      <p class="text-gray-600 mb-6">Your active trips will appear here when you start your adventures!</p>
-      <%= link_to "Plan a New Trip", plan_path, class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+      <h2 class="text-xl font-semibold text-text-primary mb-2">No active trips</h2>
+      <p class="text-text-secondary mb-6">Your active trips will appear here when you start your adventures!</p>
+      <%= link_to "Plan a New Trip", plan_path, class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-400 transition-colors" %>
     </div>
   <% end %>
 
   <!-- Quick Actions -->
   <% if @active_trips.any? %>
-    <div class="mt-8 bg-gray-50 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+    <div class="mt-8 bg-background-secondary rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <% if @active_trips.any? %>
           <%= link_to trip_recipes_path(@active_trips.first), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
             <span class="text-2xl mb-2">🛒</span>
-            <span class="text-sm font-medium text-gray-700">Shopping Lists</span>
+            <span class="text-sm font-medium text-text-secondary">Shopping Lists</span>
           <% end %>
           <%= link_to new_trip_expense_path(@active_trips.first), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
             <span class="text-2xl mb-2">💰</span>
-            <span class="text-sm font-medium text-gray-700">Add Expense</span>
+            <span class="text-sm font-medium text-text-secondary">Add Expense</span>
           <% end %>
         <% else %>
           <div class="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow-sm opacity-50">
@@ -74,11 +74,11 @@
         <% end %>
         <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <span class="text-2xl mb-2">📋</span>
-          <span class="text-sm font-medium text-gray-700">Today's Tasks</span>
+          <span class="text-sm font-medium text-text-secondary">Today's Tasks</span>
         </button>
         <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <span class="text-2xl mb-2">📱</span>
-          <span class="text-sm font-medium text-gray-700">Share Update</span>
+          <span class="text-sm font-medium text-text-secondary">Share Update</span>
         </button>
       </div>
     </div>
@@ -86,7 +86,7 @@
   
   <!-- Floating Action Button -->
   <%= link_to new_trip_path, 
-      class: "fixed bottom-6 right-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 flex items-center justify-center text-2xl z-50",
+      class: "fixed bottom-6 right-6 bg-primary-accent text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:bg-blue-400 transition-all duration-200 flex items-center justify-center text-2xl z-50",
       title: "Create New Trip" do %>
     ➕
   <% end %>
