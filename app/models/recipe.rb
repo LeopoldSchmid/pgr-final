@@ -11,7 +11,7 @@ class Recipe < ApplicationRecord
   validates :trip, presence: true, if: -> { source_type == 'trip' }
   validates :trip, absence: true, if: -> { source_type == 'personal' }
   
-  accepts_nested_attributes_for :ingredients, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :ingredients, allow_destroy: true, reject_if: :should_reject_ingredient
   
   scope :selected_for_shopping, -> { where(selected_for_shopping: true) }
   scope :public_recipes, -> { where(source_type: 'public') }
@@ -96,6 +96,11 @@ class Recipe < ApplicationRecord
   end
   
   private
+  
+  def should_reject_ingredient(attributes)
+    # Reject if name is blank - this is the key field that indicates an empty ingredient
+    attributes['name'].blank?
+  end
   
   def set_defaults
     self.selected_for_shopping ||= false

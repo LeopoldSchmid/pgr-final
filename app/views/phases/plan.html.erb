@@ -1,13 +1,4 @@
 <div class="container mx-auto px-4 py-6">
-  <div class="flex items-center justify-between mb-8">
-    <div>
-      <h1 class="text-3xl font-bold text-text-primary">Plan New Adventures</h1>
-      <p class="text-text-secondary mt-2">🌱 Where will your journey take you?</p>
-    </div>
-    <%= link_to new_trip_path, class: "bg-primary-accent text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg transform hover:scale-105" do %>
-      <span class="text-lg mr-2">✨</span> New Trip
-    <% end %>
-  </div>
 
   <!-- Current Planning Trips -->
   <% if @planning_trips.any? %>

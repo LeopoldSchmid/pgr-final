@@ -5,7 +5,7 @@ class Api::FoodItemsController < ApplicationController
     query = params[:q].to_s.strip
     
     if query.present?
-      food_items = FoodItem.where("name ILIKE ?", "%#{query}%")
+      food_items = FoodItem.where("LOWER(name) LIKE LOWER(?)", "%#{query}%")
                           .order(:name)
                           .limit(10)
                           .select(:id, :name, :standard_unit, :category)

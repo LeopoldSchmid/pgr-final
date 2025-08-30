@@ -1,40 +1,42 @@
 <div class="container mx-auto px-4 py-6">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Trip Recipes</h1>
-      <p class="text-gray-600 mt-1">Plan meals and generate shopping lists</p>
-    </div>
-    <%= link_to new_trip_recipe_path(@trip), class: "bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" do %>
-      + Add Recipe
+  <div class="mb-8">
+    <%= link_to plan_trip_path(@trip), class: "text-primary-accent hover:text-primary-accent/80 font-medium flex items-center group mb-4" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+      </svg>
+      Back to Trip
     <% end %>
+    <h1 class="text-3xl font-bold text-text-primary">Recipes</h1>
   </div>
 
   <% if @recipes.any? %>
     <!-- Selected for Shopping -->
     <% if @selected_recipes.any? %>
       <section class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-green-800">🛒 Selected for Shopping</h2>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-text-primary">Selected for Shopping</h2>
           <%= form_with url: generate_from_recipes_trip_shopping_list_path(@trip, @trip.shopping_lists.first || @trip.shopping_lists.create!), method: :post, local: true do |form| %>
             <%= form.hidden_field :recipe_ids, value: @selected_recipes.pluck(:id).join(',') %>
-            <%= form.submit "Generate Shopping List", class: "bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors text-sm" %>
+            <%= form.submit "Generate Shopping List", class: "bg-accent-green text-white px-6 py-2 rounded-xl font-medium hover:bg-accent-green-dark transition-colors shadow-lg" %>
           <% end %>
         </div>
-        <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <% @selected_recipes.each do |recipe| %>
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="font-semibold text-green-900"><%= recipe.name %></h3>
+            <div class="bg-gradient-green p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-white text-lg"><%= recipe.name %></h3>
                 <%= form_with model: [@trip, recipe], url: toggle_selected_trip_recipe_path(@trip, recipe), method: :patch, local: true do |form| %>
-                  <%= form.submit "✓", class: "text-green-600 bg-transparent border-0 text-sm hover:text-green-800" %>
+                  <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <%= form.submit "✓", class: "text-white bg-transparent border-0 text-sm font-bold" %>
+                  </div>
                 <% end %>
               </div>
-              <div class="text-sm text-green-700 mb-2">
+              <div class="text-sm text-white/80 mb-4">
                 <%= pluralize(recipe.servings, 'serving') %> • <%= pluralize(recipe.ingredients.count, 'ingredient') %>
               </div>
-              <div class="flex space-x-2">
-                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-green-600 hover:text-green-800 text-sm font-medium" %>
-                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-green-600 hover:text-green-800 text-sm font-medium" %>
+              <div class="flex space-x-3">
+                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-white hover:text-white/80 text-sm font-medium bg-white/20 px-3 py-1 rounded-lg transition-colors" %>
+                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-white hover:text-white/80 text-sm font-medium bg-white/20 px-3 py-1 rounded-lg transition-colors" %>
               </div>
             </div>
           <% end %>
@@ -44,32 +46,36 @@
 
     <!-- All Recipes -->
     <section>
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">All Recipes</h2>
+      <h2 class="text-xl font-semibold text-text-primary mb-6">All Recipes</h2>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <% @recipes.each do |recipe| %>
-          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="font-semibold text-gray-900"><%= recipe.name %></h3>
+          <div class="card-modern">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-semibold text-text-primary text-lg"><%= recipe.name %></h3>
               <%= form_with model: [@trip, recipe], url: toggle_selected_trip_recipe_path(@trip, recipe), method: :patch, local: true do |form| %>
                 <% if recipe.selected_for_shopping %>
-                  <%= form.submit "✓", class: "text-green-600 bg-transparent border-0 text-sm hover:text-green-800" %>
+                  <div class="w-6 h-6 bg-accent-green rounded-full flex items-center justify-center">
+                    <%= form.submit "✓", class: "text-white bg-transparent border-0 text-xs font-bold" %>
+                  </div>
                 <% else %>
-                  <%= form.submit "☐", class: "text-gray-400 bg-transparent border-0 text-sm hover:text-gray-600" %>
+                  <div class="w-6 h-6 border-2 border-text-primary/20 rounded-full flex items-center justify-center hover:border-accent-green transition-colors">
+                    <%= form.submit "", class: "bg-transparent border-0 w-full h-full cursor-pointer" %>
+                  </div>
                 <% end %>
               <% end %>
             </div>
-            <div class="text-sm text-gray-600 mb-3">
+            <div class="text-sm text-text-primary/70 mb-4">
               <%= pluralize(recipe.servings, 'serving') %> • <%= pluralize(recipe.ingredients.count, 'ingredient') %>
             </div>
             <% if recipe.description.present? %>
-              <p class="text-sm text-gray-600 mb-3 line-clamp-2"><%= recipe.description %></p>
+              <p class="text-sm text-text-primary/60 mb-4 line-clamp-2"><%= recipe.description %></p>
             <% end %>
             <div class="flex justify-between items-center">
-              <div class="flex space-x-2">
-                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
-                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+              <div class="flex space-x-3">
+                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-primary-accent hover:text-primary-accent/80 text-sm font-medium" %>
+                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-primary-accent hover:text-primary-accent/80 text-sm font-medium" %>
               </div>
-              <%= link_to "Delete", trip_recipe_path(@trip, recipe), method: :delete, confirm: "Delete this recipe?", class: "text-red-500 hover:text-red-700 text-sm" %>
+              <%= link_to "Delete", trip_recipe_path(@trip, recipe), method: :delete, confirm: "Delete this recipe?", class: "text-accent-red hover:text-accent-red-dark text-sm font-medium" %>
             </div>
           </div>
         <% end %>
@@ -77,11 +83,15 @@
     </section>
   <% else %>
     <!-- Empty State -->
-    <div class="text-center py-12">
-      <div class="text-6xl mb-4">🍽️</div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">No recipes yet</h2>
-      <p class="text-gray-600 mb-6">Add recipes to plan meals and generate shopping lists for your trip!</p>
-      <%= link_to "Add Your First Recipe", new_trip_recipe_path(@trip), class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+    <div class="text-center py-16">
+      <div class="w-24 h-24 bg-primary-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-12 h-12 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-semibold text-text-primary mb-3">No recipes yet</h2>
+      <p class="text-text-primary/70 mb-8 max-w-md mx-auto">Start planning your meals and generate shopping lists for your trip</p>
+      <%= link_to "Add Your First Recipe", new_trip_recipe_path(@trip), class: "bg-primary-accent text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-accent/80 transition-colors shadow-lg transform hover:scale-105" %>
     </div>
   <% end %>
 </div>

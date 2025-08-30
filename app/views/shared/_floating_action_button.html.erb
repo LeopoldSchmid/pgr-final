@@ -4,9 +4,9 @@
   when root_path
     { 
       path: new_trip_path, 
-      icon: "➕", 
+      icon: "+", 
       tooltip: "Create New Trip",
-      color: "bg-accent hover:bg-amber-500"
+      color: "bg-primary-accent hover:bg-primary-accent/80"
     }
   when recipe_library_path
     { 
@@ -33,9 +33,9 @@
   when /\/plan/
     { 
       path: new_trip_path, 
-      icon: "➕", 
+      icon: "+", 
       tooltip: "Create New Trip",
-      color: "bg-accent hover:bg-amber-500"
+      color: "bg-primary-accent hover:bg-primary-accent/80"
     }
   when /\/go/
     { 
@@ -58,7 +58,7 @@
 %>
 
 <% if fab_config && authenticated? %>
-  <div class="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40">
+  <div class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
     <!-- Main FAB -->
     <%= link_to fab_config[:path], 
         class: "flex items-center justify-center w-14 h-14 #{fab_config[:color]} text-white rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110 backdrop-blur-sm",
@@ -71,7 +71,7 @@
 
   <!-- Mini FAB for secondary actions (only on specific pages) -->
   <% if request.path == root_path %>
-    <div class="fixed bottom-36 right-4 md:bottom-24 md:right-6 z-40">
+    <div class="fixed bottom-40 right-4 md:bottom-24 md:right-6 z-40">
       <%= link_to recipe_library_path,
           class: "flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110",
           title: "Browse Recipes" do %>
@@ -82,7 +82,7 @@
 
   <!-- Contextual help FAB for complex pages -->
   <% if request.path.match?(/\/trips\/\d+\/plan/) %>
-    <div class="fixed bottom-36 right-4 md:bottom-24 md:right-6 z-40">
+    <div class="fixed bottom-40 right-4 md:bottom-24 md:right-6 z-40">
       <button type="button"
               class="flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110"
               title="Planning Help"

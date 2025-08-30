@@ -14,7 +14,7 @@ class RecipesController < ApplicationController
   
   def new
     @recipe = @trip.recipes.build
-    5.times { @recipe.ingredients.build } # Pre-build some ingredient forms
+    @recipe.ingredients.build # Pre-build one empty ingredient form
   end
   
   def create
@@ -29,8 +29,8 @@ class RecipesController < ApplicationController
   end
   
   def edit
-    # Add a few blank ingredient forms if needed
-    3.times { @recipe.ingredients.build } if @recipe.ingredients.size < 3
+    # Always ensure there's one empty ingredient row for easy adding
+    @recipe.ingredients.build
   end
   
   def update

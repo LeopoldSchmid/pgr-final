@@ -1,14 +1,10 @@
 <div class="card-modern group cursor-pointer relative overflow-hidden">
   <!-- Hero Image Area -->
   <div class="relative h-48 bg-gradient-purple rounded-xl mb-4 overflow-hidden">
-    <% if trip.photos.any? %>
-      <img src="<%= trip.photos.first %>" alt="<%= trip.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-    <% else %>
-      <!-- Placeholder gradient with destination initial -->
-      <div class="w-full h-full bg-gradient-purple flex items-center justify-center">
-        <span class="text-4xl font-bold text-white/80"><%= trip.name.first.upcase %></span>
-      </div>
-    <% end %>
+    <!-- Placeholder gradient with destination initial -->
+    <div class="w-full h-full bg-gradient-purple flex items-center justify-center">
+      <span class="text-4xl font-bold text-white/80"><%= trip.name.first.upcase %></span>
+    </div>
     
     <!-- Status Badge -->
     <% if trip.user != Current.user %>

@@ -8,7 +8,7 @@ class FoodItem < ApplicationRecord
   
   scope :by_category, ->(category) { where(category: category) }
   scope :by_unit_type, ->(type) { where(unit_type: type) }
-  scope :search, ->(term) { where("name ILIKE ?", "%#{term}%") if term.present? }
+  scope :search, ->(term) { where("LOWER(name) LIKE LOWER(?)", "%#{term}%") if term.present? }
   
   def category_emoji
     case category
