@@ -29,16 +29,20 @@ class Invitation < ApplicationRecord
   def accept!(user = nil)
     return false unless can_be_accepted?
     
-    # Mark as accepted first to avoid validation issues
-    self.status = 'accepted'
-    
-    # If user is provided, add them to the trip
-    if user
-      trip.add_member(user, role: role) unless trip.has_member?(user)
+    ActiveRecord::Base.transaction do
+      # Mark as accepted first
+      self.status = 'accepted'
+      
+      # If user is provided, add them to the trip
+      if user
+        trip.add_member(user, role: role) unless trip.has_member?(user)
+      end
+      
+      # Save without running validations since we're accepting
+      # The email_not_already_member validation doesn't make sense when accepting
+      update_column(:status, 'accepted')
     end
     
-    # Save without running validations since we're accepting
-    save!(validate: false)
     true
   end
   

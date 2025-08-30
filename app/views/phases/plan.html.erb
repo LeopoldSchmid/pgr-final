@@ -81,4 +81,11 @@
       </div>
     </div>
   <% end %>
+  
+  <!-- Floating Action Button -->
+  <%= link_to new_trip_path, 
+      class: "fixed bottom-6 right-6 bg-gradient-to-r from-amber-500 to-orange-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center text-2xl z-50",
+      title: "Create New Trip" do %>
+    ➕
+  <% end %>
 </div>

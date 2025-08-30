@@ -3,7 +3,11 @@ class TripsController < ApplicationController
   before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce]
 
   def index
-    @trips = Current.user.trips.order(created_at: :desc)
+    # Include trips user owns + trips user is a member of
+    owned_trips = Current.user.trips
+    member_trips = Trip.joins(:trip_members)
+                      .where(trip_members: { user: Current.user })
+    @trips = (owned_trips + member_trips).uniq.sort_by(&:created_at).reverse
   end
 
   def show
@@ -65,7 +69,15 @@ class TripsController < ApplicationController
   private
 
   def set_trip
-    @trip = Current.user.trips.find(params[:id])
+    # Find trips user owns OR is a member of
+    owned_trips = Current.user.trips.where(id: params[:id])
+    member_trips = Trip.joins(:trip_members)
+                      .where(trip_members: { user: Current.user }, id: params[:id])
+    
+    trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
+    @trip = trip_relation.first
+    
+    raise ActiveRecord::RecordNotFound unless @trip
   end
 
   def trip_params
