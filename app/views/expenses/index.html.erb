@@ -1,0 +1,180 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <%= link_to @trip, class: "text-purple-700 hover:text-purple-900 font-medium flex items-center group mb-4" do %>
+      <span class="transform group-hover:-translate-x-1 transition-transform mr-2">🎒</span> Back to Trip
+    <% end %>
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-800 to-pink-700 bg-clip-text text-transparent">
+      💰 Trip Expenses
+    </h1>
+    <p class="text-purple-700 mt-2"><%= @trip.name %> • <%= @expenses.count %> expenses</p>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-purple-200 p-4 text-center">
+      <div class="text-2xl font-bold text-purple-600"><%= "%.2f" % @total_expenses %> EUR</div>
+      <div class="text-sm text-purple-700">Total Spent</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-purple-200 p-4 text-center">
+      <div class="text-2xl font-bold text-purple-600"><%= @expenses.count %></div>
+      <div class="text-sm text-purple-700">Expenses</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-purple-200 p-4 text-center">
+      <div class="text-2xl font-bold <%= @user_balance >= 0 ? 'text-green-600' : 'text-red-600' %>">
+        <%= @user_balance >= 0 ? '+' : '' %><%= "%.2f" % @user_balance %> EUR
+      </div>
+      <div class="text-sm text-purple-700">Your Balance</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-purple-200 p-4 text-center">
+      <div class="text-2xl font-bold text-purple-600"><%= @settlement_suggestions.length %></div>
+      <div class="text-sm text-purple-700">Settlements</div>
+    </div>
+  </div>
+
+  <!-- Add Expense Button -->
+  <div class="mb-6 text-center">
+    <%= link_to new_trip_expense_path(@trip), 
+        class: "inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg transform hover:scale-105" do %>
+      <span class="mr-2">➕</span> Add New Expense
+    <% end %>
+  </div>
+
+  <!-- Settlement Suggestions -->
+  <% if @settlement_suggestions.any? %>
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-lg border border-green-200 p-6 mb-8">
+      <h3 class="text-xl font-bold text-green-900 mb-4 flex items-center">
+        <span class="mr-3">💸</span> Suggested Settlements
+      </h3>
+      <div class="space-y-3">
+        <% @settlement_suggestions.each do |suggestion| %>
+          <div class="bg-white rounded-lg p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="text-green-700">
+                <strong><%= suggestion[:from].email_address %></strong> owes 
+                <strong><%= suggestion[:to].email_address %></strong>
+              </div>
+            </div>
+            <div class="font-bold text-green-600">
+              <%= "%.2f" % suggestion[:amount] %> <%= suggestion[:currency] %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Expenses by Category -->
+  <% if @expenses_by_category.any? %>
+    <div class="bg-white rounded-2xl shadow-lg border border-purple-200 p-6 mb-8">
+      <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center">
+        <span class="mr-3">📊</span> Spending by Category
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <% @expenses_by_category.each do |category, amount| %>
+          <div class="text-center p-3 bg-purple-50 rounded-lg">
+            <div class="text-2xl mb-1">
+              <%= case category
+                  when 'food' then '🍽️'
+                  when 'accommodation' then '🏨' 
+                  when 'transport' then '🚗'
+                  when 'activities' then '🎯'
+                  when 'shopping' then '🛒'
+                  else '💰'
+                  end %>
+            </div>
+            <div class="font-bold text-purple-700"><%= "%.2f" % amount %> EUR</div>
+            <div class="text-sm text-purple-600 capitalize"><%= category %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Expenses List -->
+  <div class="space-y-4">
+    <h3 class="text-xl font-bold text-purple-900 flex items-center">
+      <span class="mr-3">📋</span> All Expenses
+    </h3>
+    
+    <% if @expenses.any? %>
+      <% @expenses.each do |expense| %>
+        <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-6">
+          <!-- Expense Header -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="text-2xl"><%= expense.category_emoji %></div>
+              <div>
+                <h4 class="font-bold text-purple-900"><%= expense.description %></h4>
+                <div class="text-sm text-purple-600">
+                  Paid by <strong><%= expense.payer.email_address %></strong> • 
+                  <%= expense.expense_date.strftime("%b %d, %Y") %>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-purple-700">
+                <%= expense.formatted_amount %>
+              </div>
+              <div class="text-sm text-purple-600">
+                Split among <%= expense.participants.count %> people
+              </div>
+            </div>
+          </div>
+
+          <!-- Participants -->
+          <div class="mb-4">
+            <div class="text-sm text-purple-700 mb-2">Participants:</div>
+            <div class="flex flex-wrap gap-2">
+              <% expense.expense_participants.includes(:user).each do |participant| %>
+                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                  <%= participant.user.email_address %> 
+                  (<%= participant.formatted_amount_owed %>)
+                </span>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Receipt -->
+          <% if expense.receipt.attached? %>
+            <div class="mb-4">
+              <%= image_tag expense.receipt, class: "h-32 object-cover rounded-lg shadow-sm" %>
+            </div>
+          <% end %>
+
+          <!-- Actions -->
+          <% if @trip.user_can_manage_expenses?(Current.user) %>
+            <div class="flex space-x-3 text-sm">
+              <%= link_to edit_trip_expense_path(@trip, expense), 
+                  class: "text-purple-600 hover:text-purple-800 font-medium" do %>
+                ✏️ Edit
+              <% end %>
+              <%= link_to duplicate_trip_expense_path(@trip, expense), 
+                  method: :get,
+                  class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+                📋 Duplicate  
+              <% end %>
+              <%= link_to trip_expense_path(@trip, expense), 
+                  method: :delete,
+                  data: { confirm: "Delete this expense?" },
+                  class: "text-red-600 hover:text-red-800 font-medium" do %>
+                🗑️ Delete
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Empty State -->
+      <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-12 text-center">
+        <div class="text-6xl mb-4 opacity-60">💰</div>
+        <h3 class="text-xl font-bold text-purple-900 mb-3">No Expenses Yet</h3>
+        <p class="text-purple-700 mb-6">Start tracking your trip expenses to keep everyone organized!</p>
+        <%= link_to new_trip_expense_path(@trip), 
+            class: "inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg transform hover:scale-105" do %>
+          <span class="mr-2">➕</span> Add First Expense
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

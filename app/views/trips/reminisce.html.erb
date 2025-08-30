@@ -215,14 +215,58 @@
     <div class="bg-white rounded-lg shadow-sm border p-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900">💰 Final Expense Summary</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">View Details</button>
+        <%= link_to trip_expenses_path(@trip), class: "text-blue-600 text-sm hover:text-blue-800" do %>
+          View Details
+        <% end %>
       </div>
       
-      <div class="text-center py-8 text-gray-500">
-        <div class="text-4xl mb-2">📊</div>
-        <p class="text-sm">No expenses recorded</p>
-        <p class="text-xs text-gray-400 mt-1">Expenses from the Go phase would appear here</p>
-      </div>
+      <% if @trip.expenses.exists? %>
+        <div class="space-y-4">
+          <!-- Total Expenses -->
+          <div class="bg-purple-50 rounded-lg p-4">
+            <div class="flex justify-between items-center">
+              <span class="text-purple-700 font-medium">Total Trip Cost</span>
+              <span class="text-2xl font-bold text-purple-900"><%= "%.2f" % @trip.total_expenses %> EUR</span>
+            </div>
+          </div>
+
+          <!-- Expense Breakdown by Category -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <% @trip.expenses_by_category.each do |category, amount| %>
+              <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-xl mb-1">
+                  <%= case category
+                      when 'food' then '🍽️'
+                      when 'accommodation' then '🏨' 
+                      when 'transport' then '🚗'
+                      when 'activities' then '🎯'
+                      when 'shopping' then '🛒'
+                      else '💰'
+                      end %>
+                </div>
+                <div class="font-bold text-purple-700"><%= "%.2f" % amount %> EUR</div>
+                <div class="text-xs text-gray-600 capitalize"><%= category %></div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Final Balance -->
+          <div class="bg-green-50 rounded-lg p-4">
+            <div class="flex justify-between items-center">
+              <span class="text-green-700 font-medium">Your Final Balance</span>
+              <span class="font-bold <%= @trip.user_balance(Current.user) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                <%= @trip.user_balance(Current.user) >= 0 ? '+' : '' %><%= "%.2f" % @trip.user_balance(Current.user) %> EUR
+              </span>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-gray-500">
+          <div class="text-4xl mb-2">📊</div>
+          <p class="text-sm">No expenses recorded</p>
+          <p class="text-xs text-gray-400 mt-1">Expenses from the Go phase would appear here</p>
+        </div>
+      <% end %>
     </div>
 
     <!-- Learnings & Notes -->

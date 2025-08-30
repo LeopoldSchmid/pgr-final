@@ -20,9 +20,9 @@ export default class extends Controller {
         console.log("Location success:", position)
         const { latitude, longitude } = position.coords
         
-        // Set the coordinate fields
-        this.latitudeTarget.value = latitude.toFixed(6)
-        this.longitudeTarget.value = longitude.toFixed(6)
+        // Set the coordinate fields with full precision (8 decimal places for ~1cm accuracy)
+        this.latitudeTarget.value = latitude.toFixed(8)
+        this.longitudeTarget.value = longitude.toFixed(8)
         
         // Show success message
         this.buttonTarget.textContent = "✅ Location captured!"

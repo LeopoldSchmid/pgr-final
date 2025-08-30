@@ -231,18 +231,18 @@
   <div class="mt-8 bg-green-50 rounded-lg p-6">
     <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <%= link_to new_trip_expense_path(@trip), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
         <span class="text-2xl mb-2">💰</span>
-        <span class="text-sm font-medium text-gray-700">Split Bill</span>
-      </button>
+        <span class="text-sm font-medium text-gray-700">Add Expense</span>
+      <% end %>
       <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
         <span class="text-2xl mb-2">🛒</span>
         <span class="text-sm font-medium text-gray-700">Check List</span>
       </button>
-      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">📱</span>
-        <span class="text-sm font-medium text-gray-700">Share Photo</span>
-      </button>
+      <%= link_to trip_expenses_path(@trip), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <span class="text-2xl mb-2">📊</span>
+        <span class="text-sm font-medium text-gray-700">View Expenses</span>
+      <% end %>
       <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
         <span class="text-2xl mb-2">⏰</span>
         <span class="text-sm font-medium text-gray-700">Set Reminder</span>

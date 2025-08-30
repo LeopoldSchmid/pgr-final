@@ -1,5 +1,4 @@
 import { Controller } from "@hotwired/stimulus"
-import L from "leaflet"
 
 export default class extends Controller {
   static values = { 
@@ -10,8 +9,31 @@ export default class extends Controller {
   static targets = ["container"]
 
   connect() {
-    this.initializeMap()
-    this.addMarkers()
+    // Wait for Leaflet to be available
+    this.waitForLeaflet().then(() => {
+      this.initializeMap()
+      this.addMarkers()
+    }).catch(error => {
+      console.error('Map initialization failed:', error)
+      // Hide the map container or show an error message
+      this.containerTarget.innerHTML = '<div class="bg-gray-100 rounded-xl p-8 text-center"><div class="text-gray-500">Map temporarily unavailable</div></div>'
+    })
+  }
+
+  async waitForLeaflet() {
+    // Wait for Leaflet to be loaded
+    let attempts = 0
+    const maxAttempts = 50
+    
+    while (typeof L === 'undefined' && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+      attempts++
+    }
+    
+    if (typeof L === 'undefined') {
+      console.error('Leaflet failed to load after 5 seconds')
+      throw new Error('Leaflet is not available')
+    }
   }
 
   disconnect() {
@@ -21,13 +43,28 @@ export default class extends Controller {
   }
 
   initializeMap() {
-    // Default center (will be overridden by data)
-    const defaultCenter = this.centerValue || [40.7128, -74.0060] // NYC
-    const defaultZoom = this.zoomValue || 10
+    // Check if Leaflet is loaded globally
+    if (typeof L === 'undefined') {
+      console.error('Leaflet is not loaded')
+      return
+    }
+
+    // Validate and set default center
+    let center = [40.7128, -74.0060] // Default to NYC
+    
+    if (this.centerValue && Array.isArray(this.centerValue) && this.centerValue.length >= 2) {
+      const lat = parseFloat(this.centerValue[0])
+      const lng = parseFloat(this.centerValue[1])
+      if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        center = [lat, lng]
+      }
+    }
+
+    const zoom = this.zoomValue || 10
 
     this.map = L.map(this.containerTarget, {
       attributionControl: true
-    }).setView(defaultCenter, defaultZoom)
+    }).setView(center, zoom)
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -39,9 +76,13 @@ export default class extends Controller {
   addMarkers() {
     if (!this.entriesValue || this.entriesValue.length === 0) return
 
-    const validEntries = this.entriesValue.filter(entry => 
-      entry.latitude && entry.longitude
-    )
+    const validEntries = this.entriesValue.filter(entry => {
+      const lat = parseFloat(entry.latitude)
+      const lng = parseFloat(entry.longitude)
+      return !isNaN(lat) && !isNaN(lng) && 
+             lat >= -90 && lat <= 90 && 
+             lng >= -180 && lng <= 180
+    })
 
     if (validEntries.length === 0) return
 
@@ -49,12 +90,15 @@ export default class extends Controller {
     const group = new L.FeatureGroup()
 
     validEntries.forEach(entry => {
+      const lat = parseFloat(entry.latitude)
+      const lng = parseFloat(entry.longitude)
+      
       // Create custom icon for favorites
       const icon = entry.favorite ? 
         this.createCustomIcon('⭐', '#fbbf24') : 
         this.createCustomIcon('📍', '#10b981')
 
-      const marker = L.marker([entry.latitude, entry.longitude], { icon })
+      const marker = L.marker([lat, lng], { icon })
         .bindPopup(this.createPopupContent(entry))
       
       group.addLayer(marker)

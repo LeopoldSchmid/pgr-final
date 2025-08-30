@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_29_181302) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_092432) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_181302) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "expense_participants", force: :cascade do |t|
+    t.integer "expense_id", null: false
+    t.integer "user_id", null: false
+    t.decimal "amount_owed", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_id", "user_id"], name: "index_expense_participants_on_expense_id_and_user_id", unique: true
+    t.index ["expense_id"], name: "index_expense_participants_on_expense_id"
+    t.index ["user_id"], name: "index_expense_participants_on_user_id"
+  end
+
+  create_table "expenses", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.integer "payer_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "description", null: false
+    t.string "category", default: "other", null: false
+    t.date "expense_date", null: false
+    t.string "currency", default: "EUR", null: false
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.string "location"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_expenses_on_category"
+    t.index ["expense_date"], name: "index_expenses_on_expense_date"
+    t.index ["payer_id"], name: "index_expenses_on_payer_id"
+    t.index ["trip_id"], name: "index_expenses_on_trip_id"
+  end
+
   create_table "journal_entries", force: :cascade do |t|
     t.integer "trip_id", null: false
     t.text "content"
@@ -48,8 +78,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_181302) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "latitude", precision: 10, scale: 6
-    t.decimal "longitude", precision: 10, scale: 6
+    t.decimal "latitude", precision: 12, scale: 8
+    t.decimal "longitude", precision: 12, scale: 8
     t.index ["trip_id"], name: "index_journal_entries_on_trip_id"
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
@@ -61,6 +91,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_181302) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "trip_members", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.integer "user_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "joined_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role"], name: "index_trip_members_on_role"
+    t.index ["trip_id", "user_id"], name: "index_trip_members_on_trip_id_and_user_id", unique: true
+    t.index ["trip_id"], name: "index_trip_members_on_trip_id"
+    t.index ["user_id"], name: "index_trip_members_on_user_id"
   end
 
   create_table "trips", force: :cascade do |t|
@@ -85,8 +128,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_29_181302) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "expense_participants", "expenses"
+  add_foreign_key "expense_participants", "users"
+  add_foreign_key "expenses", "trips"
+  add_foreign_key "expenses", "users", column: "payer_id"
   add_foreign_key "journal_entries", "trips"
   add_foreign_key "journal_entries", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "trip_members", "trips"
+  add_foreign_key "trip_members", "users"
   add_foreign_key "trips", "users"
 end

@@ -15,6 +15,14 @@ Rails.application.routes.draw do
     resources :journal_entries, except: [:show, :index] do
       patch :toggle_favorite, on: :member
     end
+    
+    # Expenses nested under trips
+    resources :expenses, except: [:show] do
+      member do
+        patch :toggle_settled
+        get :duplicate
+      end
+    end
   end
   
   # Global phase routes
