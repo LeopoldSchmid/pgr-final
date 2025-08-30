@@ -1,21 +1,64 @@
-<div class="bg-background-secondary rounded-lg shadow-sm p-5 flex flex-col justify-between h-full">
-  <div>
-    <div class="flex justify-between items-start mb-2">
-      <h3 class="font-bold text-lg text-text-primary"><%= trip.name %></h3>
-      <% if trip.user != Current.user %>
-        <span class="bg-accent-yellow text-text-primary text-xs font-bold px-2 py-1 rounded-full">MEMBER</span>
+<div class="card-modern group cursor-pointer relative overflow-hidden">
+  <!-- Hero Image Area -->
+  <div class="relative h-48 bg-gradient-purple rounded-xl mb-4 overflow-hidden">
+    <% if trip.photos.any? %>
+      <img src="<%= trip.photos.first %>" alt="<%= trip.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+    <% else %>
+      <!-- Placeholder gradient with destination initial -->
+      <div class="w-full h-full bg-gradient-purple flex items-center justify-center">
+        <span class="text-4xl font-bold text-white/80"><%= trip.name.first.upcase %></span>
+      </div>
+    <% end %>
+    
+    <!-- Status Badge -->
+    <% if trip.user != Current.user %>
+      <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+        <span class="text-text-primary text-xs font-medium">Member</span>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Content Area -->
+  <div class="space-y-3">
+    <div class="flex justify-between items-start">
+      <h3 class="font-semibold text-xl text-text-primary leading-tight"><%= trip.name %></h3>
+      <% case phase %>
+      <% when 'plan' %>
+        <span class="bg-accent-yellow/20 text-accent-yellow-dark px-2 py-1 rounded-full text-xs font-medium">Planning</span>
+      <% when 'go' %>
+        <span class="bg-accent-green/20 text-accent-green-dark px-2 py-1 rounded-full text-xs font-medium">Active</span>
+      <% when 'reminisce' %>
+        <span class="bg-accent-purple/20 text-accent-purple-dark px-2 py-1 rounded-full text-xs font-medium">Complete</span>
       <% end %>
     </div>
-    <p class="text-text-secondary text-sm mb-4 line-clamp-3"><%= trip.description %></p>
-  </div>
-  <div>
+    
+    <% if trip.description.present? %>
+      <p class="text-text-primary/70 text-sm leading-relaxed line-clamp-2"><%= trip.description %></p>
+    <% end %>
+
+    <!-- Action Button -->
     <% case phase %>
     <% when 'plan' %>
-      <%= link_to "Continue Planning →", plan_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+      <%= link_to plan_trip_path(trip), class: "inline-flex items-center text-primary-accent font-medium text-sm hover:text-primary-accent/80 transition-colors" do %>
+        Continue Planning
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
     <% when 'go' %>
-      <%= link_to "Trip Dashboard →", go_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+      <%= link_to go_trip_path(trip), class: "inline-flex items-center text-primary-accent font-medium text-sm hover:text-primary-accent/80 transition-colors" do %>
+        Open Dashboard
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
     <% when 'reminisce' %>
-      <%= link_to "View Memories →", reminisce_trip_path(trip), class: "text-primary-accent text-sm font-semibold hover:text-blue-400" %>
+      <%= link_to reminisce_trip_path(trip), class: "inline-flex items-center text-primary-accent font-medium text-sm hover:text-primary-accent/80 transition-colors" do %>
+        View Memories
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
     <% end %>
   </div>
 </div>

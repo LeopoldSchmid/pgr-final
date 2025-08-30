@@ -18,13 +18,13 @@
     
     <div class="flex items-center space-x-4">
       <span class="bg-primary-accent text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-        🌱 Planning
+Planning
       </span>
       <span class="text-text-secondary font-medium">
         <% if @trip.start_date %>
-          📅 <%= @trip.start_date.strftime("%b %d, %Y") %>
+          <%= @trip.start_date.strftime("%b %d, %Y") %>
         <% else %>
-          📅 Dates TBD
+          Dates TBD
         <% end %>
       </span>
     </div>
@@ -35,7 +35,7 @@
     <!-- Dates & Destination -->
     <div class="bg-background-secondary rounded-lg shadow-sm p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-text-primary">📅 Dates & Destination</h3>
+        <h3 class="text-lg font-semibold text-text-primary">Dates & Destination</h3>
         <button class="text-primary-accent text-sm hover:text-blue-400">Edit</button>
       </div>
       
@@ -116,7 +116,7 @@
         <div class="text-center py-4 border-t border-gray-200">
           <%= link_to new_trip_invitation_path(@trip), 
               class: "inline-flex items-center px-4 py-2 bg-primary-accent text-white text-sm font-medium rounded-lg hover:bg-blue-400 transition-all duration-200 shadow-md" do %>
-            <span class="mr-2">💌</span> Invite Friends
+            Invite Friends
           <% end %>
           <% if @trip.invitations.any? %>
             <div class="mt-2">
@@ -133,12 +133,16 @@
     <!-- Activities & Plans -->
     <div class="bg-background-secondary rounded-lg shadow-sm p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-text-primary">🎯 Activities & Plans</h3>
+        <h3 class="text-lg font-semibold text-text-primary">Activities & Plans</h3>
         <button class="text-primary-accent text-sm hover:text-blue-400">Add</button>
       </div>
       
       <div class="text-center py-8 text-text-secondary">
-        <div class="text-4xl mb-2">📋</div>
+        <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+          <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
         <p class="text-sm">No activities planned yet</p>
         <button class="mt-2 text-primary-accent text-sm hover:text-blue-400">Add your first activity</button>
       </div>
@@ -147,7 +151,7 @@
     <!-- Budget & Expenses -->
     <div class="bg-background-secondary rounded-lg shadow-sm p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-text-primary">💰 Budget & Expenses</h3>
+        <h3 class="text-lg font-semibold text-text-primary">Budget & Expenses</h3>
         <%= link_to trip_expenses_path(@trip), class: "text-primary-accent text-sm hover:text-blue-400" do %>
           Manage Expenses
         <% end %>
@@ -168,13 +172,17 @@
           <div class="pt-2">
             <%= link_to trip_expenses_path(@trip), 
                 class: "text-primary-accent text-sm hover:text-blue-400 flex items-center" do %>
-              📊 View All Expenses →
+              View All Expenses →
             <% end %>
           </div>
         </div>
       <% else %>
         <div class="text-center py-8 text-text-secondary">
-          <div class="text-4xl mb-2">💰</div>
+          <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+            <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+            </svg>
+          </div>
           <p class="text-sm">No expenses tracked yet</p>
           <%= link_to new_trip_expense_path(@trip), 
               class: "mt-2 text-primary-accent text-sm hover:text-blue-400 inline-block" do %>
@@ -187,14 +195,18 @@
     <!-- Meals & Recipes -->
     <div class="bg-background-secondary rounded-lg shadow-sm p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-text-primary">🍽️ Meals & Recipes</h3>
+        <h3 class="text-lg font-semibold text-text-primary">Meals & Recipes</h3>
         <%= link_to trip_recipes_path(@trip), class: "text-primary-accent text-sm hover:text-blue-400" do %>
           Plan Meals
         <% end %>
       </div>
       
       <div class="text-center py-8 text-text-secondary">
-        <div class="text-4xl mb-2">🍳</div>
+        <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+          <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+          </svg>
+        </div>
         <p class="text-sm">No meals planned yet</p>
         <button class="mt-2 text-primary-accent text-sm hover:text-blue-400">Start meal planning</button>
       </div>
@@ -206,19 +218,35 @@
     <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">📅</span>
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
         <span class="text-sm font-medium text-text-secondary">Set Dates</span>
       </button>
       <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">✉️</span>
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
         <span class="text-sm font-medium text-text-secondary">Invite Friends</span>
       </button>
       <%= link_to new_trip_expense_path(@trip), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
-        <span class="text-2xl mb-2">💰</span>
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+          </svg>
+        </div>
         <span class="text-sm font-medium text-text-secondary">Add Expense</span>
       <% end %>
       <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">🏃</span>
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
         <span class="text-sm font-medium text-text-secondary">Start Trip</span>
       </button>
     </div>

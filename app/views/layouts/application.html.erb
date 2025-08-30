@@ -17,6 +17,11 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%# Google Fonts - Instrument Sans %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%# Leaflet.js CSS %>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
@@ -25,7 +30,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-gradient-primary text-text-primary">
+  <body class="min-h-screen bg-gradient-primary text-text-primary font-sans">
     <% if authenticated? %>
       <!-- Top Navigation for authenticated users -->
       <nav class="bg-background-secondary shadow-sm">
@@ -33,7 +38,7 @@
           <div class="flex justify-between items-center h-16">
             <%= link_to root_path, class: "flex items-center" do %>
               <span class="text-xl font-bold text-primary-accent">
-                🌿 PlanGoReminisce
+                PlanGoReminisce
               </span>
             <% end %>
             
@@ -49,8 +54,8 @@
               <% pending_invitations = Invitation.where(email: Current.user.email_address).pending %>
               <% if pending_invitations.any? %>
                 <%= link_to user_invitations_path, 
-                    class: "relative bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-400 transition-all duration-200 shadow-sm" do %>
-                  💌 Invitations
+                    class: "relative bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-accent/80 transition-all duration-200 shadow-sm" do %>
+                  Invitations
                   <span class="absolute -top-2 -right-2 bg-accent-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     <%= pending_invitations.count %>
                   </span>

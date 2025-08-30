@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-accent: #E4A094;
+  --color-primary-accent: #7A83B3;
   --color-background-primary: #F5F4F9;
   --color-background-primary-dark: #D4D1D7;
-  --color-background-secondary: #C9E0DD;
-  --color-background-secondary-dark: #B2CECB;
+  --color-background-secondary: #F5F4F9;
+  --color-background-secondary-dark: #D4D1D7;
   --color-text-primary: #1C1C1E;
   --color-text-secondary: #1C1C1E ;
   --color-accent-yellow: #DDCA7E;
@@ -24,11 +24,47 @@
 }
 
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #F5F4F9 0%, #D4D1D7 100%);
+  background: linear-gradient(135deg, var(--color-background-primary) 0%, var(--color-background-primary-dark) 100%);
 }
 
 /* Ensure the gradient covers the full viewport */
 body.bg-gradient-primary {
-  background: linear-gradient(135deg, #F5F4F9 0%, #D4D1D7 100%);
+  background: linear-gradient(135deg, var(--color-background-primary) 0%, var(--color-background-primary-dark) 100%);
   background-attachment: fixed;
+}
+
+/* Gradient utility classes for cards and components */
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-secondary-dark) 100%);
+}
+
+.bg-gradient-yellow {
+  background: linear-gradient(135deg, var(--color-accent-yellow) 0%, var(--color-accent-yellow-dark) 100%);
+}
+
+.bg-gradient-green {
+  background: linear-gradient(135deg, var(--color-accent-green) 0%, var(--color-accent-green-dark) 100%);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, var(--color-accent-purple) 0%, var(--color-accent-purple-dark) 100%);
+}
+
+.bg-gradient-red {
+  background: linear-gradient(135deg, var(--color-accent-red) 0%, var(--color-accent-red-dark) 100%);
+}
+
+/* Modern card styling */
+.card-modern {
+  @apply rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-secondary-dark) 100%);
+}
+
+.card-hero {
+  @apply rounded-3xl shadow-2xl p-8 transform hover:scale-[1.02] transition-all duration-500;
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-secondary-dark) 100%);
+}
+
+.card-hero:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
