@@ -53,14 +53,25 @@
     <div class="mt-8 bg-gray-50 rounded-lg p-6">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-          <span class="text-2xl mb-2">🛒</span>
-          <span class="text-sm font-medium text-gray-700">Shopping Lists</span>
-        </button>
-        <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-          <span class="text-2xl mb-2">💰</span>
-          <span class="text-sm font-medium text-gray-700">Add Expense</span>
-        </button>
+        <% if @active_trips.any? %>
+          <%= link_to trip_recipes_path(@active_trips.first), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+            <span class="text-2xl mb-2">🛒</span>
+            <span class="text-sm font-medium text-gray-700">Shopping Lists</span>
+          <% end %>
+          <%= link_to new_trip_expense_path(@active_trips.first), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+            <span class="text-2xl mb-2">💰</span>
+            <span class="text-sm font-medium text-gray-700">Add Expense</span>
+          <% end %>
+        <% else %>
+          <div class="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow-sm opacity-50">
+            <span class="text-2xl mb-2">🛒</span>
+            <span class="text-sm font-medium text-gray-500">Shopping Lists</span>
+          </div>
+          <div class="flex flex-col items-center p-4 bg-gray-100 rounded-lg shadow-sm opacity-50">
+            <span class="text-2xl mb-2">💰</span>
+            <span class="text-sm font-medium text-gray-500">Add Expense</span>
+          </div>
+        <% end %>
         <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
           <span class="text-2xl mb-2">📋</span>
           <span class="text-sm font-medium text-gray-700">Today's Tasks</span>

@@ -1,0 +1,139 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @shopping_list.name %></h1>
+      <p class="text-gray-600 mt-1">
+        <%= @shopping_list.completion_percentage %>% complete • 
+        <%= pluralize(@remaining_items.count, 'item') %> remaining
+      </p>
+    </div>
+    <%= link_to trip_recipes_path(@trip), class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+      ← Back to Recipes
+    <% end %>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="mb-6">
+    <div class="bg-gray-200 rounded-full h-2">
+      <div class="bg-green-500 h-2 rounded-full transition-all duration-300" style="width: <%= @shopping_list.completion_percentage %>%"></div>
+    </div>
+  </div>
+
+  <!-- Add Manual Item Form -->
+  <div class="bg-white rounded-lg shadow-sm border p-4 mb-6">
+    <h3 class="font-medium text-gray-900 mb-3">Add Item</h3>
+    <%= form_with url: add_manual_item_trip_shopping_list_path(@trip, @shopping_list), method: :post, local: true, class: "grid grid-cols-12 gap-2 items-end" do |form| %>
+      <div class="col-span-4">
+        <%= form.text_field :name, placeholder: "Item name", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm", "data-shopping-item" => "name" %>
+      </div>
+      
+      <div class="col-span-2">
+        <%= form.number_field :quantity, step: :any, placeholder: "2", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm", "data-shopping-item" => "quantity" %>
+      </div>
+      
+      <div class="col-span-2">
+        <%= form.text_field :unit, placeholder: "units", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm", "data-shopping-item" => "unit" %>
+      </div>
+      
+      <div class="col-span-3">
+        <%= form.select :category, 
+            options_for_select([
+              ['🥕 Produce', 'produce'],
+              ['🥛 Dairy', 'dairy'],
+              ['🥩 Meat', 'meat'],
+              ['🐟 Seafood', 'seafood'],
+              ['🏪 Pantry', 'pantry'],
+              ['🧄 Spices', 'spices'],
+              ['🧊 Frozen', 'frozen'],
+              ['📦 Other', 'other']
+            ], 'other'),
+            { include_blank: 'Category' },
+            { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" } %>
+      </div>
+      
+      <div class="col-span-1">
+        <%= form.submit "+", class: "bg-blue-600 text-white px-3 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Shopping Items by Category -->
+  <% if @items_by_category.any? %>
+    <% @items_by_category.each do |category, items| %>
+      <div class="bg-white rounded-lg shadow-sm border p-4 mb-4">
+        <h3 class="font-medium text-gray-900 mb-3 flex items-center">
+          <%= items.first.category_emoji %> <%= category.humanize %>
+          <span class="ml-2 text-sm text-gray-500">(<%= items.count %> items)</span>
+        </h3>
+        
+        <div class="space-y-2">
+          <% items.each do |item| %>
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div class="flex items-center space-x-3">
+                <%= form_with model: [@trip, @shopping_list, item], url: toggle_purchased_trip_shopping_list_shopping_item_path(@trip, @shopping_list, item), method: :patch, local: true do |form| %>
+                  <button type="submit" class="<%= item.purchased? ? 'text-green-600' : 'text-gray-400' %> hover:text-green-700 text-lg">
+                    <%= item.purchased? ? '✓' : '☐' %>
+                  </button>
+                <% end %>
+                
+                <div class="<%= 'line-through opacity-60' if item.purchased? %>">
+                  <span class="font-medium"><%= item.name %></span>
+                  <% if item.quantity.present? %>
+                    <span class="text-gray-600 text-sm">(<%= item.formatted_quantity %>)</span>
+                  <% end %>
+                </div>
+                
+                <% if item.source_type == 'Recipe' && item.source_recipe %>
+                  <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                    from <%= item.source_recipe.name %>
+                  </span>
+                <% end %>
+              </div>
+              
+              <% if item.source_type == 'Manual' %>
+                <%= link_to trip_shopping_list_shopping_item_path(@trip, @shopping_list, item), 
+                    method: :delete, 
+                    confirm: "Remove this item?",
+                    class: "text-red-500 hover:text-red-700 text-sm" do %>
+                  ✕
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">🛒</div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Shopping list is empty</h2>
+      <p class="text-gray-600 mb-6">Add items manually or generate from selected recipes!</p>
+      <%= link_to "Add Recipes", trip_recipes_path(@trip), class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+    </div>
+  <% end %>
+
+  <!-- Summary -->
+  <% if @shopping_list.shopping_items.any? %>
+    <div class="mt-8 bg-gray-50 rounded-lg p-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div>
+          <div class="text-2xl font-bold text-gray-900"><%= @shopping_list.shopping_items.count %></div>
+          <div class="text-sm text-gray-600">Total Items</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-green-600"><%= @purchased_items.count %></div>
+          <div class="text-sm text-gray-600">Purchased</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-orange-600"><%= @remaining_items.count %></div>
+          <div class="text-sm text-gray-600">Remaining</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-purple-600"><%= @shopping_list.shopping_items.from_recipes.count %></div>
+          <div class="text-sm text-gray-600">From Recipes</div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

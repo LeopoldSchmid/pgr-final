@@ -176,6 +176,12 @@ if weekend_trip
   end
 end
 
+# Load food items database
+load Rails.root.join('db', 'seeds', 'food_items.rb')
+
+# Load public recipes database
+load Rails.root.join('db', 'seeds', 'public_recipes.rb')
+
 puts "Created test user: test@example.com / password123"
 puts "Created dummy users: alice@example.com, bob@example.com, charlie@example.com (all with password123)"
 puts "Added sample expenses to Weekend Adventure trip for testing expense splitting"

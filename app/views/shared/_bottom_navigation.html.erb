@@ -2,6 +2,7 @@
   <div class="flex justify-around py-3">
     <% nav_items = [
       { path: root_path, icon: "🏠", label: "Home", active: current_page?(root_path) },
+      { path: recipe_library_path, icon: "📚", label: "Recipes", active: current_page?(recipe_library_path) },
       { path: "/plan", icon: "📋", label: "Plan", active: params[:phase] == "plan" || current_page?("/plan") },
       { path: "/go", icon: "🏃", label: "Go", active: params[:phase] == "go" || current_page?("/go") },
       { path: "/reminisce", icon: "💭", label: "Reminisce", active: params[:phase] == "reminisce" || current_page?("/reminisce") }

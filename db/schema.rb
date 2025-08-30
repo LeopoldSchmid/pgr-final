@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -69,6 +69,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
     t.index ["trip_id"], name: "index_expenses_on_trip_id"
   end
 
+  create_table "food_items", force: :cascade do |t|
+    t.string "name"
+    t.string "standard_unit"
+    t.string "category"
+    t.string "unit_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "ingredients", force: :cascade do |t|
+    t.integer "recipe_id", null: false
+    t.string "name"
+    t.decimal "quantity"
+    t.string "unit"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "food_item_id"
+    t.index ["food_item_id"], name: "index_ingredients_on_food_item_id"
+    t.index ["recipe_id"], name: "index_ingredients_on_recipe_id"
+  end
+
   create_table "invitations", force: :cascade do |t|
     t.integer "trip_id", null: false
     t.string "email", null: false
@@ -101,6 +123,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
 
+  create_table "recipes", force: :cascade do |t|
+    t.integer "trip_id"
+    t.string "name"
+    t.integer "servings"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "selected_for_shopping"
+    t.string "source_type", default: "trip"
+    t.integer "parent_recipe_id"
+    t.integer "user_id"
+    t.boolean "proposed_for_public", default: false
+    t.index ["source_type"], name: "index_recipes_on_source_type"
+    t.index ["trip_id"], name: "index_recipes_on_trip_id"
+    t.index ["user_id"], name: "index_recipes_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "user_agent"
@@ -108,6 +147,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "shopping_items", force: :cascade do |t|
+    t.integer "shopping_list_id", null: false
+    t.string "name"
+    t.decimal "quantity"
+    t.string "unit"
+    t.string "category"
+    t.boolean "purchased"
+    t.string "source_type"
+    t.integer "source_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shopping_list_id"], name: "index_shopping_items_on_shopping_list_id"
+  end
+
+  create_table "shopping_lists", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.string "name"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_shopping_lists_on_trip_id"
   end
 
   create_table "trip_members", force: :cascade do |t|
@@ -149,11 +211,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_094246) do
   add_foreign_key "expense_participants", "users"
   add_foreign_key "expenses", "trips"
   add_foreign_key "expenses", "users", column: "payer_id"
+  add_foreign_key "ingredients", "food_items"
+  add_foreign_key "ingredients", "recipes"
   add_foreign_key "invitations", "trips"
   add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "journal_entries", "trips"
   add_foreign_key "journal_entries", "users"
+  add_foreign_key "recipes", "recipes", column: "parent_recipe_id"
+  add_foreign_key "recipes", "trips"
+  add_foreign_key "recipes", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "shopping_items", "shopping_lists"
+  add_foreign_key "shopping_lists", "trips"
   add_foreign_key "trip_members", "trips"
   add_foreign_key "trip_members", "users"
   add_foreign_key "trips", "users"

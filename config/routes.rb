@@ -37,12 +37,45 @@ Rails.application.routes.draw do
     
     # Invitations nested under trips
     resources :invitations, only: [:new, :create, :index, :destroy]
+    
+    # Recipes nested under trips
+    resources :recipes do
+      member do
+        patch :toggle_selected
+      end
+    end
+    
+    # Shopping lists nested under trips
+    resources :shopping_lists, only: [:index, :show, :create, :update] do
+      member do
+        post :generate_from_recipes
+        post :add_manual_item
+      end
+      resources :shopping_items, only: [:create, :update, :destroy] do
+        member do
+          patch :toggle_purchased
+        end
+      end
+    end
   end
   
   # Global phase routes
   get "plan" => "phases#plan"
   get "go" => "phases#go"
   get "reminisce" => "phases#reminisce"
+  
+  # Recipe library (browse all recipes)
+  get 'recipes' => 'recipe_library#index', as: :recipe_library
+  post 'recipes/:id/copy' => 'recipe_library#copy', as: :copy_recipe
+  
+  # API routes
+  namespace :api do
+    resources :food_items, only: [] do
+      collection do
+        get :search
+      end
+    end
+  end
   
   # Main application routes
   root "home#index"

@@ -1,0 +1,87 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Trip Recipes</h1>
+      <p class="text-gray-600 mt-1">Plan meals and generate shopping lists</p>
+    </div>
+    <%= link_to new_trip_recipe_path(@trip), class: "bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" do %>
+      + Add Recipe
+    <% end %>
+  </div>
+
+  <% if @recipes.any? %>
+    <!-- Selected for Shopping -->
+    <% if @selected_recipes.any? %>
+      <section class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-green-800">🛒 Selected for Shopping</h2>
+          <%= form_with url: generate_from_recipes_trip_shopping_list_path(@trip, @trip.shopping_lists.first || @trip.shopping_lists.create!), method: :post, local: true do |form| %>
+            <%= form.hidden_field :recipe_ids, value: @selected_recipes.pluck(:id).join(',') %>
+            <%= form.submit "Generate Shopping List", class: "bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors text-sm" %>
+          <% end %>
+        </div>
+        <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <% @selected_recipes.each do |recipe| %>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold text-green-900"><%= recipe.name %></h3>
+                <%= form_with model: [@trip, recipe], url: toggle_selected_trip_recipe_path(@trip, recipe), method: :patch, local: true do |form| %>
+                  <%= form.submit "✓", class: "text-green-600 bg-transparent border-0 text-sm hover:text-green-800" %>
+                <% end %>
+              </div>
+              <div class="text-sm text-green-700 mb-2">
+                <%= pluralize(recipe.servings, 'serving') %> • <%= pluralize(recipe.ingredients.count, 'ingredient') %>
+              </div>
+              <div class="flex space-x-2">
+                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-green-600 hover:text-green-800 text-sm font-medium" %>
+                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-green-600 hover:text-green-800 text-sm font-medium" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+    <!-- All Recipes -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">All Recipes</h2>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <% @recipes.each do |recipe| %>
+          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-gray-900"><%= recipe.name %></h3>
+              <%= form_with model: [@trip, recipe], url: toggle_selected_trip_recipe_path(@trip, recipe), method: :patch, local: true do |form| %>
+                <% if recipe.selected_for_shopping %>
+                  <%= form.submit "✓", class: "text-green-600 bg-transparent border-0 text-sm hover:text-green-800" %>
+                <% else %>
+                  <%= form.submit "☐", class: "text-gray-400 bg-transparent border-0 text-sm hover:text-gray-600" %>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="text-sm text-gray-600 mb-3">
+              <%= pluralize(recipe.servings, 'serving') %> • <%= pluralize(recipe.ingredients.count, 'ingredient') %>
+            </div>
+            <% if recipe.description.present? %>
+              <p class="text-sm text-gray-600 mb-3 line-clamp-2"><%= recipe.description %></p>
+            <% end %>
+            <div class="flex justify-between items-center">
+              <div class="flex space-x-2">
+                <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+                <%= link_to "Edit", edit_trip_recipe_path(@trip, recipe), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+              </div>
+              <%= link_to "Delete", trip_recipe_path(@trip, recipe), method: :delete, confirm: "Delete this recipe?", class: "text-red-500 hover:text-red-700 text-sm" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">🍽️</div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">No recipes yet</h2>
+      <p class="text-gray-600 mb-6">Add recipes to plan meals and generate shopping lists for your trip!</p>
+      <%= link_to "Add Your First Recipe", new_trip_recipe_path(@trip), class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,263 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Add Recipe</h1>
+      <%= link_to trip_recipes_path(@trip), class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+        ← Back to Recipes
+      <% end %>
+    </div>
+
+    <%= form_with model: [@trip, @recipe], local: true, class: "space-y-6" do |form| %>
+      <% if @recipe.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div class="text-red-800 font-medium mb-2">Please fix the following errors:</div>
+          <ul class="text-red-700 text-sm space-y-1">
+            <% @recipe.errors.full_messages.each do |message| %>
+              <li>• <%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Basic Recipe Info -->
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Recipe Details</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.text_field :name, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "e.g., Pasta Carbonara" %>
+          </div>
+          
+          <div>
+            <%= form.label :servings, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.number_field :servings, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "4", min: 1 %>
+          </div>
+        </div>
+        
+        <div>
+          <%= form.label :description, "Notes (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.text_area :description, rows: 2, class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Any prep notes or variations..." %>
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">Ingredients</h2>
+          <span class="text-sm text-gray-500">Focus on what you need to buy</span>
+        </div>
+        
+        <div id="ingredients" class="space-y-3">
+          <%= form.fields_for :ingredients do |ingredient_form| %>
+            <div class="ingredient-item grid grid-cols-12 gap-2 items-end" data-ingredient-index="<%= ingredient_form.index %>">
+              <%= ingredient_form.hidden_field :food_item_id %>
+              
+              <div class="col-span-4 relative">
+                <%= ingredient_form.text_field :name, placeholder: "Type ingredient name...", 
+                    class: "ingredient-name-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm",
+                    autocomplete: "off" %>
+                <div class="ingredient-suggestions absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto hidden shadow-lg"></div>
+              </div>
+              
+              <div class="col-span-2">
+                <%= ingredient_form.number_field :quantity, step: :any, placeholder: "2", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" %>
+              </div>
+              
+              <div class="col-span-2">
+                <%= ingredient_form.text_field :unit, placeholder: "g", class: "ingredient-unit-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" %>
+              </div>
+              
+              <div class="col-span-3">
+                <%= ingredient_form.select :category, 
+                    options_for_select([
+                      ['🥕 Produce', 'produce'],
+                      ['🥛 Dairy', 'dairy'],
+                      ['🥩 Meat', 'meat'],
+                      ['🐟 Seafood', 'seafood'],
+                      ['🏪 Pantry', 'pantry'],
+                      ['🧄 Spices', 'spices'],
+                      ['🧊 Frozen', 'frozen'],
+                      ['📦 Other', 'other']
+                    ], 'other'),
+                    { include_blank: 'Category' },
+                    { class: "ingredient-category-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" } %>
+              </div>
+              
+              <div class="col-span-1">
+                <%= ingredient_form.check_box :_destroy, { class: "hidden" }, "1", "0" %>
+                <button type="button" class="remove-ingredient text-red-500 hover:text-red-700 text-sm p-1">✕</button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <button type="button" id="add-ingredient" class="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium">
+          + Add another ingredient
+        </button>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <%= link_to trip_recipes_path(@trip), class: "px-4 py-2 text-gray-700 hover:text-gray-900 font-medium" do %>
+          Cancel
+        <% end %>
+        <%= form.submit "Save Recipe", class: "bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  let debounceTimer;
+  
+  // Initialize autocomplete for existing ingredient inputs
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeAutocomplete();
+  });
+  
+  // Initialize autocomplete functionality
+  function initializeAutocomplete() {
+    document.querySelectorAll('.ingredient-name-input').forEach(function(input) {
+      if (!input.hasAttribute('data-autocomplete-initialized')) {
+        input.setAttribute('data-autocomplete-initialized', 'true');
+        setupAutocomplete(input);
+      }
+    });
+  }
+  
+  // Setup autocomplete for a specific input
+  function setupAutocomplete(input) {
+    const suggestionContainer = input.parentElement.querySelector('.ingredient-suggestions');
+    const ingredientItem = input.closest('.ingredient-item');
+    const unitInput = ingredientItem.querySelector('.ingredient-unit-input');
+    const categorySelect = ingredientItem.querySelector('.ingredient-category-select');
+    const foodItemIdInput = ingredientItem.querySelector('input[type="hidden"][name*="food_item_id"]');
+    
+    input.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      const query = this.value.trim();
+      
+      if (query.length < 2) {
+        suggestionContainer.classList.add('hidden');
+        return;
+      }
+      
+      debounceTimer = setTimeout(() => {
+        fetch(`/api/food_items/search?q=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            suggestionContainer.innerHTML = '';
+            
+            if (data.length > 0) {
+              data.forEach(item => {
+                const suggestion = document.createElement('div');
+                suggestion.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0';
+                suggestion.innerHTML = `
+                  <div class="font-medium">${item.name}</div>
+                  <div class="text-xs text-gray-500">${item.unit} • ${item.category}</div>
+                `;
+                
+                suggestion.addEventListener('click', function() {
+                  input.value = item.name;
+                  unitInput.value = item.unit;
+                  categorySelect.value = item.category;
+                  foodItemIdInput.value = item.id;
+                  suggestionContainer.classList.add('hidden');
+                });
+                
+                suggestionContainer.appendChild(suggestion);
+              });
+              suggestionContainer.classList.remove('hidden');
+            } else {
+              suggestionContainer.classList.add('hidden');
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching suggestions:', error);
+            suggestionContainer.classList.add('hidden');
+          });
+      }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!input.contains(e.target) && !suggestionContainer.contains(e.target)) {
+        suggestionContainer.classList.add('hidden');
+      }
+    });
+    
+    // Clear food_item_id when manually typing
+    input.addEventListener('keydown', function() {
+      foodItemIdInput.value = '';
+    });
+  }
+  
+  // Add ingredient functionality
+  document.addEventListener('click', function(e) {
+    if (e.target.id === 'add-ingredient') {
+      const ingredientsContainer = document.getElementById('ingredients');
+      const lastItem = ingredientsContainer.querySelector('.ingredient-item:last-child');
+      const newIndex = Date.now(); // Use timestamp as unique index
+      
+      const newIngredient = document.createElement('div');
+      newIngredient.className = 'ingredient-item grid grid-cols-12 gap-2 items-end';
+      newIngredient.setAttribute('data-ingredient-index', newIndex);
+      newIngredient.innerHTML = `
+        <input type="hidden" name="recipe[ingredients_attributes][${newIndex}][food_item_id]" value="">
+        
+        <div class="col-span-4 relative">
+          <input type="text" name="recipe[ingredients_attributes][${newIndex}][name]" placeholder="Type ingredient name..." 
+                 class="ingredient-name-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                 autocomplete="off">
+          <div class="ingredient-suggestions absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto hidden shadow-lg"></div>
+        </div>
+        
+        <div class="col-span-2">
+          <input type="number" name="recipe[ingredients_attributes][${newIndex}][quantity]" step="any" placeholder="2" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        </div>
+        
+        <div class="col-span-2">
+          <input type="text" name="recipe[ingredients_attributes][${newIndex}][unit]" placeholder="g" 
+                 class="ingredient-unit-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        </div>
+        
+        <div class="col-span-3">
+          <select name="recipe[ingredients_attributes][${newIndex}][category]" 
+                  class="ingredient-category-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <option value="">Category</option>
+            <option value="produce">🥕 Produce</option>
+            <option value="dairy">🥛 Dairy</option>
+            <option value="meat">🥩 Meat</option>
+            <option value="seafood">🐟 Seafood</option>
+            <option value="pantry">🏪 Pantry</option>
+            <option value="spices">🧄 Spices</option>
+            <option value="frozen">🧊 Frozen</option>
+            <option value="other" selected>📦 Other</option>
+          </select>
+        </div>
+        
+        <div class="col-span-1">
+          <input type="hidden" name="recipe[ingredients_attributes][${newIndex}][_destroy]" value="0">
+          <button type="button" class="remove-ingredient text-red-500 hover:text-red-700 text-sm p-1">✕</button>
+        </div>
+      `;
+      
+      ingredientsContainer.appendChild(newIngredient);
+      
+      // Initialize autocomplete for the new input
+      const newInput = newIngredient.querySelector('.ingredient-name-input');
+      setupAutocomplete(newInput);
+    }
+    
+    // Remove ingredient functionality
+    if (e.target.classList.contains('remove-ingredient')) {
+      const item = e.target.closest('.ingredient-item');
+      const destroyField = item.querySelector('input[name*="_destroy"]');
+      if (destroyField) {
+        destroyField.value = '1';
+        item.style.display = 'none';
+      }
+    }
+  });
+</script>

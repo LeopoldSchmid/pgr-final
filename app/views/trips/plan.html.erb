@@ -186,7 +186,9 @@
     <div class="bg-white rounded-lg shadow-sm border p-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900">🍽️ Meals & Recipes</h3>
-        <button class="text-blue-600 text-sm hover:text-blue-800">Plan Meals</button>
+        <%= link_to trip_recipes_path(@trip), class: "text-blue-600 text-sm hover:text-blue-800" do %>
+          Plan Meals
+        <% end %>
       </div>
       
       <div class="text-center py-8 text-gray-500">
