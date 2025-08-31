@@ -15,15 +15,7 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log('Calendar controller connecting...')
-    console.log('Values:', {
-      tripId: this.tripIdValue,
-      currentUserId: this.currentUserIdValue,
-      eventsUrl: this.eventsUrlValue,
-      voteUrl: this.voteUrlValue,
-      availabilityUrl: this.availabilityUrlValue
-    })
-    console.log('Calendar target:', this.calendarTarget)
+    this.selectedDate = null
     this.initializeCalendar()
   }
 
@@ -34,22 +26,23 @@ export default class extends Controller {
   }
 
   initializeCalendar() {
-    console.log('Initializing calendar...')
-    console.log('Calendar target element:', this.calendarTarget)
-    console.log('FullCalendar Calendar class:', Calendar)
+    const isMobile = window.innerWidth < 768
     
     this.calendar = new Calendar(this.calendarTarget, {
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       headerToolbar: {
-        left: 'prev,next today',
+        left: 'prev,next',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek'
+        right: isMobile ? 'today' : 'today dayGridMonth'
       },
       initialView: 'dayGridMonth',
       selectable: true,
       selectMirror: true,
       editable: false,
       height: 'auto',
+      aspectRatio: isMobile ? 1.0 : 1.35,
+      dayMaxEventRows: isMobile ? 2 : 4,
+      moreLinkClick: 'popover',
       
       // Event sources
       events: (info, successCallback, failureCallback) => {
@@ -68,11 +61,9 @@ export default class extends Controller {
           return response.json()
         })
         .then(data => {
-          console.log('Calendar events loaded:', data)
           successCallback(data)
         })
         .catch(error => {
-          console.error('Failed to load calendar events:', error)
           failureCallback(error)
         })
       },
@@ -80,6 +71,7 @@ export default class extends Controller {
       // Event callbacks
       select: this.handleDateSelect.bind(this),
       eventClick: this.handleEventClick.bind(this),
+      dateClick: this.handleDateClick.bind(this),
       
       // Event rendering
       eventContent: this.renderEvent.bind(this),
@@ -104,15 +96,137 @@ export default class extends Controller {
       }
     })
 
-    console.log('About to render calendar...')
     this.calendar.render()
-    console.log('Calendar rendered successfully!')
+    
+    // Add mobile touch event handling after render
+    if (window.innerWidth < 768) {
+      this.addMobileTouchHandling()
+    }
+    
+    // Add click outside to cancel selection
+    this.addOutsideClickHandler()
   }
 
   handleDateSelect(selectInfo) {
-    // Open modal to create new proposal or availability
-    console.log('Date range selected:', selectInfo.start, selectInfo.end)
-    this.showProposalModal(selectInfo.start, selectInfo.end)
+    // Handle drag selection (date range)
+    const startDate = selectInfo.start
+    const endDate = new Date(selectInfo.end.getTime() - 86400000) // Subtract 1 day for inclusive end date
+    this.showProposalModal(startDate, endDate)
+    this.calendar.unselect() // Clear the selection
+  }
+
+  handleDateClick(dateClickInfo) {
+    // Handle date clicks - same logic as mobile for consistency
+    const clickedDate = dateClickInfo.date
+    
+    if (this.selectedDate) {
+      // Second click - check if same date or different
+      if (this.selectedDate.getTime() === clickedDate.getTime()) {
+        // Second click on same date - create single day proposal
+        this.showProposalModal(clickedDate, clickedDate)
+      } else {
+        // Second click on different date - create date range proposal
+        const startDate = this.selectedDate < clickedDate ? this.selectedDate : clickedDate
+        const endDate = this.selectedDate < clickedDate ? clickedDate : this.selectedDate
+        this.showProposalModal(startDate, endDate)
+      }
+      
+      // Clear selection
+      if (window.innerWidth < 768) {
+        this.clearMobileSelection()
+      }
+      this.selectedDate = null
+    } else {
+      // First click - select the date
+      this.selectedDate = clickedDate
+      if (window.innerWidth < 768) {
+        this.showMobileSelection(clickedDate)
+      }
+    }
+  }
+
+  addMobileTouchHandling() {
+    // Add direct touch event listeners for better mobile responsiveness
+    const calendarElement = this.calendarTarget
+    
+    calendarElement.addEventListener('touchstart', (e) => {
+      this.touchStartTime = Date.now()
+    }, { passive: true })
+    
+    calendarElement.addEventListener('touchend', (e) => {
+      // Only handle if it's a quick tap (not a long press or drag)
+      if (Date.now() - this.touchStartTime < 200) {
+        const touch = e.changedTouches[0]
+        const element = document.elementFromPoint(touch.clientX, touch.clientY)
+        
+        // Find the date cell that was tapped
+        const dateCell = element.closest('.fc-daygrid-day')
+        if (dateCell && dateCell.getAttribute('data-date')) {
+          const dateStr = dateCell.getAttribute('data-date')
+          const tappedDate = new Date(dateStr + 'T12:00:00') // Add time to avoid timezone issues
+          
+          this.handleMobileDateTap(tappedDate)
+        }
+      }
+    }, { passive: true })
+  }
+
+  handleMobileDateTap(tappedDate) {
+    if (this.selectedDate) {
+      // Second tap - check if same date or different
+      if (this.selectedDate.getTime() === tappedDate.getTime()) {
+        // Second tap on same date - create single day proposal
+        this.showProposalModal(tappedDate, tappedDate)
+      } else {
+        // Second tap on different date - create date range proposal
+        const startDate = this.selectedDate < tappedDate ? this.selectedDate : tappedDate
+        const endDate = this.selectedDate < tappedDate ? tappedDate : this.selectedDate
+        this.showProposalModal(startDate, endDate)
+      }
+      
+      // Clear selection and visual feedback
+      this.clearMobileSelection()
+      this.selectedDate = null
+    } else {
+      // First tap - select and highlight the date
+      this.selectedDate = tappedDate
+      this.showMobileSelection(tappedDate)
+    }
+  }
+
+  showMobileSelection(date) {
+    // Clear any previous selection
+    this.clearMobileSelection()
+    
+    // Highlight the selected date
+    const dateCell = this.calendarTarget.querySelector(`[data-date="${this.formatDate(date)}"]`)
+    if (dateCell) {
+      dateCell.style.backgroundColor = '#1976d2'
+      dateCell.style.color = 'white'
+      dateCell.classList.add('mobile-selected')
+    }
+  }
+
+  clearMobileSelection() {
+    // Remove highlights from all selected dates
+    const selectedCells = this.calendarTarget.querySelectorAll('.mobile-selected')
+    selectedCells.forEach(cell => {
+      cell.style.backgroundColor = ''
+      cell.style.color = ''
+      cell.classList.remove('mobile-selected')
+    })
+  }
+
+  addOutsideClickHandler() {
+    // Allow users to cancel selection by clicking/tapping outside the calendar
+    document.addEventListener('click', (e) => {
+      if (this.selectedDate && !this.element.contains(e.target)) {
+        this.selectedDate = null
+        if (window.innerWidth < 768) {
+          this.clearMobileSelection()
+        }
+      }
+    })
   }
 
   handleEventClick(clickInfo) {
@@ -186,7 +300,11 @@ export default class extends Controller {
     const endInput = modalElement.querySelector('[name="date_proposal[end_date]"]')
     
     if (startInput) startInput.value = this.formatDate(startDate)
-    if (endInput) endInput.value = this.formatDate(new Date(endDate.getTime() - 86400000)) // Subtract 1 day for end date
+    if (endInput) endInput.value = this.formatDate(endDate)
+    
+    // Clear description field for new proposal
+    const descriptionInput = modalElement.querySelector('[name="date_proposal[description]"]')
+    if (descriptionInput) descriptionInput.value = ''
     
     this.openModal(modalElement)
   }
@@ -227,6 +345,14 @@ export default class extends Controller {
   openModal(modalElement) {
     modalElement.classList.remove('hidden')
     document.body.classList.add('modal-open')
+    
+    // On mobile, focus the first input for better UX
+    if (window.innerWidth < 768) {
+      const firstInput = modalElement.querySelector('input, textarea, select')
+      if (firstInput) {
+        setTimeout(() => firstInput.focus(), 100)
+      }
+    }
   }
 
   closeModal(event) {
