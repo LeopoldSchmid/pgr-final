@@ -111,7 +111,7 @@
                  location: entry.location,
                  entry_date: entry.entry_date.iso8601,
                  favorite: entry.favorite?,
-                 image_url: entry.image.attached? ? rails_blob_path(entry.image, only_path: true) : nil
+                 image_url: entry.images.attached? ? rails_blob_path(entry.images.first, only_path: true) : nil
                }
              end.to_json %>"
              data-map-target="container">

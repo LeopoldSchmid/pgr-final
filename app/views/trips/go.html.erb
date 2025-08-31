@@ -6,7 +6,7 @@
   <div class="bg-background-secondary rounded-2xl shadow-lg p-8 mb-8">
     <div class="mb-6">
       <%= link_to go_path, class: "text-primary-accent hover:text-yellow-400 font-medium flex items-center group mb-4" do %>
-        <span class="transform group-hover:-translate-x-1 transition-transform mr-2">🎒</span> Active Trips
+        <span class="transform group-hover:-translate-x-1 transition-transform mr-2">←</span> Active Trips
       <% end %>
       <h1 class="text-3xl font-bold text-text-primary">
         <%= @trip.name %>
@@ -15,154 +15,28 @@
     
     <div class="flex items-center space-x-4">
       <span class="bg-primary-accent text-background-primary px-4 py-2 rounded-xl text-sm font-bold shadow-md">
-        🏃 Active
+        Active
       </span>
       <% if @trip.start_date && @trip.end_date %>
         <span class="text-text-secondary font-medium">
-          📅 <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
+          <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
         </span>
       <% end %>
       <span class="text-text-secondary font-medium">
-        🌟 Day <%= (@trip.start_date ? (Date.current - @trip.start_date).to_i + 1 : 1) %> of trip
+        Day <%= (@trip.start_date ? (Date.current - @trip.start_date).to_i + 1 : 1) %>
       </span>
     </div>
   </div>
 
   <!-- Trip Journal -->
   <div class="mb-8">
-    <!-- Add New Journal Entry -->
-    <div class="bg-background-secondary rounded-2xl shadow-lg p-8 mb-6">
-      <h3 class="text-xl font-bold text-text-primary mb-6 flex items-center">
-        <span class="mr-3">📝</span> Capture This Moment
-      </h3>
-      
-      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-6", data: { controller: "location image-preview entry-template" } do |form| %>
-        <!-- Template Selection -->
-        <div class="bg-background-primary rounded-xl p-4">
-          <h4 class="font-semibold text-text-primary mb-2">✨ Use a Template</h4>
-          <div class="flex space-x-2">
-            <button type="button" 
-                    data-action="click->entry-template#applyTemplate" 
-                    data-entry-template-type-param="food"
-                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
-              🍽️ Food
-            </button>
-            <button type="button" 
-                    data-action="click->entry-template#applyTemplate" 
-                    data-entry-template-type-param="activity"
-                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
-              🎯 Activity
-            </button>
-            <button type="button" 
-                    data-action="click->entry-template#applyTemplate" 
-                    data-entry-template-type-param="accommodation"
-                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
-              🏨 Accommodation
-            </button>
-          </div>
-        </div>
-
-        <!-- Main Content -->
-        <div>
-          <%= form.text_area :content, 
-              placeholder: "What are you doing right now? Where are you? How does it feel? 🌟",
-              inputmode: "text",
-              autocapitalize: "sentences",
-              spellcheck: "true",
-              data: { entry_template_target: "contentField" },
-              class: "w-full p-4 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary resize-none text-lg",
-              rows: 4 %>
-        </div>
-        
-        <!-- Location Section -->
-        <div class="bg-background-primary rounded-xl p-4 space-y-4">
-          <h4 class="font-semibold text-text-primary">📍 Location</h4>
-          
-          <!-- Current Location Button -->
-          <button type="button" 
-                  data-location-target="button" 
-                  data-action="click->location#getCurrentLocation"
-                  class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
-            📍 Use Current Location
-          </button>
-          
-          <!-- Location Name -->
-          <div class="relative">
-            <%= form.text_field :location, 
-                placeholder: "Name this place (e.g., 'Central Park', 'That amazing cafe')",
-                data: { location_target: "locationName", action: "input->location#search" },
-                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-            <div data-location-target="autocompleteResults" class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg shadow-lg mt-1">
-              <!-- Autocomplete results will be appended here -->
-            </div>
-          </div>
-
-          <!-- Category Selection -->
-          <div>
-            <%= form.label :category, "Category (optional)", class: "block text-text-secondary font-medium mb-1" %>
-            <%= form.select :category, 
-                options_for_select([
-                  ["Select Category", nil],
-                  "restaurant", 
-                  "hotel", 
-                  "attraction", 
-                  "transport", 
-                  "shopping", 
-                  "other"
-                ], @new_journal_entry.category),
-                {},
-                data: { entry_template_target: "categoryField" },
-                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-          </div>
-          
-          <!-- Coordinate Fields -->
-          <div>
-            <%= form.label :latitude, "Latitude", class: "block text-text-secondary font-medium mb-1" %>
-            <%= form.text_field :latitude, 
-                data: { location_target: "latitude" },
-                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-          </div>
-          <div>
-            <%= form.label :longitude, "Longitude", class: "block text-text-secondary font-medium mb-1" %>
-            <%= form.text_field :longitude, 
-                data: { location_target: "longitude" },
-                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-          </div>
-        </div>
-        
-        <!-- Date and Favorite -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-          <div>
-            <%= form.label :entry_date, class: "block text-text-secondary font-medium mb-1" %>
-            <%= form.date_field :entry_date, 
-                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-          </div>
-          
-          <label class="flex items-center p-3 bg-yellow-900 bg-opacity-50 rounded-xl border border-yellow-700 cursor-pointer">
-            <%= form.check_box :favorite, class: "mr-3 rounded scale-125" %>
-            <span class="text-yellow-300 font-semibold">⭐ Mark as favorite moment</span>
-          </label>
-
-          <label class="flex items-center p-3 bg-blue-900 bg-opacity-50 rounded-xl border border-blue-700 cursor-pointer">
-            <%= form.check_box :global_favorite, class: "mr-3 rounded scale-125" %>
-            <span class="text-blue-300 font-semibold">🌍 Mark as global favorite location</span>
-          </label>
-        </div>
-        
-        <!-- Submit Button -->
-        <div class="text-center">
-          <%= form.submit "📝 Capture This Memory", 
-              class: "bg-primary-accent text-background-primary px-8 py-4 rounded-xl font-bold hover:bg-yellow-400 transition-all duration-200 shadow-lg transform hover:scale-105 text-lg" %>
-        </div>
-      <% end %>
-    </div>
 
     <!-- Journal Entries -->
     <% if @journal_entries.any? %>
       <div class="space-y-6" data-controller="bulk-actions" data-bulk-actions-trip-id="<%= @trip.id %>">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold text-text-primary flex items-center">
-            <span class="mr-3">📖</span> Trip Journal
+          <h3 class="text-xl font-bold text-text-primary">
+            Trip Journal
           </h3>
           <div class="flex items-center space-x-4">
             <label class="flex items-center text-text-secondary">
@@ -201,19 +75,19 @@
                     </div>
                   <% end %>
                   <% if entry.favorite? %>
-                    <div class="text-yellow-400">⭐</div>
+                    <div class="text-yellow-400">★</div>
                   <% end %>
                 </div>
                 
                 <div class="flex space-x-2">
                   <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), method: :patch, 
                       class: "text-yellow-400 hover:text-yellow-500 #{entry.favorite? ? 'opacity-100' : 'opacity-50'}" do %>
-                    ⭐
+                    ★
                   <% end %>
                   <%= link_to trip_journal_entry_path(@trip, entry), method: :delete, 
                       class: "text-red-500 hover:text-red-400 text-sm",
                       data: { confirm: "Delete this journal entry?" } do %>
-                    🗑️
+                    ×
                   <% end %>
                 </div>
               </div>
@@ -237,7 +111,7 @@
                 <span>Added <%= time_ago_in_words(entry.created_at) %> ago</span>
                 <% if entry.has_location? %>
                   <span class="bg-background-primary px-2 py-1 rounded-full">
-                    🗺️ Mapped
+                    Located
                   </span>
                 <% end %>
               </div>
@@ -246,11 +120,10 @@
         <% end %>
       </div>
     <% else %>
-      <div class="bg-background-secondary rounded-2xl shadow-lg p-12">
+      <div class="bg-background-secondary rounded-2xl shadow-lg p-8">
         <div class="text-center">
-          <div class="text-6xl mb-4 opacity-60">📖</div>
           <h3 class="text-xl font-bold text-text-primary mb-3">Start Your Trip Journal</h3>
-          <p class="text-text-secondary mb-6">Capture the moments, feelings, and discoveries as they happen. Your future self will thank you! 🌟</p>
+          <p class="text-text-secondary mb-6">Tap the + button to capture your first moment</p>
         </div>
       </div>
     <% end %>
@@ -259,8 +132,8 @@
   <!-- Memory Map -->
   <% if @journal_entries.with_location.any? %>
     <div class="mb-8">
-      <h3 class="text-xl font-bold text-text-primary mb-6 flex items-center">
-        <span class="mr-3">🗺️</span> Memory Map
+      <h3 class="text-xl font-bold text-text-primary mb-6">
+        Memory Map
       </h3>
       
       <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
@@ -276,47 +149,179 @@
                  location: entry.location,
                  entry_date: entry.entry_date.iso8601,
                  favorite: entry.favorite?,
-                 image_url: entry.image.attached? ? rails_blob_path(entry.image, only_path: true) : nil
+                 image_url: entry.images.attached? ? rails_blob_path(entry.images.first, only_path: true) : nil
                }
              end.to_json %>"
              data-map-target="container">
         </div>
         
         <div class="mt-4 text-sm text-text-secondary flex items-center justify-between">
-          <span>📍 <%= @journal_entries.with_location.count %> memories mapped</span>
-          <span>⭐ Starred memories, 📍 Regular memories</span>
+          <span><%= @journal_entries.with_location.count %> memories mapped</span>
+          <span>★ Starred • Regular memories</span>
         </div>
       </div>
     </div>
   <% end %>
 
   <!-- Quick Actions for Active Trip -->
-  <div class="mt-8 bg-background-secondary rounded-lg p-6">
-    <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <%= link_to new_trip_expense_path(@trip), class: "flex flex-col items-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
-        <span class="text-2xl mb-2">💰</span>
-        <span class="text-sm font-medium text-text-secondary">Add Expense</span>
+  <div class="mt-6 bg-background-secondary rounded-lg p-4">
+    <h3 class="text-lg font-semibold text-text-primary mb-3">Quick Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <%= link_to new_trip_expense_path(@trip), class: "flex flex-col items-center p-3 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <span class="text-lg mb-1">$</span>
+        <span class="text-xs font-medium text-text-secondary text-center">Expense</span>
       <% end %>
-      <button class="flex flex-col items-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">🛒</span>
-        <span class="text-sm font-medium text-text-secondary">Check List</span>
+      <button class="flex flex-col items-center p-3 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-lg mb-1">✓</span>
+        <span class="text-xs font-medium text-text-secondary text-center">List</span>
       </button>
-      <%= link_to trip_expenses_path(@trip), class: "flex flex-col items-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
-        <span class="text-2xl mb-2">📊</span>
-        <span class="text-sm font-medium text-text-secondary">View Expenses</span>
+      <%= link_to trip_expenses_path(@trip), class: "flex flex-col items-center p-3 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <span class="text-lg mb-1">═</span>
+        <span class="text-xs font-medium text-text-secondary text-center">View All</span>
       <% end %>
-      <button class="flex flex-col items-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <span class="text-2xl mb-2">⏰</span>
-        <span class="text-sm font-medium text-text-secondary">Set Reminder</span>
+      <button class="flex flex-col items-center p-3 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-lg mb-1">⏰</span>
+        <span class="text-xs font-medium text-text-secondary text-center">Remind</span>
       </button>
     </div>
   </div>
 
   <!-- End Trip Option -->
-  <div class="mt-8 text-center">
-    <button class="bg-gray-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors">
+  <div class="mt-6 text-center">
+    <button class="bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors text-sm">
       End Trip
     </button>
+  </div>
+
+  <!-- Capture Moment FAB & Modal System -->
+  <div data-controller="capture-modal location">
+    <!-- Floating Action Button for Capture Moment -->
+    <button data-action="capture-modal#open" 
+            class="fixed bottom-24 right-6 md:bottom-6 bg-primary-accent text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center z-40">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+    </button>
+
+    <!-- Modal -->
+    <div data-capture-modal-target="modal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+      
+      <div class="modal-content bg-background-secondary rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-text-primary">Capture This Moment</h3>
+          <button data-action="capture-modal#close" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-4">
+          <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-4" do |form| %>
+            
+            <!-- Main Content Input -->
+            <div>
+              <%= form.text_area :content, 
+                  placeholder: "What's happening right now?",
+                  class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary resize-none",
+                  rows: 4 %>
+            </div>
+            
+            <!-- Quick Location -->
+            <div class="flex items-center space-x-2">
+              <div class="flex-1">
+                <%= form.text_field :location, 
+                    placeholder: "Where are you?",
+                    data: { location_target: "locationName" },
+                    class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+              </div>
+              <button type="button" 
+                      data-action="capture-modal#getCurrentLocation"
+                      class="bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">
+                Use GPS
+              </button>
+            </div>
+
+            <!-- Quick Favorite Toggle -->
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <%= form.check_box :favorite, class: "rounded" %>
+              <span class="text-text-secondary text-sm">Mark as favorite</span>
+            </label>
+
+            <!-- Advanced Options Toggle -->
+            <button type="button" 
+                    data-action="capture-modal#toggleAdvanced"
+                    class="text-primary-accent text-sm hover:underline">
+              Show more options
+            </button>
+
+            <!-- Advanced Options (Hidden by default) -->
+            <div data-capture-modal-target="advancedOptions" class="hidden space-y-4 pt-4 border-t border-gray-200">
+              
+              <!-- Date -->
+              <div>
+                <label class="block text-text-secondary text-sm font-medium mb-1">Date</label>
+                <%= form.date_field :entry_date, 
+                    value: Date.current,
+                    class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+              </div>
+              
+              <!-- Category -->
+              <div>
+                <label class="block text-text-secondary text-sm font-medium mb-1">Category</label>
+                <%= form.select :category, 
+                    options_for_select([
+                      ["Select Category", nil],
+                      ["Restaurant", "restaurant"], 
+                      ["Hotel", "hotel"], 
+                      ["Attraction", "attraction"], 
+                      ["Transport", "transport"], 
+                      ["Shopping", "shopping"], 
+                      ["Other", "other"]
+                    ]),
+                    {},
+                    class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+              </div>
+
+              <!-- Global Favorite -->
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <%= form.check_box :global_favorite, class: "rounded" %>
+                <span class="text-text-secondary text-sm">Global favorite location</span>
+              </label>
+              
+              <!-- Coordinates (for advanced users) -->
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-text-secondary text-xs font-medium mb-1">Latitude</label>
+                  <%= form.text_field :latitude, 
+                      data: { location_target: "latitude" },
+                      class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-xs" %>
+                </div>
+                <div>
+                  <label class="block text-text-secondary text-xs font-medium mb-1">Longitude</label>
+                  <%= form.text_field :longitude, 
+                      data: { location_target: "longitude" },
+                      class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-xs" %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex space-x-3 pt-4">
+              <button type="button" 
+                      data-action="capture-modal#close"
+                      class="flex-1 py-2 px-4 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+                Cancel
+              </button>
+              <%= form.submit "Capture Memory", 
+                  class: "flex-1 py-2 px-4 bg-primary-accent text-white rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

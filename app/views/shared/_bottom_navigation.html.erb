@@ -3,8 +3,8 @@
   Features a clean, modern design with elegant icons and coral accent for the active link.
   This component is hidden on medium and larger screens (md:hidden).
 -->
-<nav class="fixed bottom-0 left-0 right-0 bg-background-secondary backdrop-blur-lg border-t border-white/20 md:hidden z-50 shadow-lg">
-  <div class="flex justify-around items-center max-w-7xl mx-auto">
+<nav class="fixed bottom-0 left-0 right-0 bg-background-secondary backdrop-blur-lg border-t border-white/20 md:hidden z-50 shadow-lg safe-area-inset-bottom">
+  <div class="flex justify-around items-center w-full px-2">
     <%# Navigation items definition - context-aware %>
     <% nav_items = [
       { path: root_path, icon: 'home', label: "Home", active: current_page?(root_path) },

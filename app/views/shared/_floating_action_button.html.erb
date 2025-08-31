@@ -11,7 +11,7 @@
   when recipe_library_path
     { 
       path: "#", 
-      icon: "📝", 
+      icon: "+", 
       tooltip: "Add Recipe", 
       color: "bg-emerald-600 hover:bg-emerald-700",
       onclick: "showCreateRecipeModal()"
@@ -19,17 +19,12 @@
   when /\/trips\/\d+\/plan/
     { 
       path: new_trip_recipe_path(@trip), 
-      icon: "🍽️", 
+      icon: "+", 
       tooltip: "Add Recipe",
       color: "bg-blue-600 hover:bg-blue-700"
     }
-  when /\/trips\/\d+\/go/
-    { 
-      path: new_trip_journal_entry_path(@trip), 
-      icon: "📝", 
-      tooltip: "Add Journal Entry",
-      color: "bg-green-600 hover:bg-green-700"
-    }
+  # Trips/go pages now use their own modal FAB - skip this page
+  # when /\/trips\/\d+\/go/
   when /\/plan/
     { 
       path: new_trip_path, 
@@ -41,7 +36,7 @@
   when /\/reminisce/
     { 
       path: "#", 
-      icon: "📸", 
+      icon: "↗", 
       tooltip: "Share Memory",
       color: "bg-purple-600 hover:bg-purple-700",
       onclick: "showShareMemoryModal()"
@@ -69,7 +64,7 @@
       <%= link_to recipe_library_path,
           class: "flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110",
           title: "Browse Recipes" do %>
-        <span class="text-lg">📚</span>
+        <span class="text-lg">≡</span>
       <% end %>
     </div>
   <% end %>
@@ -81,7 +76,7 @@
               class="flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110"
               title="Planning Help"
               onclick="showPlanningHelp()">
-        <span class="text-lg">❓</span>
+        <span class="text-lg">?</span>
       </button>
     </div>
   <% end %>
