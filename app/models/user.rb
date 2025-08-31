@@ -8,6 +8,8 @@ class User < ApplicationRecord
   has_many :expense_participants, dependent: :destroy
   has_many :participated_expenses, through: :expense_participants, source: :expense
   has_many :journal_entries, dependent: :destroy
+  has_many :user_availabilities, dependent: :destroy
+  has_many :date_proposal_votes, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   

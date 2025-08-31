@@ -35,6 +35,17 @@ module Authentication
     end
 
     def after_authentication_url
+      # Check for stored invitation token first
+      if session[:invitation_token]
+        invitation_token = session[:invitation_token]
+        invitation = Invitation.find_by(token: invitation_token)
+        if invitation&.can_be_accepted?
+          return invitation_path(invitation_token)
+        else
+          session.delete(:invitation_token)
+        end
+      end
+      
       session.delete(:return_to_after_authenticating) || root_url
     end
 

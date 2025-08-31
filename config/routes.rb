@@ -37,6 +37,8 @@ Rails.application.routes.draw do
     get :gallery, on: :member
     
     resources :date_proposals, only: [:index, :create, :destroy]
+    resources :date_proposal_votes, only: [:create, :update, :destroy]
+    resources :user_availabilities, only: [:index, :create, :update, :destroy]
     
     # Journal entries nested under trips
     resources :journal_entries, except: [:show, :index] do
@@ -93,6 +95,13 @@ Rails.application.routes.draw do
     resources :food_items, only: [] do
       collection do
         get :search
+      end
+    end
+    
+    # Calendar API endpoints
+    resources :trips, only: [] do
+      member do
+        get :calendar_events
       end
     end
   end

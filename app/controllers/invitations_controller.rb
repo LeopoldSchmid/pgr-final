@@ -66,6 +66,12 @@ class InvitationsController < ApplicationController
       return
     end
     
+    # If user is signed in but not the invited user, show error
+    if Current.user && Current.user.email_address != @invitation.email
+      render :wrong_user, status: :forbidden
+      return
+    end
+    
     # User is signed in - show the invitation
   end
 

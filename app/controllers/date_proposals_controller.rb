@@ -54,6 +54,6 @@ class DateProposalsController < ApplicationController
   end
 
   def date_proposal_params
-    params.require(:date_proposal).permit(:start_date, :end_date)
+    params.require(:date_proposal).permit(:start_date, :end_date, :description, :notes)
   end
 end

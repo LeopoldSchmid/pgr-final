@@ -1,4 +1,10 @@
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-6" 
+     data-controller="calendar"
+     data-calendar-trip-id-value="<%= @trip.id %>"
+     data-calendar-current-user-id-value="<%= Current.user.id %>"
+     data-calendar-events-url-value="<%= calendar_events_api_trip_path(@trip) %>"
+     data-calendar-vote-url-value="<%= trip_date_proposal_votes_path(@trip) %>"
+     data-calendar-availability-url-value="<%= trip_user_availabilities_path(@trip) %>">
   
   <!-- Header with Back Navigation -->
   <div class="mb-6">
@@ -9,94 +15,187 @@
       Back to <%= @trip.name %> Planning
     <% end %>
     
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-text-primary">Date Voting</h1>
-        <p class="text-text-secondary mt-1"><%= @date_proposals.count %> date proposals</p>
-      </div>
-    </div>
+
   </div>
 
-  <!-- Add New Date Proposal -->
-  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6">
-    <h3 class="text-lg font-semibold text-text-primary mb-4">Propose New Dates</h3>
-    
-    <%= form_with model: [@trip, @new_date_proposal], local: true, class: "space-y-4" do |form| %>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+  <!-- Calendar Container -->
+  <div class="calendar-container">
+    <div data-calendar-target="calendar"></div>
+  </div>
+
+  <!-- Proposal Modal -->
+  <div class="modal hidden" data-calendar-target="proposalModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Propose New Dates</h2>
+        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+      </div>
+      
+      <%= form_with model: [@trip, @new_date_proposal], local: true, class: "space-y-4" do |form| %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= form.label :start_date, "Start Date", class: "block text-sm font-medium text-text-primary mb-1" %>
+            <%= form.date_field :start_date, 
+                class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+          </div>
+          
+          <div>
+            <%= form.label :end_date, "End Date", class: "block text-sm font-medium text-text-primary mb-1" %>
+            <%= form.date_field :end_date, 
+                class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+          </div>
+        </div>
+
         <div>
-          <%= form.label :start_date, "Start Date", class: "block text-sm font-medium text-text-primary mb-1" %>
-          <%= form.date_field :start_date, 
+          <%= form.label :description, "Description (Optional)", class: "block text-sm font-medium text-text-primary mb-1" %>
+          <%= form.text_area :description, rows: 3,
+              placeholder: "Why these dates work well, what activities you have in mind...",
               class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
         </div>
         
-        <div>
-          <%= form.label :end_date, "End Date", class: "block text-sm font-medium text-text-primary mb-1" %>
-          <%= form.date_field :end_date, 
-              class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
-        </div>
-      </div>
-      
-      <div class="flex justify-end">
-        <%= form.submit "Propose These Dates", 
-            class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Date Proposals List -->
-  <% if @date_proposals.any? %>
-    <div class="space-y-4">
-      <% @date_proposals.each do |proposal| %>
-        <div class="bg-background-secondary rounded-xl shadow-sm p-6">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-center space-x-3 mb-2">
-                <h3 class="font-bold text-text-primary">
-                  <%= proposal.start_date.strftime("%B %d, %Y") %>
-                  <% if proposal.end_date != proposal.start_date %>
-                    - <%= proposal.end_date.strftime("%B %d, %Y") %>
-                  <% end %>
-                </h3>
-              </div>
-              
-              <div class="text-sm text-text-secondary mb-3">
-                Proposed by <%= proposal.user.email_address %> • <%= time_ago_in_words(proposal.created_at) %> ago
-              </div>
-              
-              <div class="flex items-center text-sm text-text-secondary">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Duration: <%= distance_of_time_in_words(proposal.start_date, proposal.end_date) %>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-              <!-- Vote buttons could go here in the future -->
-              <% if proposal.user == Current.user || @trip.user_can_manage_expenses?(Current.user) %>
-                <%= link_to trip_date_proposal_path(@trip, proposal), 
-                    method: :delete,
-                    class: "text-red-500 hover:text-red-600 transition-colors",
-                    data: { confirm: "Delete this date proposal?" } do %>
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                <% end %>
-              <% end %>
-            </div>
-          </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
+            Cancel
+          </button>
+          <%= form.submit "Propose These Dates", 
+              class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
         </div>
       <% end %>
     </div>
-  <% else %>
-    <!-- Empty State -->
-    <div class="bg-background-secondary rounded-2xl p-12 text-center">
-      <div class="text-6xl mb-4 opacity-40">🗳️</div>
-      <h3 class="text-xl font-bold text-text-primary mb-3">No date proposals yet</h3>
-      <p class="text-text-secondary mb-6">
-        Be the first to propose dates for this trip!
-      </p>
+  </div>
+
+  <!-- Vote Modal -->
+  <div class="modal hidden" data-calendar-target="voteModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Vote on Proposal</h2>
+        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+      </div>
+      
+      <div class="space-y-4">
+        <h3 class="proposal-title text-lg font-semibold text-text-primary"></h3>
+        <input type="hidden" class="proposal-id">
+        
+        <!-- Current Vote Counts -->
+        <div class="vote-counts">
+          <div class="vote-count-item">
+            <div class="vote-count-number yes-count">0</div>
+            <div class="vote-count-label">Yes</div>
+          </div>
+          <div class="vote-count-item">
+            <div class="vote-count-number no-count">0</div>
+            <div class="vote-count-label">No</div>
+          </div>
+          <div class="vote-count-item">
+            <div class="vote-count-number maybe-count">0</div>
+            <div class="vote-count-label">Maybe</div>
+          </div>
+        </div>
+
+        <!-- Vote Buttons -->
+        <div class="vote-section">
+          <h4 class="font-medium text-text-primary mb-3">Your Vote:</h4>
+          <div class="vote-buttons">
+            <button class="vote-button" data-vote="yes" data-action="click->calendar#vote">
+              <span class="vote-icon">✅</span>
+              <span class="vote-label">Yes</span>
+            </button>
+            <button class="vote-button" data-vote="maybe" data-action="click->calendar#vote">
+              <span class="vote-icon">❓</span>
+              <span class="vote-label">Maybe</span>
+            </button>
+            <button class="vote-button" data-vote="no" data-action="click->calendar#vote">
+              <span class="vote-icon">❌</span>
+              <span class="vote-label">No</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-  <% end %>
+  </div>
+
+  <!-- Availability Modal -->
+  <div class="modal hidden" data-calendar-target="availabilityModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Availability Period</h2>
+        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+      </div>
+      
+      <form class="space-y-4" data-action="submit->calendar#submitAvailability">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-text-primary mb-1">Start Date</label>
+            <input type="date" name="user_availability[start_date]" required
+                   class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-text-primary mb-1">End Date</label>
+            <input type="date" name="user_availability[end_date]" required
+                   class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-text-primary mb-1">Availability Type</label>
+          <select name="user_availability[availability_type]" required
+                  class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+            <option value="unavailable">🚫 Unavailable</option>
+            <option value="busy">📅 Busy (but possible)</option>
+            <option value="preferred">⭐ Preferred dates</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-text-primary mb-1">Title (Optional)</label>
+          <input type="text" name="user_availability[title]" 
+                 placeholder="Work conference, vacation, etc."
+                 class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-text-primary mb-1">Description (Optional)</label>
+          <textarea name="user_availability[description]" rows="3" 
+                    placeholder="Additional details about your availability..."
+                    class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary"></textarea>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+          <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
+            Cancel
+          </button>
+          <button type="submit" class="bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+            Add Availability
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="mt-6 bg-background-secondary rounded-xl p-4">
+    <h3 class="font-semibold text-text-primary mb-3">Calendar Legend</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-4 h-4 bg-green-600 rounded"></div>
+        <span class="text-sm text-text-secondary">Date Proposals</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-4 h-4 bg-red-500 rounded"></div>
+        <span class="text-sm text-text-secondary">Unavailable</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-4 h-4 bg-amber-500 rounded"></div>
+        <span class="text-sm text-text-secondary">Preferred</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-4 h-4 bg-gray-500 rounded"></div>
+        <span class="text-sm text-text-secondary">Busy</span>
+      </div>
+    </div>
+  </div>
 
 </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_171446) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -49,6 +49,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "date_proposal_votes", force: :cascade do |t|
+    t.integer "date_proposal_id", null: false
+    t.integer "user_id", null: false
+    t.string "vote_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date_proposal_id"], name: "index_date_proposal_votes_on_date_proposal_id"
+    t.index ["user_id"], name: "index_date_proposal_votes_on_user_id"
+  end
+
   create_table "date_proposals", force: :cascade do |t|
     t.integer "trip_id", null: false
     t.integer "user_id", null: false
@@ -56,6 +66,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
     t.date "end_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.text "notes"
     t.index ["trip_id"], name: "index_date_proposals_on_trip_id"
     t.index ["user_id"], name: "index_date_proposals_on_user_id"
   end
@@ -221,6 +233,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
     t.index ["user_id"], name: "index_trips_on_user_id"
   end
 
+  create_table "user_availabilities", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.string "availability_type"
+    t.string "title"
+    t.text "description"
+    t.boolean "recurring"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_availabilities_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -233,6 +258,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "journal_entries"
   add_foreign_key "comments", "users"
+  add_foreign_key "date_proposal_votes", "date_proposals"
+  add_foreign_key "date_proposal_votes", "users"
   add_foreign_key "date_proposals", "trips"
   add_foreign_key "date_proposals", "users"
   add_foreign_key "expense_participants", "expenses"
@@ -254,4 +281,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
   add_foreign_key "trip_members", "trips"
   add_foreign_key "trip_members", "users"
   add_foreign_key "trips", "users"
+  add_foreign_key "user_availabilities", "users"
 end

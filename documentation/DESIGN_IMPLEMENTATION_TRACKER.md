@@ -125,5 +125,39 @@ This document tracks the systematic implementation of the UI/UX overhaul for Pla
 
 ---
 
-**Last Updated**: 2025-08-30  
-**Status**: ✅ Design System Complete - Major UI/UX Overhaul Finished | 🔄 Polish Phase
+---
+
+## Latest Updates
+
+### ✅ August 31, 2025: Architecture Evolution & Critical Bug Fixes
+**Hub-and-spoke architecture implementation** with comprehensive error resolution:
+
+#### **Architectural Transformation**
+- **Single-Function-Per-Screen Design**: Complete transformation from multi-function pages to focused screens
+- **Hub-and-Spoke Pattern**: Implemented modern mobile app navigation (like Instagram, Uber)
+- **Progressive Disclosure**: Advanced options hidden behind "Show advanced" toggles
+- **Dedicated Function Pages**: Separate routes for capture, journal, map, gallery functions
+
+#### **Critical Bug Resolution**
+- **Map Controller Fixed**: Resolved Leaflet import issues preventing map display
+- **Image Preview Restored**: Fixed Stimulus controller method naming for Instagram-style previews
+- **Date Proposals System**: Created complete template and controller integration
+- **CSV Dependency Removed**: Eliminated unnecessary CSV require causing controller errors
+- **Controller Method Dependencies**: Fixed undefined `ready_to_start?` method calls
+
+#### **User Experience Enhancements**
+- **Clean Navigation Flow**: Back buttons and contextual navigation throughout
+- **Consistent Design Language**: Applied modern card system across all new pages
+- **Mobile-First Implementation**: Touch-friendly controls and proper spacing
+- **Error-Free Experience**: Resolved all blocking errors for smooth user journey
+
+#### **Technical Achievements**
+- **Routes Architecture**: Added nested member routes for single-function pages
+- **Controller Actions**: Implemented focused controller actions (capture, journal, map, gallery)
+- **Template System**: Created consistent template structure across new pages
+- **JavaScript Integration**: Proper Stimulus controller imports and method connections
+
+---
+
+**Last Updated**: 2025-08-31  
+**Status**: ✅ Hub-and-Spoke Architecture Complete | ✅ Critical Bug Resolution Finished | 🎯 Production Ready
