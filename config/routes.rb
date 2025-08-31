@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resources :registrations, only: [:new, :create]
   
+  # Profile route
+  get "profile" => "profile#show"
+  
   # Trip resources
   resources :trips do
     # Trip-specific phase routes

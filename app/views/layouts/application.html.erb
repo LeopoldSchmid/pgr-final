@@ -46,9 +46,9 @@
             
             <!-- Desktop navigation - hidden on mobile -->
             <div class="hidden md:flex items-center space-x-6">
-              <%= link_to "Plan", "/plan", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
-              <%= link_to "Go", "/go", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
-              <%= link_to "Reminisce", "/reminisce", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
+              <%= link_to "Plan", context_aware_navigation_path('plan'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
+              <%= link_to "Go", context_aware_navigation_path('go'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
+              <%= link_to "Reminisce", context_aware_navigation_path('reminisce'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
               <%= link_to "Timeline", timeline_path, class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
             </div>
             

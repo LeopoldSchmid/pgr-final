@@ -31,7 +31,18 @@ class DateProposalsController < ApplicationController
   private
 
   def set_trip
+    return render json: { error: "Trip ID required" }, status: :bad_request unless params[:trip_id].present?
+    
     @trip = Current.user.trips.find(params[:trip_id])
+  rescue ActiveRecord::RecordNotFound
+    # Check if user is a member
+    member_trips = Trip.joins(:trip_members)
+                      .where(trip_members: { user: Current.user }, id: params[:trip_id])
+    @trip = member_trips.first
+    
+    unless @trip
+      render json: { error: "Trip not found or access denied" }, status: :not_found
+    end
   end
 
   def set_date_proposal

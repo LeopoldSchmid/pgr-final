@@ -1,4 +1,6 @@
 <div class="container mx-auto px-4 py-6">
+  <!-- Navigation Context Indicator -->
+  <%= navigation_context_indicator.html_safe if navigation_context_indicator %>
 
   <!-- Current Planning Trips -->
   <% if @planning_trips.any? %>

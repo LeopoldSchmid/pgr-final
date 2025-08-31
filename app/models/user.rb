@@ -7,6 +7,7 @@ class User < ApplicationRecord
   has_many :paid_expenses, class_name: 'Expense', foreign_key: 'payer_id', dependent: :destroy
   has_many :expense_participants, dependent: :destroy
   has_many :participated_expenses, through: :expense_participants, source: :expense
+  has_many :journal_entries, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   
