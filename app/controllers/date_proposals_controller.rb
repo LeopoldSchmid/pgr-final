@@ -13,7 +13,7 @@ class DateProposalsController < ApplicationController
     @date_proposal.user = Current.user
 
     if @date_proposal.save
-      redirect_to plan_trip_path(@trip), notice: 'Date proposal added!'
+      redirect_to trip_date_proposals_path(@trip), notice: 'Date proposal added!'
     else
       # If validation fails, we need to re-render the plan page with errors
       # This requires fetching other data needed for the plan page

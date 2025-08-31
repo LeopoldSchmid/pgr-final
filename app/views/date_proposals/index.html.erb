@@ -26,153 +26,124 @@
   </div>
 
   <!-- Proposal Modal -->
-  <div class="modal hidden" data-calendar-target="proposalModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">Propose New Dates</h2>
-        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+  <div data-calendar-target="proposalModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Propose New Dates</h2>
+        <button class="text-gray-500 hover:text-gray-700" data-action="click->calendar#closeModal">&times;</button>
       </div>
-      
       <%= form_with model: [@trip, @new_date_proposal], local: true, class: "space-y-4" do |form| %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <%= form.label :start_date, "Start Date", class: "block text-sm font-medium text-text-primary mb-1" %>
-            <%= form.date_field :start_date, 
-                class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+            <%= form.date_field :start_date, class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
           </div>
-          
           <div>
             <%= form.label :end_date, "End Date", class: "block text-sm font-medium text-text-primary mb-1" %>
-            <%= form.date_field :end_date, 
-                class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+            <%= form.date_field :end_date, class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
           </div>
         </div>
-
         <div>
           <%= form.label :description, "Description (Optional)", class: "block text-sm font-medium text-text-primary mb-1" %>
-          <%= form.text_area :description, rows: 3,
-              placeholder: "Why these dates work well, what activities you have in mind...",
-              class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+          <%= form.text_area :description, rows: 3, placeholder: "Why these dates work well, what activities you have in mind...", class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
         </div>
-        
         <div class="flex justify-end space-x-3">
           <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
             Cancel
           </button>
-          <%= form.submit "Propose These Dates", 
-              class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
+          <%= form.submit "Propose These Dates", class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
         </div>
       <% end %>
     </div>
   </div>
 
   <!-- Vote Modal -->
-  <div class="modal hidden" data-calendar-target="voteModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">Vote on Proposal</h2>
-        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+  <div data-calendar-target="voteModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+          <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold">Vote on Proposal</h2>
+              <button class="text-gray-500 hover:text-gray-700" data-action="click->calendar#closeModal">&times;</button>
+          </div>
+          <div class="space-y-4">
+              <h3 class="proposal-title text-lg font-semibold text-text-primary"></h3>
+              <input type="hidden" class="proposal-id">
+              <div class="flex justify-around py-4">
+                  <div class="text-center">
+                      <div class="yes-count text-2xl font-bold">0</div>
+                      <div class="text-sm text-gray-500">Yes</div>
+                  </div>
+                  <div class="text-center">
+                      <div class="no-count text-2xl font-bold">0</div>
+                      <div class="text-sm text-gray-500">No</div>
+                  </div>
+                  <div class="text-center">
+                      <div class="maybe-count text-2xl font-bold">0</div>
+                      <div class="text-sm text-gray-500">Maybe</div>
+                  </div>
+              </div>
+              <div>
+                  <h4 class="font-medium text-text-primary mb-2">Your Vote:</h4>
+                  <div class="flex justify-around">
+                      <button class="vote-button p-4 rounded-lg border-2 border-transparent" data-vote="yes" data-action="click->calendar#vote">
+                          <span class="text-2xl">✅</span>
+                      </button>
+                      <button class="vote-button p-4 rounded-lg border-2 border-transparent" data-vote="maybe" data-action="click->calendar#vote">
+                          <span class="text-2xl">❓</span>
+                      </button>
+                      <button class="vote-button p-4 rounded-lg border-2 border-transparent" data-vote="no" data-action="click->calendar#vote">
+                          <span class="text-2xl">❌</span>
+                      </button>
+                  </div>
+              </div>
+          </div>
       </div>
-      
-      <div class="space-y-4">
-        <h3 class="proposal-title text-lg font-semibold text-text-primary"></h3>
-        <input type="hidden" class="proposal-id">
-        
-        <!-- Current Vote Counts -->
-        <div class="vote-counts">
-          <div class="vote-count-item">
-            <div class="vote-count-number yes-count">0</div>
-            <div class="vote-count-label">Yes</div>
-          </div>
-          <div class="vote-count-item">
-            <div class="vote-count-number no-count">0</div>
-            <div class="vote-count-label">No</div>
-          </div>
-          <div class="vote-count-item">
-            <div class="vote-count-number maybe-count">0</div>
-            <div class="vote-count-label">Maybe</div>
-          </div>
-        </div>
-
-        <!-- Vote Buttons -->
-        <div class="vote-section">
-          <h4 class="font-medium text-text-primary mb-3">Your Vote:</h4>
-          <div class="vote-buttons">
-            <button class="vote-button" data-vote="yes" data-action="click->calendar#vote">
-              <span class="vote-icon">✅</span>
-              <span class="vote-label">Yes</span>
-            </button>
-            <button class="vote-button" data-vote="maybe" data-action="click->calendar#vote">
-              <span class="vote-icon">❓</span>
-              <span class="vote-label">Maybe</span>
-            </button>
-            <button class="vote-button" data-vote="no" data-action="click->calendar#vote">
-              <span class="vote-icon">❌</span>
-              <span class="vote-label">No</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
+
   <!-- Availability Modal -->
-  <div class="modal hidden" data-calendar-target="availabilityModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">Add Availability Period</h2>
-        <button class="modal-close" data-action="click->calendar#closeModal">&times;</button>
+  <div data-calendar-target="availabilityModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+          <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold">Add Availability Period</h2>
+              <button class="text-gray-500 hover:text-gray-700" data-action="click->calendar#closeModal">&times;</button>
+          </div>
+          <form class="space-y-4" data-action="submit->calendar#submitAvailability">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                      <label class="block text-sm font-medium text-text-primary mb-1">Start Date</label>
+                      <input type="date" name="user_availability[start_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                  </div>
+                  <div>
+                      <label class="block text-sm font-medium text-text-primary mb-1">End Date</label>
+                      <input type="date" name="user_availability[end_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                  </div>
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-text-primary mb-1">Availability Type</label>
+                  <select name="user_availability[availability_type]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                      <option value="unavailable">🚫 Unavailable</option>
+                      <option value="busy">📅 Busy (but possible)</option>
+                      <option value="preferred">⭐ Preferred dates</option>
+                  </select>
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-text-primary mb-1">Title (Optional)</label>
+                  <input type="text" name="user_availability[title]" placeholder="Work conference, vacation, etc." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+              </div>
+              <div>
+                  <label class="block text-sm font-medium text-text-primary mb-1">Description (Optional)</label>
+                  <textarea name="user_availability[description]" rows="3" placeholder="Additional details about your availability..." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary"></textarea>
+              </div>
+              <div class="flex justify-end space-x-3">
+                  <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
+                      Cancel
+                  </button>
+                  <button type="submit" class="bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                      Add Availability
+                  </button>
+              </div>
+          </form>
       </div>
-      
-      <form class="space-y-4" data-action="submit->calendar#submitAvailability">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-text-primary mb-1">Start Date</label>
-            <input type="date" name="user_availability[start_date]" required
-                   class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-text-primary mb-1">End Date</label>
-            <input type="date" name="user_availability[end_date]" required
-                   class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-text-primary mb-1">Availability Type</label>
-          <select name="user_availability[availability_type]" required
-                  class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
-            <option value="unavailable">🚫 Unavailable</option>
-            <option value="busy">📅 Busy (but possible)</option>
-            <option value="preferred">⭐ Preferred dates</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-text-primary mb-1">Title (Optional)</label>
-          <input type="text" name="user_availability[title]" 
-                 placeholder="Work conference, vacation, etc."
-                 class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-text-primary mb-1">Description (Optional)</label>
-          <textarea name="user_availability[description]" rows="3" 
-                    placeholder="Additional details about your availability..."
-                    class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary"></textarea>
-        </div>
-        
-        <div class="flex justify-end space-x-3">
-          <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
-            Cancel
-          </button>
-          <button type="submit" class="bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
-            Add Availability
-          </button>
-        </div>
-      </form>
-    </div>
   </div>
 
   <!-- Legend -->
@@ -196,6 +167,17 @@
         <span class="text-sm text-text-secondary">Busy</span>
       </div>
     </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fixed bottom-24 right-6" data-controller="fab">
+    <div data-fab-target="menu" class="hidden flex flex-col items-center mb-4">
+      <button data-action="click->calendar#openProposalModal" class="bg-white text-gray-700 w-48 py-2 px-4 rounded-full shadow-lg mb-2 text-sm font-medium">New Date Proposal</button>
+      <button data-action="click->calendar#openAvailabilityModal" class.half="bg-white text-gray-700 w-48 py-2 px-4 rounded-full shadow-lg text-sm font-medium">Add Unavailability</button>
+    </div>
+    <button data-action="click->fab#toggleMenu" class="bg-primary-accent text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+    </button>
   </div>
 
 </div>
