@@ -33,32 +33,29 @@
         <span class="mr-3">📝</span> Capture This Moment
       </h3>
       
-      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-6", data: { controller: "location image-preview" } do |form| %>
-        <!-- Image Upload -->
+      <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-6", data: { controller: "location image-preview entry-template" } do |form| %>
+        <!-- Template Selection -->
         <div class="bg-background-primary rounded-xl p-4">
-          <%= form.label :image, class: "block text-text-secondary font-semibold mb-2" do %>
-            📷 Add a Photo (optional)
-          <% end %>
-          <%= form.file_field :image, 
-              accept: "image/*",
-              data: { 
-                image_preview_target: "input",
-                action: "change->image-preview#preview"
-              },
-              class: "w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-background-secondary file:text-text-primary hover:file:bg-gray-700 cursor-pointer" %>
-          
-          <!-- Image Preview -->
-          <div data-image-preview-target="container" class="mt-4 hidden">
-            <div class="relative inline-block">
-              <img data-image-preview-target="preview" 
-                   class="max-w-full h-48 object-cover rounded-lg shadow-md" 
-                   alt="Preview">
-              <button type="button" 
-                      data-action="click->image-preview#removeImage"
-                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors">
-                ×
-              </button>
-            </div>
+          <h4 class="font-semibold text-text-primary mb-2">✨ Use a Template</h4>
+          <div class="flex space-x-2">
+            <button type="button" 
+                    data-action="click->entry-template#applyTemplate" 
+                    data-entry-template-type-param="food"
+                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
+              🍽️ Food
+            </button>
+            <button type="button" 
+                    data-action="click->entry-template#applyTemplate" 
+                    data-entry-template-type-param="activity"
+                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
+              🎯 Activity
+            </button>
+            <button type="button" 
+                    data-action="click->entry-template#applyTemplate" 
+                    data-entry-template-type-param="accommodation"
+                    class="bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm">
+              🏨 Accommodation
+            </button>
           </div>
         </div>
 
@@ -69,6 +66,7 @@
               inputmode: "text",
               autocapitalize: "sentences",
               spellcheck: "true",
+              data: { entry_template_target: "contentField" },
               class: "w-full p-4 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary resize-none text-lg",
               rows: 4 %>
         </div>
@@ -86,16 +84,47 @@
           </button>
           
           <!-- Location Name -->
-          <div>
+          <div class="relative">
             <%= form.text_field :location, 
                 placeholder: "Name this place (e.g., 'Central Park', 'That amazing cafe')",
-                data: { location_target: "locationName" },
+                data: { location_target: "locationName", action: "input->location#search" },
+                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+            <div data-location-target="autocompleteResults" class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg shadow-lg mt-1">
+              <!-- Autocomplete results will be appended here -->
+            </div>
+          </div>
+
+          <!-- Category Selection -->
+          <div>
+            <%= form.label :category, "Category (optional)", class: "block text-text-secondary font-medium mb-1" %>
+            <%= form.select :category, 
+                options_for_select([
+                  ["Select Category", nil],
+                  "restaurant", 
+                  "hotel", 
+                  "attraction", 
+                  "transport", 
+                  "shopping", 
+                  "other"
+                ], @new_journal_entry.category),
+                {},
+                data: { entry_template_target: "categoryField" },
                 class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
           </div>
           
-          <!-- Hidden Coordinate Fields -->
-          <%= form.hidden_field :latitude, data: { location_target: "latitude" } %>
-          <%= form.hidden_field :longitude, data: { location_target: "longitude" } %>
+          <!-- Coordinate Fields -->
+          <div>
+            <%= form.label :latitude, "Latitude", class: "block text-text-secondary font-medium mb-1" %>
+            <%= form.text_field :latitude, 
+                data: { location_target: "latitude" },
+                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+          </div>
+          <div>
+            <%= form.label :longitude, "Longitude", class: "block text-text-secondary font-medium mb-1" %>
+            <%= form.text_field :longitude, 
+                data: { location_target: "longitude" },
+                class: "w-full p-3 bg-background-primary border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+          </div>
         </div>
         
         <!-- Date and Favorite -->
@@ -110,6 +139,11 @@
             <%= form.check_box :favorite, class: "mr-3 rounded scale-125" %>
             <span class="text-yellow-300 font-semibold">⭐ Mark as favorite moment</span>
           </label>
+
+          <label class="flex items-center p-3 bg-blue-900 bg-opacity-50 rounded-xl border border-blue-700 cursor-pointer">
+            <%= form.check_box :global_favorite, class: "mr-3 rounded scale-125" %>
+            <span class="text-blue-300 font-semibold">🌍 Mark as global favorite location</span>
+          </label>
         </div>
         
         <!-- Submit Button -->
@@ -122,64 +156,90 @@
 
     <!-- Journal Entries -->
     <% if @journal_entries.any? %>
-      <div class="space-y-6">
-        <h3 class="text-xl font-bold text-text-primary flex items-center">
-          <span class="mr-3">📖</span> Trip Journal
-        </h3>
+      <div class="space-y-6" data-controller="bulk-actions" data-bulk-actions-trip-id="<%= @trip.id %>">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-text-primary flex items-center">
+            <span class="mr-3">📖</span> Trip Journal
+          </h3>
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center text-text-secondary">
+              <input type="checkbox" data-action="bulk-actions#toggleAll" class="mr-2 rounded"> Select All
+            </label>
+            <button type="button" 
+                    data-action="bulk-actions#deleteSelected" 
+                    data-bulk-actions-target="deleteButton"
+                    class="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm hidden">
+              Delete Selected
+            </button>
+            <button type="button" 
+                    data-action="bulk-actions#exportSelected" 
+                    data-bulk-actions-target="exportButton"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm hidden">
+              Export Selected
+            </button>
+          </div>
+        </div>
         
-        <% @journal_entries.each do |entry| %>
-          <div class="bg-background-secondary rounded-2xl shadow-lg p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
-            <!-- Entry Header -->
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="text-text-secondary font-bold">
-                  <%= entry.entry_date.strftime("%b %d") %>
-                </div>
-                <% if entry.location_name %>
-                  <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full">
-                    <%= entry.location_name %>
+        <%= form_with url: bulk_destroy_trip_journal_entries_path(@trip), method: :delete, data: { bulk_actions_target: "form" } do |f| %>
+          <% @journal_entries.each do |entry| %>
+            <div class="bg-background-secondary rounded-2xl shadow-lg p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                  <input type="checkbox" name="journal_entry_ids[]" value="<%= entry.id %>" data-action="bulk-actions#toggleEntry" class="mr-2 rounded">
+                  <div class="text-text-secondary font-bold">
+                    <%= entry.entry_date.strftime("%b %d") %>
                   </div>
-                <% end %>
-                <% if entry.favorite? %>
-                  <div class="text-yellow-400">⭐</div>
-                <% end %>
+                  <div class="text-text-secondary text-sm">
+                    by <%= entry.user.email_address %>
+                  </div>
+                  <% if entry.location_name %>
+                    <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full">
+                      <%= entry.location_name %>
+                    </div>
+                  <% end %>
+                  <% if entry.favorite? %>
+                    <div class="text-yellow-400">⭐</div>
+                  <% end %>
+                </div>
+                
+                <div class="flex space-x-2">
+                  <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), method: :patch, 
+                      class: "text-yellow-400 hover:text-yellow-500 #{entry.favorite? ? 'opacity-100' : 'opacity-50'}" do %>
+                    ⭐
+                  <% end %>
+                  <%= link_to trip_journal_entry_path(@trip, entry), method: :delete, 
+                      class: "text-red-500 hover:text-red-400 text-sm",
+                      data: { confirm: "Delete this journal entry?" } do %>
+                    🗑️
+                  <% end %>
+                </div>
               </div>
               
-              <div class="flex space-x-2">
-                <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), method: :patch, 
-                    class: "text-yellow-400 hover:text-yellow-500 #{entry.favorite? ? 'opacity-100' : 'opacity-50'}" do %>
-                  ⭐
-                <% end %>
-                <%= link_to trip_journal_entry_path(@trip, entry), method: :delete, 
-                    class: "text-red-500 hover:text-red-400 text-sm",
-                    data: { confirm: "Delete this journal entry?" } do %>
-                  🗑️
-                <% end %>
-              </div>
-            </div>
-            
-            <!-- Entry Image -->
-            <% if entry.image.attached? %>
-              <div class="mb-4">
-                <%= image_tag entry.image, class: "w-full h-64 object-cover rounded-xl shadow-md" %>
-              </div>
-            <% end %>
-            
-            <!-- Entry Content -->
-            <div class="text-text-primary leading-relaxed mb-4">
-              <%= format_journal_content(entry.content) %>
-            </div>
-            
-            <!-- Entry Footer -->
-            <div class="flex items-center justify-between text-xs text-text-secondary">
-              <span>Added <%= time_ago_in_words(entry.created_at) %> ago</span>
-              <% if entry.has_location? %>
-                <span class="bg-background-primary px-2 py-1 rounded-full">
-                  🗺️ Mapped
-                </span>
+              <!-- Entry Images -->
+              <% if entry.images.attached? %>
+                <div class="mb-4 flex flex-wrap gap-2">
+                  <% entry.images.each do |image| %>
+                    <%= image_tag image.variant(resize_to_limit: [800, 800], quality: 80), class: "w-full h-64 object-cover rounded-xl shadow-md" %>
+                  <% end %>
+                </div>
               <% end %>
+              
+              <!-- Entry Content -->
+              <div class="text-text-primary leading-relaxed mb-4">
+                <%= format_journal_content(entry.content) %>
+              </div>
+              
+              <!-- Entry Footer -->
+              <div class="flex items-center justify-between text-xs text-text-secondary">
+                <span>Added <%= time_ago_in_words(entry.created_at) %> ago</span>
+                <% if entry.has_location? %>
+                  <span class="bg-background-primary px-2 py-1 rounded-full">
+                    🗺️ Mapped
+                  </span>
+                <% end %>
+              </div>
             </div>
-          </div>
+          <% end %>
         <% end %>
       </div>
     <% else %>

@@ -1,0 +1,19 @@
+Hello!
+
+<%= @invited_by.email_address %> has invited you to join their trip: <%= @trip.name %>!
+
+Trip Description: <%= @trip.description %>
+
+Your Role: You've been invited as a <%= @invitation.role.capitalize %>.
+
+To accept this invitation, please visit:
+<%= @accept_url %>
+
+If you do not wish to join, you can decline here:
+<%= @decline_url %>
+
+This invitation will expire on <%= @invitation.expires_at.strftime("%B %d, %Y at %I:%M %p %Z") %>.
+
+See you there!
+
+The PlanGoReminisce Team

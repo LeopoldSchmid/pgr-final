@@ -28,7 +28,10 @@ class InvitationsController < ApplicationController
     @invitation.invited_by = Current.user
 
     if @invitation.save
-      # TODO: Send invitation email
+      # Send invitation email
+      accept_url = accept_invitation_url(@invitation.token)
+      decline_url = decline_invitation_url(@invitation.token)
+      InvitationMailer.invitation_email(@invitation, accept_url, decline_url).deliver_later
       redirect_to trip_invitations_path(@trip), 
                   notice: "💌 Invitation sent to #{@invitation.email}!"
     else

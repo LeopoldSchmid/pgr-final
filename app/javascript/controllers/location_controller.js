@@ -1,7 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["latitude", "longitude", "locationName", "button"]
+  static targets = ["latitude", "longitude", "locationName", "button", "autocompleteResults"]
+
+  connect() {
+    this.debounceTimer = null;
+  }
 
   getCurrentLocation(event) {
     event.preventDefault()
@@ -114,5 +118,65 @@ export default class extends Controller {
       console.log("Could not get location name, but coordinates saved:", error)
       // Silently fail - coordinates are more important than the name
     }
+  }
+
+  search() {
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      const query = this.locationNameTarget.value;
+      if (query.length > 2) { // Only search if query is at least 3 characters
+        this.fetchAutocompleteResults(query);
+      } else {
+        this.autocompleteResultsTarget.innerHTML = ''; // Clear results if query is too short
+      }
+    }, 300); // Debounce for 300ms
+  }
+
+  async fetchAutocompleteResults(query) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
+        {
+          headers: {
+            'User-Agent': 'PlanGoReminisce App'
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        this.displayAutocompleteResults(data);
+      }
+    } catch (error) {
+      console.error("Autocomplete search error:", error);
+    }
+  }
+
+  displayAutocompleteResults(results) {
+    this.autocompleteResultsTarget.innerHTML = ''; // Clear previous results
+    if (results.length > 0) {
+      results.forEach(result => {
+        const div = document.createElement('div');
+        div.classList.add('p-2', 'cursor-pointer', 'hover:bg-gray-200', 'text-text-primary', 'border-b', 'border-gray-300');
+        div.textContent = result.display_name;
+        div.dataset.action = 'click->location#selectSuggestion';
+        div.dataset.latitude = result.lat;
+        div.dataset.longitude = result.lon;
+        div.dataset.locationName = result.display_name;
+        this.autocompleteResultsTarget.appendChild(div);
+      });
+    } else {
+      const div = document.createElement('div');
+      div.classList.add('p-2', 'text-text-secondary');
+      div.textContent = 'No results found';
+      this.autocompleteResultsTarget.appendChild(div);
+    }
+  }
+
+  selectSuggestion(event) {
+    this.locationNameTarget.value = event.target.dataset.locationName;
+    this.latitudeTarget.value = event.target.dataset.latitude;
+    this.longitudeTarget.value = event.target.dataset.longitude;
+    this.autocompleteResultsTarget.innerHTML = ''; // Clear results after selection
   }
 }

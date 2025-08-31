@@ -1,0 +1,65 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-text-primary mt-4">
+      🌍 Global Favorite Locations
+    </h1>
+    <p class="text-text-secondary mt-2">Locations you've marked as favorites across all your trips.</p>
+  </div>
+
+  <% if @global_favorite_locations.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Map Section -->
+      <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-text-primary mb-4">Map of Favorites</h3>
+        <div id="global-favorites-map"
+             class="h-96 rounded-xl"
+             data-controller="map"
+             data-map-entries-value="<%= @global_favorite_locations.map do |entry|
+               {
+                 id: entry.id,
+                 latitude: entry.latitude.to_f,
+                 longitude: entry.longitude.to_f,
+                 content: entry.content,
+                 location: entry.location,
+                 entry_date: entry.entry_date.iso8601,
+                 favorite: entry.favorite?,
+                 image_url: entry.images.attached? ? rails_blob_path(entry.images.first, only_path: true) : nil
+               }
+             end.to_json %>"
+             data-map-target="container">
+        </div>
+        <div class="mt-4 text-sm text-text-secondary">
+          <span>📍 <%= @global_favorite_locations.count %> favorite locations mapped</span>
+        </div>
+      </div>
+
+      <!-- List Section -->
+      <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-text-primary mb-4">Your Favorite Locations</h3>
+        <div class="space-y-4">
+          <% @global_favorite_locations.each do |entry| %>
+            <div class="bg-background-primary rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-text-primary"><%= entry.location_name %></h4>
+                <span class="text-xs text-text-secondary"><%= entry.entry_date.strftime("%b %d, %Y") %></span>
+              </div>
+              <p class="text-sm text-text-secondary mb-2"><%= entry.content.truncate(100) %></p>
+              <div class="flex items-center space-x-2 text-xs text-text-secondary">
+                <span>Trip: <%= link_to entry.trip.name, entry.trip, class: "text-primary-accent hover:underline" %></span>
+                <% if entry.category.present? %>
+                  <span class="bg-background-secondary px-2 py-1 rounded-full capitalize"><%= entry.category %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-12 text-center">
+      <div class="text-6xl mb-4 opacity-60">📍</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">No Global Favorite Locations Yet</h3>
+      <p class="text-text-secondary mb-6">Mark locations as "global favorite" from your journal entries to see them here!</p>
+    </div>
+  <% end %>
+</div>

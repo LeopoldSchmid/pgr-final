@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get "timeline" => "timeline#index", as: :timeline
+  get "favorite_locations" => "favorite_locations#index", as: :favorite_locations
+  get "search" => "search#index", as: :search
   # Standalone invitation routes (for accepting via email links)
   resources :invitations, only: [:show], param: :token do
     member do
@@ -21,10 +24,17 @@ Rails.application.routes.draw do
     get :plan, on: :member
     get :go, on: :member  
     get :reminisce, on: :member
+    get :report, on: :member
+    get :download_photos, on: :member
+    
+    resources :date_proposals, only: [:index, :create, :destroy]
     
     # Journal entries nested under trips
     resources :journal_entries, except: [:show, :index] do
       patch :toggle_favorite, on: :member
+      delete :bulk_destroy, on: :collection
+      get :bulk_export, on: :collection
+      resources :comments, only: [:create, :destroy]
     end
     
     # Expenses nested under trips
@@ -86,5 +96,5 @@ Rails.application.routes.draw do
 
   # PWA files
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
 end

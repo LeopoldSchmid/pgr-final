@@ -1,6 +1,7 @@
 class Trip < ApplicationRecord
   belongs_to :user # trip creator
   has_many :journal_entries, dependent: :destroy
+  has_many :date_proposals, dependent: :destroy
   has_many :trip_members, dependent: :destroy
   has_many :members, through: :trip_members, source: :user
   has_many :expenses, dependent: :destroy
@@ -9,6 +10,7 @@ class Trip < ApplicationRecord
   has_many :shopping_lists, dependent: :destroy
   
   validates :name, presence: true, length: { maximum: 100 }
+  validates :series_name, length: { maximum: 100 }, allow_nil: true
   validates :status, inclusion: { in: %w[planning active completed] }
   
   after_create :create_owner_membership
@@ -16,6 +18,7 @@ class Trip < ApplicationRecord
   scope :planning, -> { where(status: 'planning') }
   scope :active, -> { where(status: 'active') }
   scope :completed, -> { where(status: 'completed') }
+  scope :in_series, ->(series_name) { where(series_name: series_name) }
   
   def current_phase
     return 'reminisce' if completed?

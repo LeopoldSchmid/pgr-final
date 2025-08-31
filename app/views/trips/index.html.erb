@@ -4,6 +4,17 @@
     <%= link_to "New Trip", new_trip_path, class: "bg-primary-accent text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg" %>
   </div>
 
+  <% if @recommended_trips.any? %>
+    <section class="mb-10">
+      <h2 class="text-2xl font-bold text-text-primary mb-4 border-b-2 border-gray-200 pb-2">Recommended Trips</h2>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <% @recommended_trips.each do |trip| %>
+          <%= render 'trips/trip_card', trip: trip, phase: trip.current_phase %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
   <!-- Planning Trips -->
   <% if @planning_trips.any? %>
     <section class="mb-10">

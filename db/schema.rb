@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_224144) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "journal_entry_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["journal_entry_id"], name: "index_comments_on_journal_entry_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "date_proposals", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.integer "user_id", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_date_proposals_on_trip_id"
+    t.index ["user_id"], name: "index_date_proposals_on_user_id"
   end
 
   create_table "expense_participants", force: :cascade do |t|
@@ -119,6 +140,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
     t.datetime "updated_at", null: false
     t.decimal "latitude", precision: 12, scale: 8
     t.decimal "longitude", precision: 12, scale: 8
+    t.string "category"
+    t.boolean "global_favorite", default: false
     t.index ["trip_id"], name: "index_journal_entries_on_trip_id"
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
@@ -194,6 +217,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "series_name"
     t.index ["user_id"], name: "index_trips_on_user_id"
   end
 
@@ -207,6 +231,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_142307) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "journal_entries"
+  add_foreign_key "comments", "users"
+  add_foreign_key "date_proposals", "trips"
+  add_foreign_key "date_proposals", "users"
   add_foreign_key "expense_participants", "expenses"
   add_foreign_key "expense_participants", "users"
   add_foreign_key "expenses", "trips"

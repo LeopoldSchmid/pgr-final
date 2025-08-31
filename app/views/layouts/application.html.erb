@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
           crossorigin=""/>
+    <%# Flatpickr CSS %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <%= javascript_importmap_tags %>
   </head>
 
@@ -47,9 +49,18 @@
               <%= link_to "Plan", "/plan", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
               <%= link_to "Go", "/go", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
               <%= link_to "Reminisce", "/reminisce", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
+              <%= link_to "Timeline", timeline_path, class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg" %>
             </div>
             
             <div class="flex items-center space-x-4">
+              <!-- Search Input -->
+              <div class="relative">
+                <input type="search" 
+                       placeholder="Search trips and entries..." 
+                       class="w-48 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary bg-background-primary"
+                       onkeydown="if (event.key === 'Enter') window.location.href = '/search?query=' + this.value">
+                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
               <!-- Invitation notifications -->
               <% pending_invitations = Invitation.where(email: Current.user.email_address).pending %>
               <% if pending_invitations.any? %>
@@ -72,6 +83,19 @@
           </div>
         </div>
       </nav>
+
+      <!-- PWA Install Banner -->
+      <div data-controller="pwa-install" class="hidden bg-primary-accent text-white text-center py-3 px-4 sm:px-6 lg:px-8" role="alert">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+          <p class="font-medium">Install PlanGoReminisce for a better experience!</p>
+          <div class="flex items-center space-x-4">
+            <button data-action="pwa-install#install" class="bg-white text-primary-accent px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-colors text-sm">Install</button>
+            <button data-action="pwa-install#dismiss" class="text-white opacity-75 hover:opacity-100 transition-opacity">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
     <% end %>
 
     <!-- Flash messages -->

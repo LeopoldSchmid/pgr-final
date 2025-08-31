@@ -1,0 +1,94 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-text-primary mt-4">
+      ⏳ Your Journal Timeline
+    </h1>
+    <p class="text-text-secondary mt-2">All your journal entries, in chronological order.</p>
+  </div>
+
+  <% if @journal_entries.any? %>
+    <div class="relative pl-8 sm:pl-32 py-6">
+      <div class="h-full w-1 bg-gray-300 absolute left-0 sm:left-16 top-0"></div>
+      
+      <% @journal_entries.each_with_index do |entry, index| %>
+        <div class="flex items-center w-full my-6">
+          <div class="absolute left-0 sm:left-16 -translate-x-1/2 bg-primary-accent rounded-full p-2">
+            <span class="text-white text-xs font-bold"><%= entry.entry_date.strftime("%b") %></span>
+          </div>
+          <div class="flex-grow sm:pl-16">
+            <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
+              <div class="flex items-center space-x-3 mb-4">
+                <div class="text-text-secondary font-bold">
+                  <%= entry.entry_date.strftime("%b %d, %Y") %>
+                </div>
+                <div class="text-text-secondary text-sm">
+                  by <%= entry.user.email_address %>
+                </div>
+                <% if entry.location.present? %>
+                  <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full">
+                    📍 <%= entry.location %>
+                  </div>
+                <% end %>
+                <% if entry.category.present? %>
+                  <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full capitalize">
+                    <%= entry.category %>
+                  </div>
+                <% end %>
+                <% if entry.favorite? %>
+                  <div class="text-yellow-400">⭐ Favorite</div>
+                <% end %>
+              </div>
+              
+              <% if entry.images.attached? %>
+                <div class="mb-4 flex flex-wrap gap-2">
+                  <% entry.images.each do |image| %>
+                    <%= image_tag image.variant(resize_to_limit: [800, 800], quality: 80), class: "w-full h-64 object-cover rounded-xl shadow-md" %>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="text-text-primary leading-relaxed mb-4">
+                <%= format_journal_content(entry.content) %>
+              </div>
+              
+              <div class="mt-4 text-xs text-text-secondary">
+                Captured <%= time_ago_in_words(entry.created_at) %> ago
+              </div>
+
+              <!-- Comments Section -->
+              <div class="mt-6 pt-4 border-t border-gray-300">
+                <h4 class="font-semibold text-text-primary mb-3">Comments (<%= entry.comments.count %>)</h4>
+                <div class="space-y-3 mb-4">
+                  <% entry.comments.each do |comment| %>
+                    <div class="bg-background-primary rounded-lg p-3 text-sm">
+                      <div class="flex justify-between items-center mb-1">
+                        <span class="font-medium text-text-primary"><%= comment.user.email_address %></span>
+                        <span class="text-xs text-text-secondary"><%= time_ago_in_words(comment.created_at) %> ago</span>
+                      </div>
+                      <p class="text-text-secondary"><%= comment.content %></p>
+                      <% if comment.user == Current.user %>
+                        <%= link_to "Delete", trip_journal_entry_comment_path(entry.trip, entry, comment), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-500 hover:text-red-700 text-xs" %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- New Comment Form -->
+                <%= form_with model: [entry.trip, entry, entry.comments.build], local: true, class: "space-y-2" do |form| %>
+                  <%= form.text_area :content, placeholder: "Add a comment...", rows: 2, class: "w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+                  <%= form.submit "Post Comment", class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-12 text-center">
+      <div class="text-6xl mb-4 opacity-60">📖</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">No Journal Entries Yet</h3>
+      <p class="text-text-secondary mb-6">Start capturing your memories to see them appear in your timeline!</p>
+    </div>
+  <% end %>
+</div>

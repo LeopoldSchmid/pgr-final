@@ -13,6 +13,19 @@
 
   <div class="card-modern">
     <%= form_with model: @trip, local: true, class: "space-y-6" do |form| %>
+      <% if @user_trips.any? %>
+        <div class="bg-background-primary rounded-xl p-4">
+          <h4 class="font-semibold text-text-primary mb-2">✨ Create from Template (optional)</h4>
+          <div>
+            <%= form.label :template_trip_id, "Select an existing trip to use as a template", class: "block text-sm font-medium text-text-secondary mb-1" %>
+            <%= form.select :template_trip_id, 
+                options_from_collection_for_select(@user_trips, :id, :name, params[:template_trip_id]),
+                { include_blank: "Don't use a template" },
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent" %>
+            <p class="text-xs text-gray-500 mt-1">Copies name, description, series name, and recipes from the selected trip.</p>
+          </div>
+        </div>
+      <% end %>
       <% if @trip.errors.any? %>
         <div class="bg-accent-red/20 border border-accent-red rounded-xl p-6">
           <h3 class="text-sm font-bold text-accent-red-dark mb-3 flex items-center">
@@ -42,6 +55,14 @@
           rows: 4,
           class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent resize-none",
           placeholder: "Describe your trip, who's coming, what you're planning to do..." %>
+    </div>
+
+    <div>
+      <%= form.label :series_name, "Series Name (optional)", class: "block text-sm font-medium text-text-primary mb-1" %>
+      <%= form.text_field :series_name, 
+          class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent",
+          placeholder: "e.g., Annual Sulfzeld Trip" %>
+      <p class="text-xs text-gray-500 mt-1">Link related trips together (e.g., "Summer Vacation Series")</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -2,18 +2,21 @@ class JournalEntry < ApplicationRecord
   belongs_to :trip
   belongs_to :user
   
-  has_one_attached :image
+  has_many_attached :images
+  has_many :comments, dependent: :destroy
   
   validates :content, presence: true
   validates :entry_date, presence: true
   validates :latitude, presence: true, if: :longitude?
   validates :longitude, presence: true, if: :latitude?
+  validates :category, inclusion: { in: %w(restaurant hotel attraction transport shopping other), allow_nil: true }
   
   scope :favorites, -> { where(favorite: true) }
   scope :by_date, -> { order(:entry_date, :created_at) }
   scope :recent, -> { order(created_at: :desc) }
   scope :with_location, -> { where.not(latitude: nil, longitude: nil) }
-  scope :with_images, -> { joins(:image_attachment) }
+  scope :with_images, -> { joins(:images_attachments) }
+  scope :global_favorites, -> { where(global_favorite: true) }
   
   def favorite?
     favorite == true

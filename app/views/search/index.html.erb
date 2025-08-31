@@ -1,0 +1,51 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-text-primary mt-4">
+      Search Results for "<%= @query %>"
+    </h1>
+  </div>
+
+  <% if @query.blank? %>
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-12 text-center">
+      <div class="text-6xl mb-4 opacity-60">🔍</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">Enter a search term</h3>
+      <p class="text-text-secondary mb-6">Type something into the search bar above to find trips and journal entries.</p>
+    </div>
+  <% elsif @trips.empty? && @journal_entries.empty? %>
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-12 text-center">
+      <div class="text-6xl mb-4 opacity-60">😔</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">No results found</h3>
+      <p class="text-text-secondary mb-6">Your search for "<%= @query %>" did not match any trips or journal entries.</p>
+    </div>
+  <% else %>
+    <% if @trips.any? %>
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-text-primary mb-4">Trips</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @trips.each do |trip| %>
+            <%= link_to trip, class: "card-modern block" do %>
+              <h3 class="font-semibold text-text-primary mb-1"><%= trip.name %></h3>
+              <p class="text-sm text-text-secondary"><%= trip.description.truncate(100) %></p>
+              <span class="text-xs text-gray-500 mt-2 block"><%= trip.status.capitalize %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @journal_entries.any? %>
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-text-primary mb-4">Journal Entries</h2>
+        <div class="space-y-4">
+          <% @journal_entries.each do |entry| %>
+            <div class="card-modern">
+              <h3 class="font-semibold text-text-primary mb-1"><%= entry.entry_date.strftime("%b %d, %Y") %> - <%= entry.location_name %></h3>
+              <p class="text-sm text-text-secondary mb-2"><%= entry.content.truncate(200) %></p>
+              <span class="text-xs text-gray-500">Trip: <%= link_to entry.trip.name, entry.trip, class: "text-primary-accent hover:underline" %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
