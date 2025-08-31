@@ -1,0 +1,184 @@
+<div class="container mx-auto px-4 py-6">
+  
+  <!-- Header with Back Navigation -->
+  <div class="mb-6">
+    <%= link_to go_trip_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
+      <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to <%= @trip.name %>
+    <% end %>
+    
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-text-primary">Memory Map</h1>
+        <p class="text-text-secondary mt-1"><%= @journal_entries.count %> locations mapped</p>
+      </div>
+      <%= link_to capture_trip_path(@trip), class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add Location
+      <% end %>
+    </div>
+  </div>
+
+  <% if @journal_entries.any? %>
+    
+    <!-- Map Controls -->
+    <div class="mb-4 bg-background-secondary rounded-lg p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4 text-sm text-text-secondary">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+            Favorite memories
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-primary-accent rounded-full mr-2"></div>
+            Regular memories
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <%= link_to journal_trip_path(@trip), class: "text-primary-accent hover:underline text-sm" do %>
+            View as list
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Screen Map -->
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-4">
+      <div id="trip-map" 
+           class="h-[70vh] min-h-[500px] rounded-xl"
+           data-controller="map" 
+           data-map-entries-value="<%= @journal_entries.map do |entry|
+             {
+               id: entry.id,
+               latitude: entry.latitude.to_f,
+               longitude: entry.longitude.to_f,
+               content: entry.content,
+               location: entry.location,
+               entry_date: entry.entry_date.iso8601,
+               favorite: entry.favorite?,
+               image_url: entry.images.attached? ? rails_blob_path(entry.images.first, only_path: true) : nil
+             }
+           end.to_json %>"
+           data-map-target="container">
+      </div>
+      
+      <!-- Map Footer with Stats -->
+      <div class="mt-4 flex items-center justify-between text-sm text-text-secondary">
+        <div class="flex space-x-6">
+          <span><%= @journal_entries.count %> memories mapped</span>
+          <span><%= @journal_entries.where(favorite: true).count %> favorites</span>
+          <span>Covering <%= (@trip.start_date && @trip.end_date) ? distance_of_time_in_words(@trip.start_date, @trip.end_date) : 'your journey' %></span>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <button type="button" 
+                  onclick="if(window.mapController) window.mapController.fitAllMarkers()"
+                  class="text-primary-accent hover:underline">
+            Fit all locations
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Mapped Memories -->
+    <div class="mt-6 bg-background-secondary rounded-xl p-4">
+      <h3 class="font-semibold text-text-primary mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Recent Mapped Memories
+      </h3>
+      
+      <div class="space-y-3">
+        <% @journal_entries.recent.limit(5).each do |entry| %>
+          <div class="flex items-start space-x-3 p-3 bg-background-primary rounded-lg hover:shadow-sm transition-shadow">
+            <div class="flex-shrink-0">
+              <div class="w-3 h-3 rounded-full mt-2 <%= entry.favorite? ? 'bg-yellow-400' : 'bg-primary-accent' %>"></div>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="font-medium text-text-primary text-sm">
+                  <%= entry.location_name || "#{entry.latitude.round(4)}, #{entry.longitude.round(4)}" %>
+                </h4>
+                <span class="text-xs text-text-secondary">
+                  <%= entry.entry_date.strftime("%b %d") %>
+                </span>
+              </div>
+              
+              <p class="text-text-secondary text-sm leading-relaxed">
+                <%= truncate(entry.content, length: 120) %>
+              </p>
+              
+              <div class="flex items-center justify-between mt-2">
+                <div class="flex items-center space-x-2 text-xs text-text-secondary">
+                  <% if entry.category %>
+                    <span class="bg-gray-200 px-2 py-1 rounded-full">
+                      <%= entry.category.capitalize %>
+                    </span>
+                  <% end %>
+                  
+                  <% if entry.favorite? %>
+                    <span class="text-yellow-600">★ Favorite</span>
+                  <% end %>
+                </div>
+                
+                <button type="button" 
+                        onclick="if(window.mapController) window.mapController.focusMarker(<%= entry.id %>)"
+                        class="text-primary-accent hover:underline text-xs">
+                  Show on map
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @journal_entries.count > 5 %>
+          <%= link_to journal_trip_path(@trip), class: "block text-center text-primary-accent hover:underline text-sm mt-3" do %>
+            View all <%= @journal_entries.count %> memories →
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+  <% else %>
+    <!-- Empty State -->
+    <div class="bg-background-secondary rounded-2xl p-12 text-center">
+      <div class="text-6xl mb-4 opacity-40">🗺️</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">No locations mapped yet</h3>
+      <p class="text-text-secondary mb-6">
+        Start capturing moments with locations to see them appear on your memory map.
+      </p>
+      
+      <div class="space-y-3">
+        <%= link_to capture_trip_path(@trip), class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors inline-flex items-center mr-4" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Add Your First Location
+        <% end %>
+        
+        <%= link_to journal_trip_path(@trip), class: "text-primary-accent hover:underline" do %>
+          or view your journal entries
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+</div>
+
+<script>
+// Make map controller available globally for button interactions
+window.addEventListener('DOMContentLoaded', function() {
+  const mapElement = document.querySelector('[data-controller="map"]');
+  if (mapElement && mapElement.controller) {
+    window.mapController = mapElement.controller;
+  }
+});
+</script>

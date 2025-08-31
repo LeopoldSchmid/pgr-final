@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import * as L from "leaflet"
 
 export default class extends Controller {
   static values = { 
@@ -9,30 +10,12 @@ export default class extends Controller {
   static targets = ["container"]
 
   connect() {
-    // Wait for Leaflet to be available
-    this.waitForLeaflet().then(() => {
+    try {
       this.initializeMap()
       this.addMarkers()
-    }).catch(error => {
+    } catch (error) {
       console.error('Map initialization failed:', error)
-      // Hide the map container or show an error message
       this.containerTarget.innerHTML = '<div class="bg-gray-100 rounded-xl p-8 text-center"><div class="text-gray-500">Map temporarily unavailable</div></div>'
-    })
-  }
-
-  async waitForLeaflet() {
-    // Wait for Leaflet to be loaded
-    let attempts = 0
-    const maxAttempts = 50
-    
-    while (typeof L === 'undefined' && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      attempts++
-    }
-    
-    if (typeof L === 'undefined') {
-      console.error('Leaflet failed to load after 5 seconds')
-      throw new Error('Leaflet is not available')
     }
   }
 
@@ -43,11 +26,6 @@ export default class extends Controller {
   }
 
   initializeMap() {
-    // Check if Leaflet is loaded globally
-    if (typeof L === 'undefined') {
-      console.error('Leaflet is not loaded')
-      return
-    }
 
     // Validate and set default center
     let center = [40.7128, -74.0060] // Default to NYC

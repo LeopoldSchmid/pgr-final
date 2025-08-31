@@ -1,0 +1,126 @@
+<div class="container mx-auto px-4 py-6 max-w-2xl" data-controller="capture-modal location image-preview">
+  
+  <!-- Header with Back Navigation -->
+  <div class="mb-6">
+    <%= link_to go_trip_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
+      <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to <%= @trip.name %>
+    <% end %>
+    <h1 class="text-3xl font-bold text-text-primary">Capture This Moment</h1>
+  </div>
+
+  <!-- Capture Form -->
+  <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
+    <%= form_with model: [@trip, @new_journal_entry], local: true, class: "space-y-4" do |form| %>
+      
+      <!-- Image Upload Section -->
+      <div class="bg-background-primary rounded-xl p-4 border-2 border-dashed border-gray-300 hover:border-primary-accent transition-colors">
+        <div class="text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <%= form.file_field :images, 
+              multiple: true, 
+              accept: "image/*",
+              data: { 
+                action: "change->image-preview#preview",
+                image_preview_target: "input" 
+              },
+              class: "hidden" %>
+          <div class="mt-4">
+            <label for="<%= form.object_name %>_images" class="cursor-pointer bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors inline-flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Add Photos
+            </label>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Upload photos to capture this moment</p>
+        </div>
+        
+        <!-- Image Previews -->
+        <div data-image-preview-target="previewContainer" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2 hidden">
+        </div>
+      </div>
+      
+      <!-- Content Input -->
+      <div>
+        <%= form.text_area :content, 
+            placeholder: "What's happening right now?",
+            class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary resize-none",
+            rows: 3,
+            autofocus: true %>
+      </div>
+      
+      <!-- Location & Options Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- Location -->
+        <div class="md:col-span-2">
+          <div class="flex space-x-2">
+            <%= form.text_field :location, 
+                placeholder: "Where are you?",
+                data: { location_target: "locationName" },
+                class: "flex-1 p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+            <button type="button" 
+                    data-action="capture-modal#getCurrentLocation"
+                    class="bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+              GPS
+            </button>
+          </div>
+        </div>
+        
+        <!-- Date -->
+        <div>
+          <%= form.date_field :entry_date, 
+              value: Date.current,
+              class: "w-full p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+        </div>
+      </div>
+
+      <!-- Favorites Row -->
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center space-x-2 cursor-pointer">
+          <%= form.check_box :favorite, class: "rounded text-yellow-600 focus:ring-yellow-500" %>
+          <span class="text-sm font-medium text-text-primary">⭐ Favorite</span>
+        </label>
+
+        <label class="flex items-center space-x-2 cursor-pointer">
+          <%= form.check_box :global_favorite, class: "rounded text-blue-600 focus:ring-blue-500" %>
+          <span class="text-sm font-medium text-text-primary">🌍 Global Favorite</span>
+        </label>
+      </div>
+
+      <!-- Advanced Options (Collapsible) -->
+      <div class="border-t pt-3">
+        <button type="button" 
+                data-action="capture-modal#toggleAdvanced"
+                class="text-primary-accent text-sm hover:underline">
+          Show coordinates (advanced)
+        </button>
+
+        <div data-capture-modal-target="advancedOptions" class="hidden grid grid-cols-2 gap-2 mt-2">
+          <%= form.text_field :latitude, 
+              placeholder: "Latitude",
+              data: { location_target: "latitude" },
+              class: "p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+          <%= form.text_field :longitude, 
+              placeholder: "Longitude",
+              data: { location_target: "longitude" },
+              class: "p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex space-x-3 pt-4">
+        <%= link_to go_trip_path(@trip), class: "flex-1 py-3 px-4 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition-colors text-center" do %>
+          Cancel
+        <% end %>
+        <%= form.submit "Capture Memory", 
+            class: "flex-2 py-3 px-6 bg-primary-accent text-white rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+
+</div>

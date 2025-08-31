@@ -1,6 +1,6 @@
 class TripsController < ApplicationController
   before_action :require_authentication
-  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce]
+  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery]
 
   def index
     # Include trips user owns + trips user is a member of
@@ -110,6 +110,31 @@ class TripsController < ApplicationController
     @entries_with_images = @trip.journal_entries.with_images.recent
     @entries_with_locations = @trip.journal_entries.with_location.includes(:user)
     @related_trips = @trip.series_name.present? ? Trip.in_series(@trip.series_name).where.not(id: @trip.id) : []
+  end
+
+  # Single-function spoke pages
+  def capture
+    # Focused capture experience
+    @new_journal_entry = @trip.journal_entries.build(entry_date: Date.current)
+  end
+
+  def journal
+    # Focused journal viewing
+    @journal_entries = @trip.journal_entries.by_date.includes(:user)
+    @search_query = params[:search]
+    if @search_query.present?
+      @journal_entries = @journal_entries.where("LOWER(content) LIKE LOWER(?) OR LOWER(location) LIKE LOWER(?)", "%#{@search_query}%", "%#{@search_query}%")
+    end
+  end
+
+  def map
+    # Focused map experience
+    @journal_entries = @trip.journal_entries.with_location.includes(:user)
+  end
+
+  def gallery
+    # Focused photo gallery
+    @entries_with_images = @trip.journal_entries.with_images.by_date.includes(:user)
   end
 
   def report

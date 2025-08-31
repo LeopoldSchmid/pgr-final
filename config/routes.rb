@@ -23,12 +23,18 @@ Rails.application.routes.draw do
   
   # Trip resources
   resources :trips do
-    # Trip-specific phase routes
+    # Trip-specific phase routes (Hub pages)
     get :plan, on: :member
     get :go, on: :member  
     get :reminisce, on: :member
     get :report, on: :member
     get :download_photos, on: :member
+    
+    # Single-function pages (Spoke pages)
+    get :capture, on: :member
+    get :journal, on: :member
+    get :map, on: :member
+    get :gallery, on: :member
     
     resources :date_proposals, only: [:index, :create, :destroy]
     

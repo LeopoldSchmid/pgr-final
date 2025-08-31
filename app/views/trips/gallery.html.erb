@@ -1,0 +1,206 @@
+<div class="container mx-auto px-4 py-6">
+  
+  <!-- Header with Back Navigation -->
+  <div class="mb-6">
+    <%= link_to go_trip_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
+      <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to <%= @trip.name %>
+    <% end %>
+    
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-text-primary">Photo Gallery</h1>
+        <p class="text-text-secondary mt-1">
+          <%= @entries_with_images.sum { |e| e.images.count } %> photos across <%= @entries_with_images.count %> memories
+        </p>
+      </div>
+      <%= link_to capture_trip_path(@trip), class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add Photos
+      <% end %>
+    </div>
+  </div>
+
+  <% if @entries_with_images.any? %>
+    
+    <!-- Gallery Grid -->
+    <div class="space-y-8">
+      <% @entries_with_images.each do |entry| %>
+        <div class="bg-background-secondary rounded-2xl shadow-sm p-6">
+          
+          <!-- Entry Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-text-primary flex items-center">
+                <%= entry.entry_date.strftime("%B %d, %Y") %>
+                <% if entry.favorite? %>
+                  <span class="text-yellow-500 ml-2">★</span>
+                <% end %>
+              </h3>
+              <div class="text-sm text-text-secondary flex items-center space-x-2 mt-1">
+                <% if entry.location_name %>
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <%= entry.location_name %>
+                  </div>
+                <% end %>
+                
+                <span>•</span>
+                <span><%= pluralize(entry.images.count, 'photo') %></span>
+                
+                <% if entry.category %>
+                  <span>•</span>
+                  <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
+                    <%= entry.category.capitalize %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- View Entry Link -->
+            <%= link_to journal_trip_path(@trip), class: "text-primary-accent hover:underline text-sm" do %>
+              View in journal →
+            <% end %>
+          </div>
+
+          <!-- Photo Grid -->
+          <div class="grid gap-2 mb-4 <%= case entry.images.count
+                                        when 1 then 'grid-cols-1 max-w-md mx-auto'
+                                        when 2 then 'grid-cols-2'
+                                        when 3 then 'grid-cols-2 md:grid-cols-3'
+                                        when 4 then 'grid-cols-2'
+                                        else 'grid-cols-2 md:grid-cols-3'
+                                        end %>">
+            <% entry.images.each_with_index do |image, index| %>
+              <div class="<%= 
+                if entry.images.count == 3 && index == 0
+                  'row-span-2'
+                elsif entry.images.count == 4 && index < 2
+                  'aspect-square'
+                else
+                  'aspect-[4/3]'
+                end
+              %>">
+                <%= image_tag image.variant(resize_to_limit: [600, 600], quality: 85), 
+                    class: "w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]",
+                    data: { 
+                      action: "click->gallery#openLightbox", 
+                      gallery_image_url: rails_blob_path(image.variant(resize_to_limit: [1200, 1200], quality: 90)),
+                      gallery_caption: "#{entry.entry_date.strftime('%B %d, %Y')} - #{entry.location_name}"
+                    } %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Entry Caption -->
+          <% if entry.content.present? %>
+            <div class="text-text-primary leading-relaxed text-sm bg-background-primary p-3 rounded-lg">
+              <%= truncate(entry.content, length: 200) %>
+            </div>
+          <% end %>
+
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Load More (if needed) -->
+    <% if @entries_with_images.count > 10 %>
+      <div class="text-center mt-8">
+        <button class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+          Load More Photos
+        </button>
+      </div>
+    <% end %>
+
+  <% else %>
+    <!-- Empty State -->
+    <div class="bg-background-secondary rounded-2xl p-12 text-center">
+      <div class="text-6xl mb-4 opacity-40">📸</div>
+      <h3 class="text-xl font-bold text-text-primary mb-3">No photos yet</h3>
+      <p class="text-text-secondary mb-6">
+        Start capturing moments with photos to build your trip gallery.
+      </p>
+      
+      <div class="space-y-3">
+        <%= link_to capture_trip_path(@trip), class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors inline-flex items-center mr-4" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Capture Your First Photo
+        <% end %>
+        
+        <%= link_to journal_trip_path(@trip), class: "text-primary-accent hover:underline" do %>
+          or browse your journal
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+</div>
+
+<!-- Simple Lightbox Modal -->
+<div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50" data-controller="gallery">
+  <div class="relative max-w-4xl max-h-full p-4">
+    <button data-action="gallery#closeLightbox" class="absolute -top-4 -right-4 text-white text-2xl hover:text-gray-300 z-10">
+      ×
+    </button>
+    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+    <div id="lightbox-caption" class="text-white text-center mt-4 text-sm"></div>
+  </div>
+</div>
+
+<script>
+// Simple gallery lightbox functionality
+class GalleryController extends window.Stimulus.Controller {
+  openLightbox(event) {
+    event.preventDefault();
+    const imageUrl = event.currentTarget.dataset.galleryImageUrl;
+    const caption = event.currentTarget.dataset.galleryCaption;
+    
+    const modal = document.getElementById('lightbox-modal');
+    const image = document.getElementById('lightbox-image');
+    const captionEl = document.getElementById('lightbox-caption');
+    
+    image.src = imageUrl;
+    captionEl.textContent = caption;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    document.body.style.overflow = 'hidden';
+  }
+  
+  closeLightbox() {
+    const modal = document.getElementById('lightbox-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+  }
+  
+  connect() {
+    // Close on escape key
+    this.boundKeyHandler = this.handleKeyPress.bind(this);
+    document.addEventListener('keydown', this.boundKeyHandler);
+  }
+  
+  disconnect() {
+    document.removeEventListener('keydown', this.boundKeyHandler);
+  }
+  
+  handleKeyPress(event) {
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    }
+  }
+}
+
+// Register the controller
+window.Stimulus.register("gallery", GalleryController);
+</script>

@@ -1,0 +1,305 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Navigation Context Indicator -->
+  <%= navigation_context_indicator.html_safe if navigation_context_indicator %>
+  
+  <!-- Trip Header -->
+  <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
+    <div class="mb-6">
+      <%= link_to trips_path, class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg> All Trips
+      <% end %>
+      <h1 class="text-3xl font-bold text-text-primary">
+        <%= @trip.name %>
+      </h1>
+    </div>
+    
+    <% if @trip.description %>
+      <p class="text-text-secondary mb-6 text-lg leading-relaxed"><%= @trip.description %></p>
+    <% end %>
+    
+    <div class="flex items-center space-x-4">
+      <span class="bg-primary-accent text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+Planning
+      </span>
+      <span class="text-text-secondary font-medium">
+        <% if @trip.start_date %>
+          <%= @trip.start_date.strftime("%b %d, %Y") %>
+        <% else %>
+          Dates TBD
+        <% end %>
+      </span>
+    </div>
+  </div>
+
+  <% if @related_trips.any? %>
+    <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
+      <h3 class="text-xl font-bold text-text-primary mb-4">Related Trips in "<%= @trip.series_name %>" Series</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% @related_trips.each do |related_trip| %>
+          <%= link_to related_trip, class: "block p-4 rounded-lg bg-background-primary hover:bg-gray-100 transition-colors" do %>
+            <h4 class="font-semibold text-text-primary"><%= related_trip.name %></h4>
+            <p class="text-sm text-text-secondary">
+              <%= related_trip.start_date.present? ? related_trip.start_date.strftime("%b %d, %Y") : "Dates TBD" %>
+              - <%= related_trip.status.capitalize %>
+            </p>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Planning Sections -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <!-- Dates & Destination -->
+    <div class="bg-background-secondary rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">Dates & Destination</h3>
+        <button class="text-primary-accent text-sm hover:text-blue-400">Edit</button>
+      </div>
+      
+      <div class="space-y-3">
+        <div>
+          <label class="text-sm text-text-secondary">Current Trip Dates</label>
+          <div class="text-text-primary">
+            <%= @trip.start_date ? "#{@trip.start_date.strftime("%B %d, %Y")} - #{@trip.end_date.strftime("%B %d, %Y")}" : "Not set" %>
+          </div>
+        </div>
+        <div>
+          <label class="text-sm text-text-secondary">Destination</label>
+          <div class="text-text-primary">Not set</div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-gray-200">
+        <h4 class="font-semibold text-text-primary mb-3">Propose New Dates</h4>
+        <%= form_with model: [@trip, DateProposal.new], local: true, class: "space-y-3" do |form| %>
+          <div>
+            <%= form.label :date_range, "Select Date Range", class: "block text-sm font-medium text-text-secondary mb-1" %>
+            <input type="text" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent"
+                   placeholder="Click to select dates"
+                   data-controller="flatpickr" 
+                   data-flatpickr-mode-value="range"
+                   name="date_range_display">
+            <%= form.hidden_field :start_date %>
+            <%= form.hidden_field :end_date %>
+          </div>
+          <%= form.submit "Propose Dates", class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-400 transition-colors text-sm" %>
+        <% end %>
+      </div>
+
+      <% if @date_proposals.any? %>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <h4 class="font-semibold text-text-primary mb-3">Proposed Dates</h4>
+          <div class="space-y-2">
+            <% @date_proposals.each do |proposal| %>
+              <div class="flex justify-between items-center bg-background-primary rounded-lg p-3">
+                <div>
+                  <span class="font-medium text-text-primary"><%= proposal.start_date.strftime("%b %d") %> - <%= proposal.end_date.strftime("%b %d, %Y") %></span>
+                  <span class="text-xs text-text-secondary ml-2">by <%= proposal.user.email_address %></span>
+                </div>
+                <% if proposal.user == Current.user || @trip.user_can_manage_expenses?(Current.user) %>
+                  <%= link_to "Delete", trip_date_proposal_path(@trip, proposal), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-500 hover:text-red-700 text-xs" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Trip Members -->
+    <div class="bg-background-secondary rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">👥 Trip Members</h3>
+        <button class="text-primary-accent text-sm hover:text-blue-400">Invite</button>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-8 h-8 bg-primary-accent rounded-full flex items-center justify-center text-white text-sm font-medium">
+              <%= @trip.user.email_address[0].upcase %>
+            </div>
+            <div class="ml-3">
+              <div class="text-sm font-medium text-text-primary"><%= @trip.user.email_address %></div>
+              <div class="text-xs text-text-secondary">Owner</div>
+            </div>
+          </div>
+        </div>
+        <!-- Trip Members -->
+        <% if @trip.active_members.any? %>
+          <div class="space-y-3 mb-4">
+            <% @trip.active_members.each do |member| %>
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-accent-green rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  <%= member.email_address[0].upcase %>
+                </div>
+                <div class="ml-3">
+                  <div class="text-sm font-medium text-text-primary"><%= member.email_address %></div>
+                  <div class="text-xs text-text-secondary">
+                    <%= @trip.member_role(member)&.titleize || 'Member' %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Pending Invitations -->
+        <% if @trip.invitations.pending.any? %>
+          <div class="bg-accent-yellow bg-opacity-50 border border-accent-yellow rounded-lg p-3 mb-4">
+            <div class="text-xs font-medium text-text-primary mb-2">Pending Invitations</div>
+            <% @trip.invitations.pending.each do |invitation| %>
+              <div class="text-sm text-text-secondary mb-1">
+                📧 <%= invitation.email %> (<%= invitation.role %>)
+                <span class="text-xs text-text-secondary">
+                  - expires <%= time_ago_in_words(invitation.expires_at) %> from now
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <!-- Invite Section -->
+        <div class="text-center py-4 border-t border-gray-200">
+          <%= link_to new_trip_invitation_path(@trip), 
+              class: "inline-flex items-center px-4 py-2 bg-primary-accent text-white text-sm font-medium rounded-lg hover:bg-blue-400 transition-all duration-200 shadow-md" do %>
+            Invite Friends
+          <% end %>
+          <% if @trip.invitations.any? %>
+            <div class="mt-2">
+              <%= link_to trip_invitations_path(@trip), 
+                  class: "text-primary-accent text-sm hover:text-blue-400 font-medium" do %>
+                Manage Invitations
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities & Plans -->
+    <div class="bg-background-secondary rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">Activities & Plans</h3>
+        <button class="text-primary-accent text-sm hover:text-blue-400">Add</button>
+      </div>
+      
+      <div class="text-center py-8 text-text-secondary">
+        <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+          <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <p class="text-sm">No activities planned yet</p>
+        <button class="mt-2 text-primary-accent text-sm hover:text-blue-400">Add your first activity</button>
+      </div>
+    </div>
+
+    <!-- Budget & Expenses -->
+    <div class="bg-background-secondary rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">Budget & Expenses</h3>
+        <%= link_to trip_expenses_path(@trip), class: "text-primary-accent text-sm hover:text-blue-400" do %>
+          Manage Expenses
+        <% end %>
+      </div>
+      
+      <% if @trip.expenses.exists? %>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-text-secondary">Total Expenses</span>
+            <span class="font-medium text-text-primary"><%= "%.2f" % @trip.total_expenses %> EUR</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-text-secondary">Your Balance</span>
+            <span class="font-medium <%= @trip.user_balance(Current.user) >= 0 ? 'text-accent-green' : 'text-accent-red' %>">
+              <%= @trip.user_balance(Current.user) >= 0 ? '+' : '' %><%= "%.2f" % @trip.user_balance(Current.user) %> EUR
+            </span>
+          </div>
+          <div class="pt-2">
+            <%= link_to trip_expenses_path(@trip), 
+                class: "text-primary-accent text-sm hover:text-blue-400 flex items-center" do %>
+              View All Expenses →
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-text-secondary">
+          <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+            <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+            </svg>
+          </div>
+          <p class="text-sm">No expenses tracked yet</p>
+          <%= link_to new_trip_expense_path(@trip), 
+              class: "mt-2 text-primary-accent text-sm hover:text-blue-400 inline-block" do %>
+            Add first expense
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Meals & Recipes -->
+    <div class="bg-background-secondary rounded-lg shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">Meals & Recipes</h3>
+        <%= link_to trip_recipes_path(@trip), class: "text-primary-accent text-sm hover:text-blue-400" do %>
+          Plan Meals
+        <% end %>
+      </div>
+      
+      <div class="text-center py-8 text-text-secondary">
+        <div class="w-12 h-12 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2 mx-auto">
+          <svg class="w-6 h-6 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+          </svg>
+        </div>
+        <p class="text-sm">No meals planned yet</p>
+        <button class="mt-2 text-primary-accent text-sm hover:text-blue-400">Start meal planning</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-8 bg-background-secondary rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="text-sm font-medium text-text-secondary">Set Dates</span>
+      </button>
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="text-sm font-medium text-text-secondary">Invite Friends</span>
+      </button>
+      <%= link_to new_trip_expense_path(@trip), class: "flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+          </svg>
+        </div>
+        <span class="text-sm font-medium text-text-secondary">Add Expense</span>
+      <% end %>
+      <button class="flex flex-col items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-8 h-8 bg-primary-accent/10 rounded-full flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-primary-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <span class="text-sm font-medium text-text-secondary">Start Trip</span>
+      </button>
+    </div>
+  </div>
+</div>

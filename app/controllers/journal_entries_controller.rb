@@ -1,5 +1,3 @@
-require 'csv'
-
 class JournalEntriesController < ApplicationController
   before_action :require_authentication
   before_action :set_trip

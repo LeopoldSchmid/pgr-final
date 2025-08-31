@@ -1,0 +1,373 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Navigation Context Indicator -->
+  <%= navigation_context_indicator.html_safe if navigation_context_indicator %>
+  
+  <!-- Trip Header -->
+  <div class="bg-background-secondary rounded-2xl shadow-lg p-8 mb-8">
+    <div class="mb-6">
+      <%= link_to reminisce_path, class: "text-primary-accent hover:text-yellow-400 font-medium flex items-center group mb-4" do %>
+        <span class="transform group-hover:-translate-x-1 transition-transform mr-2">📸</span> Trip Memories
+      <% end %>
+      <h1 class="text-3xl font-bold text-text-primary">
+        <%= @trip.name %>
+      </h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <span class="bg-primary-accent text-background-primary px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+        💭 Completed
+      </span>
+      <% if @trip.start_date && @trip.end_date %>
+        <span class="text-text-secondary font-medium">
+          📅 <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
+        </span>
+        <span class="text-text-secondary font-medium">
+          ⏳ <%= (@trip.end_date - @trip.start_date).to_i + 1 %> days
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Trip Summary Stats -->
+  <div class="bg-background-secondary rounded-2xl shadow-lg p-8 mb-8">
+    <h3 class="text-xl font-bold text-text-primary mb-6 flex items-center">
+      <span class="mr-3">📊</span> Trip Summary
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-primary-accent mb-2">
+          <%= (@trip.start_date && @trip.end_date) ? (@trip.end_date - @trip.start_date).to_i + 1 : "—" %>
+        </div>
+        <div class="text-sm text-text-secondary font-medium">Days</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-primary-accent mb-2"><%= @journal_summary[:total_entries] %></div>
+        <div class="text-sm text-text-secondary font-medium">Journal Entries</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-primary-accent mb-2"><%= @journal_summary[:favorite_moments] %></div>
+        <div class="text-sm text-text-secondary font-medium">Favorite Moments</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-primary-accent mb-2"><%= @journal_summary[:locations_visited] %></div>
+        <div class="text-sm text-text-secondary font-medium">Places Visited</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instagram-Style Photo Grid -->
+  <% if @entries_with_images.any? %>
+    <div class="mb-8">
+      <h3 class="text-2xl font-bold text-text-primary mb-6 flex items-center">
+        <span class="mr-3">📸</span> Photo Memories
+      </h3>
+      
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <% @entries_with_images.each do |entry| %>
+          <% if entry.images.attached? %>
+            <div class="group relative bg-background-secondary rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <%= image_tag entry.images.first.variant(resize_to_limit: [800, 800], quality: 80), class: "w-full h-48 object-cover" %>
+              
+              <!-- Overlay on hover -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <div class="text-white text-sm font-medium mb-1">
+                    <%= entry.entry_date.strftime("%b %d") %>
+                    <% if entry.favorite? %>
+                      <span class="ml-2">⭐</span>
+                    <% end %>
+                  </div>
+                  <% if entry.location_name %>
+                    <div class="text-white/80 text-xs">
+                      📍 <%= entry.location_name %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Memory Map -->
+  <% if @entries_with_locations.any? %>
+    <div class="mb-8">
+      <h3 class="text-2xl font-bold text-text-primary mb-6 flex items-center">
+        <span class="mr-3">🗺️</span> Memory Map
+      </h3>
+      
+      <div class="bg-background-secondary rounded-2xl shadow-lg p-6">
+        <div id="reminisce-map" 
+             class="h-96 rounded-xl"
+             data-controller="map" 
+             data-map-entries-value="<%= @entries_with_locations.map do |entry|
+               {
+                 id: entry.id,
+                 latitude: entry.latitude.to_f,
+                 longitude: entry.longitude.to_f,
+                 content: entry.content,
+                 location: entry.location,
+                 entry_date: entry.entry_date.iso8601,
+                 favorite: entry.favorite?,
+                 image_url: entry.images.attached? ? rails_blob_path(entry.images.first, only_path: true) : nil
+               }
+             end.to_json %>"
+             data-map-target="container">
+        </div>
+        
+        <div class="mt-4 text-sm text-text-secondary flex items-center justify-between">
+          <span>📍 <%= @entries_with_locations.count %> memories mapped across your journey</span>
+          <span>⭐ Favorite moments, 📍 Regular memories</span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Trip Journal Memories -->
+  <% if @journal_entries.any? %>
+    <div class="mb-8">
+      <!-- Favorite Moments -->
+      <% if @favorite_moments.any? %>
+        <div class="mb-8">
+          <h3 class="text-2xl font-bold text-yellow-400 mb-6 flex items-center">
+            <span class="mr-3">⭐</span> Favorite Moments
+          </h3>
+          <div class="grid gap-6 md:grid-cols-2">
+            <% @favorite_moments.each do |entry| %>
+              <div class="bg-yellow-900 bg-opacity-50 rounded-2xl shadow-lg border border-yellow-700 p-6 ring-2 ring-yellow-400">
+                <div class="flex items-center mb-4">
+                  <div class="text-yellow-300 font-bold mr-3">
+                    <%= entry.entry_date.strftime("%b %d") %>
+                  </div>
+                  <% if entry.location.present? %>
+                    <div class="text-yellow-200 text-sm bg-yellow-800 px-3 py-1 rounded-full">
+                      📍 <%= entry.location %>
+                    </div>
+                  <% end %>
+                  <% if entry.category.present? %>
+                    <div class="text-yellow-200 text-sm bg-yellow-800 px-3 py-1 rounded-full capitalize">
+                      <%= entry.category %>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="text-yellow-200 leading-relaxed">
+                  <%= format_journal_content(entry.content) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- All Journal Entries -->
+      <h3 class="text-2xl font-bold text-text-primary mb-6 flex items-center">
+        <span class="mr-3">📖</span> Complete Trip Journal
+      </h3>
+      <div class="space-y-6">
+        <% @journal_entries.each do |entry| %>
+          <div class="bg-background-secondary rounded-2xl shadow-lg p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="text-text-secondary font-bold">
+                <%= entry.entry_date.strftime("%b %d, %Y") %>
+              </div>
+              <div class="text-text-secondary text-sm">
+                by <%= entry.user.email_address %>
+              </div>
+              <% if entry.location.present? %>
+                <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full">
+                  📍 <%= entry.location %>
+                </div>
+              <% end %>
+              <% if entry.category.present? %>
+                <div class="text-text-secondary text-sm bg-background-primary px-3 py-1 rounded-full capitalize">
+                  <%= entry.category %>
+                </div>
+              <% end %>
+              <% if entry.favorite? %>
+                <div class="text-yellow-400">⭐ Favorite</div>
+              <% end %>
+            </div>
+            
+            <div class="text-text-primary leading-relaxed mb-4">
+              <%= format_journal_content(entry.content) %>
+            </div>
+            
+            <div class="mt-4 text-xs text-text-secondary">
+              Captured <%= time_ago_in_words(entry.created_at) %> ago
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mt-6 pt-4 border-t border-gray-300">
+              <h4 class="font-semibold text-text-primary mb-3">Comments (<%= entry.comments.count %>)</h4>
+              <div class="space-y-3 mb-4">
+                <% entry.comments.each do |comment| %>
+                  <div class="bg-background-primary rounded-lg p-3 text-sm">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-medium text-text-primary"><%= comment.user.email_address %></span>
+                      <span class="text-xs text-text-secondary"><%= time_ago_in_words(comment.created_at) %> ago</span>
+                    </div>
+                    <p class="text-text-secondary"><%= comment.content %></p>
+                    <% if comment.user == Current.user %>
+                      <%= link_to "Delete", trip_journal_entry_comment_path(@trip, entry, comment), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-500 hover:text-red-700 text-xs" %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- New Comment Form -->
+              <%= form_with model: [@trip, entry, entry.comments.build], local: true, class: "space-y-2" do |form| %>
+                <%= form.text_area :content, placeholder: "Add a comment...", rows: 2, class: "w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+                <%= form.submit "Post Comment", class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors text-sm" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <!-- Empty Journal State -->
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-12 mb-8">
+      <div class="text-center">
+        <div class="text-6xl mb-4 opacity-60">📔</div>
+        <h3 class="text-xl font-bold text-text-primary mb-3">No Journal Entries Yet</h3>
+        <p class="text-text-secondary mb-6">This trip didn't have any journal entries. Next time, capture the moments as they happen!</p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Other Memories Sections -->
+  <div class="grid gap-6 md:grid-cols-2">
+
+    <!-- Favorite Recipes -->
+    <div class="bg-background-secondary rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">⭐ Favorite Recipes</h3>
+        <button class="text-primary-accent text-sm hover:text-yellow-400">Save Recipe</button>
+      </div>
+      
+      <div class="text-center py-8 text-text-secondary">
+        <div class="text-4xl mb-2">🍽️</div>
+        <p class="text-sm">No favorite recipes saved</p>
+        <button class="mt-2 text-primary-accent text-sm hover:text-yellow-400">Add recipes to remember</button>
+      </div>
+    </div>
+
+    <!-- Expense Summary -->
+    <div class="bg-background-secondary rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">💰 Final Expense Summary</h3>
+        <%= link_to trip_expenses_path(@trip), class: "text-primary-accent text-sm hover:text-yellow-400" do %>
+          View Details
+        <% end %>
+      </div>
+      
+      <% if @trip.expenses.exists? %>
+        <div class="space-y-4">
+          <!-- Total Expenses -->
+          <div class="bg-background-primary rounded-lg p-4">
+            <div class="flex justify-between items-center">
+              <span class="text-text-secondary font-medium">Total Trip Cost</span>
+              <span class="text-2xl font-bold text-primary-accent"><%= "%.2f" % @trip.total_expenses %> EUR</span>
+            </div>
+          </div>
+
+          <!-- Expense Breakdown by Category -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <% @trip.expenses_by_category.each do |category, amount| %>
+              <div class="text-center p-3 bg-background-primary rounded-lg">
+                <div class="text-xl mb-1">
+                  <%= case category
+                      when 'food' then '🍽️'
+                      when 'accommodation' then '🏨' 
+                      when 'transport' then '🚗'
+                      when 'activities' then '🎯'
+                      when 'shopping' then '🛒'
+                      else '💰'
+                      end %>
+                </div>
+                <div class="font-bold text-primary-accent"><%= "%.2f" % amount %> EUR</div>
+                <div class="text-xs text-text-secondary capitalize"><%= category %></div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Final Balance -->
+          <div class="bg-green-900 bg-opacity-50 rounded-lg p-4">
+            <div class="flex justify-between items-center">
+              <span class="text-green-300 font-medium">Your Final Balance</span>
+              <span class="font-bold <%= @trip.user_balance(Current.user) >= 0 ? 'text-green-400' : 'text-red-400' %>">
+                <%= @trip.user_balance(Current.user) >= 0 ? '+' : '' %><%= "%.2f" % @trip.user_balance(Current.user) %> EUR
+              </span>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-text-secondary">
+          <div class="text-4xl mb-2">📊</div>
+          <p class="text-sm">No expenses recorded</p>
+          <p class="text-xs text-gray-500 mt-1">Expenses from the Go phase would appear here</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Learnings & Notes -->
+    <div class="bg-background-secondary rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-text-primary">📝 Trip Notes</h3>
+        <button class="text-primary-accent text-sm hover:text-yellow-400">Add Notes</button>
+      </div>
+      
+      <div class="text-center py-8 text-text-secondary">
+        <div class="text-4xl mb-2">💭</div>
+        <p class="text-sm">No notes or learnings saved</p>
+        <button class="mt-2 text-primary-accent text-sm hover:text-yellow-400">Add what you learned</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-8 bg-background-secondary rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-text-primary mb-4">Use This Trip</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <button class="flex items-center justify-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">📋</span>
+        <div class="text-left">
+          <div class="font-medium text-text-primary">Copy as Template</div>
+          <div class="text-sm text-text-secondary">Create new trip with same plan</div>
+        </div>
+      </button>
+      
+      <button class="flex items-center justify-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">🍽️</span>
+        <div class="text-left">
+          <div class="font-medium text-text-primary">Save Recipes</div>
+          <div class="text-sm text-text-secondary">Add successful meals to cookbook</div>
+        </div>
+      </button>
+      
+      <button class="flex items-center justify-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <span class="text-2xl mr-3">📤</span>
+        <div class="text-left">
+          <div class="font-medium text-text-primary">Export Summary</div>
+          <div class="text-sm text-text-secondary">Download trip report</div>
+        </div>
+      </button>
+      <%= link_to report_trip_path(@trip, format: :pdf), target: "_blank", class: "flex items-center justify-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <span class="text-2xl mr-3">📄</span>
+        <div class="text-left">
+          <div class="font-medium text-text-primary">Generate PDF Report</div>
+          <div class="text-sm text-text-secondary">Download a detailed PDF summary</div>
+        </div>
+      <% end %>
+      <%= link_to download_photos_trip_path(@trip), class: "flex items-center justify-center p-4 bg-background-primary rounded-lg shadow-sm hover:shadow-md transition-shadow" do %>
+        <span class="text-2xl mr-3">📸</span>
+        <div class="text-left">
+          <div class="font-medium text-text-primary">Download Photos</div>
+          <div class="text-sm text-text-secondary">Download all trip photos as a ZIP</div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
