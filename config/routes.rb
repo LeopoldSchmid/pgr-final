@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   # Standalone invitation routes (for accepting via email links)
   resources :invitations, only: [:show], param: :token do
     member do
+      get :accept
+      get :decline
       patch :accept
       patch :decline
     end

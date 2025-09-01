@@ -57,17 +57,33 @@
       <!-- Location & Options Row -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
         <!-- Location -->
-        <div class="md:col-span-2">
+        <div class="md:col-span-2 relative">
           <div class="flex space-x-2">
             <%= form.text_field :location, 
                 placeholder: "Where are you?",
-                data: { location_target: "locationName" },
-                class: "flex-1 p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-sm" %>
+                data: { 
+                  location_target: "locationName",
+                  action: "input->capture-modal#search focus->capture-modal#handleFocus blur->capture-modal#handleBlur"
+                },
+                class: "flex-1 p-3 md:p-2 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary text-base md:text-sm touch-manipulation",
+                autocomplete: "off",
+                inputmode: "text" %>
             <button type="button" 
-                    data-action="capture-modal#getCurrentLocation"
-                    class="bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-              GPS
+                    data-action="capture-modal#getCurrentLocation touchstart->capture-modal#handleTouchStart"
+                    class="bg-primary-accent text-white px-4 py-3 md:px-3 md:py-2 rounded-lg text-sm font-medium hover:bg-blue-600 active:bg-blue-700 transition-colors min-w-[80px] touch-manipulation">
+              <span class="flex items-center justify-center">
+                <svg class="w-4 h-4 mr-1 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="hidden md:inline">GPS</span>
+                <span class="md:hidden">Location</span>
+              </span>
             </button>
+          </div>
+          <!-- Autocomplete Results -->
+          <div data-capture-modal-target="autocompleteResults" 
+               class="absolute top-full left-0 right-0 bg-background-primary border border-gray-300 rounded-lg mt-1 shadow-lg z-10 max-h-48 md:max-h-64 overflow-y-auto hidden touch-manipulation">
           </div>
         </div>
         
