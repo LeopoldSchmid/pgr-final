@@ -9,24 +9,27 @@ class Api::TripsController < ApplicationController
     @trip.date_proposals.includes(:user, :date_proposal_votes).each do |proposal|
       vote_summary = proposal.vote_summary
       user_vote = proposal.user_vote(Current.user)
+      title = proposal.title.present? ? "##{proposal.id}: #{proposal.title}" : "##{proposal.id}"
       
       events << {
         id: "proposal_#{proposal.id}",
-        title: "#{proposal.user.email_address.split('@').first}'s proposal",
-        start: proposal.start_date,
-        end: proposal.end_date + 1.day, # FullCalendar expects exclusive end date
+        title: title,
+        start: proposal.start_date.to_s,
+        end: (proposal.end_date + 1.day).to_s, # FullCalendar expects exclusive end date
         type: 'proposal',
-        backgroundColor: '#10b981',
-        borderColor: '#059669',
-        textColor: '#ffffff',
+        backgroundColor: '#BEC8F9',
+        borderColor: '#7A83B3',
+        textColor: '#1C1C1E',
         extendedProps: {
           type: 'proposal',
           proposalId: proposal.id,
+          title: proposal.title,
           proposer: proposal.user.email_address,
           votes: vote_summary,
           userVote: user_vote,
           description: proposal.description,
-          notes: proposal.notes
+          notes: proposal.notes,
+          deletable: proposal.user == Current.user || @trip.user_can_manage_expenses?(Current.user)
         }
       }
     end
@@ -41,19 +44,21 @@ class Api::TripsController < ApplicationController
         
         events << {
           id: "availability_#{availability.id}",
-          title: "#{availability.display_title} (#{user.email_address.split('@').first})",
-          start: availability.start_date,
-          end: availability.end_date + 1.day,
+          title: availability.title.present? ? availability.title : "Availability ##{availability.id}",
+          start: availability.start_date.to_s,
+          end: (availability.end_date + 1.day).to_s,
           type: availability.availability_type,
           backgroundColor: color[:bg],
           borderColor: color[:border],
-          textColor: '#ffffff',
+          textColor: '#1C1C1E',
           extendedProps: {
             type: availability.availability_type,
             availabilityId: availability.id,
             userId: user.id,
             userName: user.email_address,
-            description: availability.description
+            title: availability.title,
+            description: availability.description,
+            deletable: availability.user == Current.user
           }
         }
       end
@@ -86,13 +91,13 @@ class Api::TripsController < ApplicationController
   def availability_color(availability_type)
     case availability_type
     when 'unavailable'
-      { bg: '#ef4444', border: '#dc2626' }
+      { bg: '#E4A094', border: '#D09484' } # accent-red
     when 'busy'
-      { bg: '#6b7280', border: '#4b5563' }
+      { bg: '#DDCA7E', border: '#D0B64F' } # accent-yellow
     when 'preferred'
-      { bg: '#f59e0b', border: '#d97706' }
+      { bg: '#A9B9A2', border: '#94A68F' } # accent-green
     else
-      { bg: '#6b7280', border: '#4b5563' }
+      { bg: '#EFE2DB', border: '#E1CEC7' } # accent-brown
     end
   end
 end

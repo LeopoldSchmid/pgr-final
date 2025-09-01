@@ -11,11 +11,17 @@ export default class extends Controller {
 
   connect() {
     try {
+      console.log('Map controller connecting...')
+      console.log('Leaflet available:', typeof L !== 'undefined')
+      console.log('Container target:', this.containerTarget)
+      console.log('Entries value:', this.entriesValue)
+      
       this.initializeMap()
       this.addMarkers()
     } catch (error) {
       console.error('Map initialization failed:', error)
-      this.containerTarget.innerHTML = '<div class="bg-gray-100 rounded-xl p-8 text-center"><div class="text-gray-500">Map temporarily unavailable</div></div>'
+      console.error('Error details:', error.message, error.stack)
+      this.containerTarget.innerHTML = '<div class="bg-gray-100 rounded-xl p-8 text-center"><div class="text-gray-500">Map temporarily unavailable</div><div class="text-xs text-gray-400 mt-2">Check console for details</div></div>'
     }
   }
 
@@ -26,6 +32,12 @@ export default class extends Controller {
   }
 
   initializeMap() {
+    console.log('Initializing map...')
+    
+    // Check if Leaflet is available
+    if (typeof L === 'undefined') {
+      throw new Error('Leaflet library not loaded')
+    }
 
     // Validate and set default center
     let center = [40.7128, -74.0060] // Default to NYC
@@ -39,20 +51,34 @@ export default class extends Controller {
     }
 
     const zoom = this.zoomValue || 10
+    console.log('Map center:', center, 'zoom:', zoom)
 
-    this.map = L.map(this.containerTarget, {
-      attributionControl: true
-    }).setView(center, zoom)
+    try {
+      this.map = L.map(this.containerTarget, {
+        attributionControl: true
+      }).setView(center, zoom)
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(this.map)
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(this.map)
+      
+      console.log('Map initialized successfully')
+    } catch (mapError) {
+      console.error('Error creating map:', mapError)
+      throw mapError
+    }
   }
 
   addMarkers() {
-    if (!this.entriesValue || this.entriesValue.length === 0) return
+    console.log('Adding markers...')
+    console.log('Entries value:', this.entriesValue)
+    
+    if (!this.entriesValue || this.entriesValue.length === 0) {
+      console.log('No entries to add markers for')
+      return
+    }
 
     const validEntries = this.entriesValue.filter(entry => {
       const lat = parseFloat(entry.latitude)
@@ -62,33 +88,45 @@ export default class extends Controller {
              lng >= -180 && lng <= 180
     })
 
-    if (validEntries.length === 0) return
+    console.log('Valid entries:', validEntries.length)
 
-    // Create marker group
-    const group = new L.FeatureGroup()
+    if (validEntries.length === 0) {
+      console.log('No valid entries found')
+      return
+    }
 
-    validEntries.forEach(entry => {
-      const lat = parseFloat(entry.latitude)
-      const lng = parseFloat(entry.longitude)
+    try {
+      // Create marker group
+      const group = new L.FeatureGroup()
+
+      validEntries.forEach(entry => {
+        const lat = parseFloat(entry.latitude)
+        const lng = parseFloat(entry.longitude)
+        
+        // Create custom icon for favorites
+        const icon = entry.favorite ? 
+          this.createCustomIcon('⭐', '#fbbf24') : 
+          this.createCustomIcon('📍', '#10b981')
+
+        const marker = L.marker([lat, lng], { icon })
+          .bindPopup(this.createPopupContent(entry))
+        
+        group.addLayer(marker)
+      })
+
+      group.addTo(this.map)
+
+      // Fit map to show all markers
+      if (validEntries.length > 1) {
+        this.map.fitBounds(group.getBounds(), { padding: [20, 20] })
+      } else {
+        this.map.setView([validEntries[0].latitude, validEntries[0].longitude], 15)
+      }
       
-      // Create custom icon for favorites
-      const icon = entry.favorite ? 
-        this.createCustomIcon('⭐', '#fbbf24') : 
-        this.createCustomIcon('📍', '#10b981')
-
-      const marker = L.marker([lat, lng], { icon })
-        .bindPopup(this.createPopupContent(entry))
-      
-      group.addLayer(marker)
-    })
-
-    group.addTo(this.map)
-
-    // Fit map to show all markers
-    if (validEntries.length > 1) {
-      this.map.fitBounds(group.getBounds(), { padding: [20, 20] })
-    } else {
-      this.map.setView([validEntries[0].latitude, validEntries[0].longitude], 15)
+      console.log('Markers added successfully')
+    } catch (markerError) {
+      console.error('Error adding markers:', markerError)
+      throw markerError
     }
   }
 

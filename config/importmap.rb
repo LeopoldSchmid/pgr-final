@@ -6,8 +6,10 @@ pin "@hotwired/stimulus", to: "stimulus.min.js"
 pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
 pin_all_from "app/javascript/controllers", under: "controllers"
 
+
+
 # Leaflet.js for maps
-pin "leaflet", to: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+pin "leaflet", to: "https://esm.sh/leaflet@1.9.4"
 
 # Flatpickr for date pickers
 pin "flatpickr", to: "https://ga.jspm.io/npm:flatpickr@4.6.13/dist/flatpickr.min.js"

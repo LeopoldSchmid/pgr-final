@@ -88,11 +88,11 @@
                   'aspect-[4/3]'
                 end
               %>">
-                <%= image_tag image.variant(resize_to_limit: [600, 600], quality: 85), 
+                <%= image_tag image.variant(resize_to_limit: [600, 600]), 
                     class: "w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]",
                     data: { 
                       action: "click->gallery#openLightbox", 
-                      gallery_image_url: rails_blob_path(image.variant(resize_to_limit: [1200, 1200], quality: 90)),
+                      gallery_image_url: rails_blob_path(image.variant(resize_to_limit: [1200, 1200])),
                       gallery_caption: "#{entry.entry_date.strftime('%B %d, %Y')} - #{entry.location_name}"
                     } %>
               </div>
@@ -147,7 +147,7 @@
 </div>
 
 <!-- Simple Lightbox Modal -->
-<div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50" data-controller="gallery">
+<div id="lightbox-modal" class="fixed inset-0 backdrop-blur-md bg-black bg-opacity-40 hidden items-center justify-center z-50" data-controller="gallery">
   <div class="relative max-w-4xl max-h-full p-4">
     <button data-action="gallery#closeLightbox" class="absolute -top-4 -right-4 text-white text-2xl hover:text-gray-300 z-10">
       ×
@@ -157,50 +157,3 @@
   </div>
 </div>
 
-<script>
-// Simple gallery lightbox functionality
-class GalleryController extends window.Stimulus.Controller {
-  openLightbox(event) {
-    event.preventDefault();
-    const imageUrl = event.currentTarget.dataset.galleryImageUrl;
-    const caption = event.currentTarget.dataset.galleryCaption;
-    
-    const modal = document.getElementById('lightbox-modal');
-    const image = document.getElementById('lightbox-image');
-    const captionEl = document.getElementById('lightbox-caption');
-    
-    image.src = imageUrl;
-    captionEl.textContent = caption;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    
-    document.body.style.overflow = 'hidden';
-  }
-  
-  closeLightbox() {
-    const modal = document.getElementById('lightbox-modal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = 'auto';
-  }
-  
-  connect() {
-    // Close on escape key
-    this.boundKeyHandler = this.handleKeyPress.bind(this);
-    document.addEventListener('keydown', this.boundKeyHandler);
-  }
-  
-  disconnect() {
-    document.removeEventListener('keydown', this.boundKeyHandler);
-  }
-  
-  handleKeyPress(event) {
-    if (event.key === 'Escape') {
-      this.closeLightbox();
-    }
-  }
-}
-
-// Register the controller
-window.Stimulus.register("gallery", GalleryController);
-</script>

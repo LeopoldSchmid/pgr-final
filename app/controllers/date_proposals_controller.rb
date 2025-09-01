@@ -1,7 +1,7 @@
 class DateProposalsController < ApplicationController
   before_action :require_authentication
   before_action :set_trip
-  before_action :set_date_proposal, only: [:destroy]
+  before_action :set_date_proposal, only: [:destroy, :update, :edit]
 
   def index
     @date_proposals = @trip.date_proposals.order(:start_date)
@@ -23,12 +23,46 @@ class DateProposalsController < ApplicationController
     end
   end
 
+  def edit
+    respond_to do |format|
+      format.json { render json: @date_proposal }
+      format.html { render :edit }
+    end
+  end
+
+  def update
+    if @date_proposal.update(date_proposal_params)
+      respond_to do |format|
+        format.html { redirect_to trip_date_proposals_path(@trip), notice: 'Date proposal updated!' }
+        format.json { render json: { success: true, message: 'Date proposal updated!' } }
+      end
+    else
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @date_proposal.errors }, status: :unprocessable_entity }
+      end
+    end
+  end
+
   def destroy
     @date_proposal.destroy
-    redirect_to plan_trip_path(@trip), notice: 'Date proposal deleted!'
+    respond_to do |format|
+      format.html { redirect_to plan_trip_path(@trip), notice: 'Date proposal deleted!' }
+      format.json { render json: { success: true, message: 'Date proposal deleted!' } }
+    end
   end
 
   private
+
+  def require_non_guest
+    # The owner of the trip is not a guest
+    return if @trip.user == Current.user
+
+    trip_member = @trip.trip_members.find_by(user: Current.user)
+    if trip_member&.guest?
+      redirect_to plan_trip_path(@trip), alert: "Guests are not allowed to create date proposals."
+    end
+  end
 
   def set_trip
     return render json: { error: "Trip ID required" }, status: :bad_request unless params[:trip_id].present?
@@ -42,18 +76,28 @@ class DateProposalsController < ApplicationController
     
     unless @trip
       render json: { error: "Trip not found or access denied" }, status: :not_found
+      return
     end
   end
 
   def set_date_proposal
     @date_proposal = @trip.date_proposals.find(params[:id])
-    # Ensure user can only delete their own proposals or if they are an admin/owner
+    # Ensure user can only edit/delete their own proposals or if they are an admin/owner
     unless @date_proposal.user == Current.user || @trip.user_can_manage_expenses?(Current.user)
-      redirect_to plan_trip_path(@trip), alert: "You are not authorized to delete this date proposal."
+      respond_to do |format|
+        format.html { redirect_to plan_trip_path(@trip), alert: "You are not authorized to modify this date proposal." }
+        format.json { render json: { error: "You are not authorized to modify this date proposal." }, status: :forbidden }
+      end
+      return
+    end
+  rescue ActiveRecord::RecordNotFound
+    respond_to do |format|
+      format.html { redirect_to plan_trip_path(@trip), alert: "Date proposal not found." }
+      format.json { render json: { error: "Date proposal not found." }, status: :not_found }
     end
   end
 
   def date_proposal_params
-    params.require(:date_proposal).permit(:start_date, :end_date, :description, :notes)
+    params.require(:date_proposal).permit(:start_date, :end_date, :title, :description, :notes)
   end
 end

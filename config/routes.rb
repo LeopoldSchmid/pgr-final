@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     get :map, on: :member
     get :gallery, on: :member
     
-    resources :date_proposals, only: [:index, :create, :destroy]
+    resources :date_proposals, only: [:index, :create, :destroy, :update, :edit]
     resources :date_proposal_votes, only: [:create, :update, :destroy]
     resources :user_availabilities, only: [:index, :create, :update, :destroy]
     

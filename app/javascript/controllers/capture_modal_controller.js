@@ -25,6 +25,9 @@ export default class extends Controller {
       textarea.focus()
     }
 
+    // Automatically get current location when modal opens
+    this.getLocationOnOpen()
+
     // Add outside click listener
     setTimeout(() => {
       document.addEventListener('click', this.boundCloseOnOutsideClick)
@@ -62,7 +65,14 @@ export default class extends Controller {
     button.textContent = 'Getting location...'
     button.disabled = true
 
+    // Try precise GPS location first, then fallback to IP-based
     if (navigator.geolocation) {
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 60000 // 1 minute cache for manual requests
+      }
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords
@@ -77,28 +87,86 @@ export default class extends Controller {
           // Try to get address from coordinates (reverse geocoding)
           this.reverseGeocode(latitude, longitude)
           
-          button.textContent = 'Location captured!'
+          button.textContent = 'Precise location captured!'
           setTimeout(() => {
             button.textContent = originalText
             button.disabled = false
           }, 2000)
         },
         (error) => {
-          console.error('Geolocation error:', error)
-          button.textContent = 'Location failed'
-          setTimeout(() => {
-            button.textContent = originalText
-            button.disabled = false
-          }, 2000)
-        }
+          console.log('Precise location failed, using IP location:', error.message)
+          // Fallback to IP-based location with user feedback
+          this.getIPBasedLocationWithFeedback(button, originalText)
+        },
+        options
       )
     } else {
-      button.textContent = 'Location not available'
-      setTimeout(() => {
-        button.textContent = originalText
-        button.disabled = false
-      }, 2000)
+      // No geolocation support, use IP-based location
+      this.getIPBasedLocationWithFeedback(button, originalText)
     }
+  }
+
+  getIPBasedLocationWithFeedback(button, originalText) {
+    fetch('https://api.bigdatacloud.net/data/client-info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.location && data.location.latitude && data.location.longitude) {
+          const latField = this.element.querySelector('[data-location-target="latitude"]')
+          const lngField = this.element.querySelector('[data-location-target="longitude"]')
+          const locationField = this.element.querySelector('[data-location-target="locationName"]')
+          
+          if (latField) latField.value = data.location.latitude
+          if (lngField) lngField.value = data.location.longitude
+          if (locationField && data.location.city) {
+            locationField.value = data.location.city + (data.location.principalSubdivision ? `, ${data.location.principalSubdivision}` : '')
+          }
+          
+          button.textContent = 'City location captured!'
+        } else {
+          button.textContent = 'Location failed'
+        }
+        
+        setTimeout(() => {
+          button.textContent = originalText
+          button.disabled = false
+        }, 2000)
+      })
+      .catch(error => {
+        console.log('IP-based location failed:', error)
+        button.textContent = 'Location failed'
+        setTimeout(() => {
+          button.textContent = originalText
+          button.disabled = false
+        }, 2000)
+      })
+  }
+
+  getLocationOnOpen() {
+    // Use IP-based location as primary method to avoid permission prompts and rate limits
+    this.getIPBasedLocation()
+  }
+
+  getIPBasedLocation() {
+    // Use IP-based location service as fallback
+    fetch('https://api.bigdatacloud.net/data/client-info')
+      .then(response => response.json())
+      .then(data => {
+        if (data.location && data.location.latitude && data.location.longitude) {
+          const latField = this.element.querySelector('[data-location-target="latitude"]')
+          const lngField = this.element.querySelector('[data-location-target="longitude"]')
+          const locationField = this.element.querySelector('[data-location-target="locationName"]')
+          
+          if (latField) latField.value = data.location.latitude
+          if (lngField) lngField.value = data.location.longitude
+          if (locationField && data.location.city) {
+            locationField.value = data.location.city + (data.location.principalSubdivision ? `, ${data.location.principalSubdivision}` : '')
+          }
+        }
+      })
+      .catch(error => {
+        console.log('IP-based location failed:', error)
+        // Silently fail - user can still manually get location if needed
+      })
   }
 
   reverseGeocode(lat, lng) {

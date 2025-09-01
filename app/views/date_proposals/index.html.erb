@@ -6,6 +6,20 @@
      data-calendar-vote-url-value="<%= trip_date_proposal_votes_path(@trip) %>"
      data-calendar-availability-url-value="<%= trip_user_availabilities_path(@trip) %>">
   
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none">
+    <div id="toast" class="hidden bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 max-w-sm mx-4 pointer-events-auto">
+      <div class="flex items-center space-x-3">
+        <div id="toast-icon" class="flex-shrink-0">
+          <!-- Icon will be set dynamically -->
+        </div>
+        <div id="toast-message" class="text-sm font-medium text-gray-900">
+          <!-- Message will be set dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Header with Back Navigation -->
   <div class="mb-6">
     <%= link_to plan_trip_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
@@ -26,13 +40,14 @@
   </div>
 
   <!-- Proposal Modal -->
-  <div data-calendar-target="proposalModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+  <div data-calendar-target="proposalModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-40 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold">Propose New Dates</h2>
         <button class="text-gray-500 hover:text-gray-700" data-action="click->calendar#closeModal">&times;</button>
       </div>
-      <%= form_with model: [@trip, @new_date_proposal], local: true, class: "space-y-4" do |form| %>
+      <%= form_with model: [@trip, @new_date_proposal], local: true, class: "space-y-4", data: { action: "submit->calendar#submitProposal" } do |form| %>
+        <%= form.hidden_field :id %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <%= form.label :start_date, "Start Date", class: "block text-sm font-medium text-text-primary mb-1" %>
@@ -44,6 +59,10 @@
           </div>
         </div>
         <div>
+          <%= form.label :title, "Title (Optional)", class: "block text-sm font-medium text-text-primary mb-1" %>
+          <%= form.text_field :title, class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
+        </div>
+        <div>
           <%= form.label :description, "Description (Optional)", class: "block text-sm font-medium text-text-primary mb-1" %>
           <%= form.text_area :description, rows: 3, placeholder: "Why these dates work well, what activities you have in mind...", class: "w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
         </div>
@@ -51,14 +70,14 @@
           <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
             Cancel
           </button>
-          <%= form.submit "Propose These Dates", class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
+          <%= form.submit "Propose These Dates", class: "bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-accent-red-dark transition-colors" %>
         </div>
       <% end %>
     </div>
   </div>
 
   <!-- Vote Modal -->
-  <div data-calendar-target="voteModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+  <div data-calendar-target="voteModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-40 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
           <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-bold">Vote on Proposal</h2>
@@ -95,32 +114,41 @@
                       </button>
                   </div>
               </div>
+              <div class="mt-4 flex space-x-2" data-calendar-target="deleteProposalContainer" style="display: none;">
+                <button type="button" data-action="click->calendar#editProposal" class="w-full px-4 py-2 text-white bg-primary-accent rounded-lg hover:bg-accent-red-dark transition-colors">
+                  Edit Proposal
+                </button>
+                <button type="button" data-action="click->calendar#deleteProposal" class="w-full px-4 py-2 text-white bg-accent-red rounded-lg hover:bg-accent-red-dark transition-colors">
+                  Delete Proposal
+                </button>
+              </div>
           </div>
       </div>
   </div>
 
 
   <!-- Availability Modal -->
-  <div data-calendar-target="availabilityModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+  <div data-calendar-target="availabilityModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-40 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
           <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-bold">Add Availability Period</h2>
+              <h2 class="text-xl font-bold" data-calendar-target="availabilityModalTitle">Add Availability Period</h2>
               <button class="text-gray-500 hover:text-gray-700" data-action="click->calendar#closeModal">&times;</button>
           </div>
           <form class="space-y-4" data-action="submit->calendar#submitAvailability">
+              <input type="hidden" name="user_availability[id]" data-calendar-target="availabilityId">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                       <label class="block text-sm font-medium text-text-primary mb-1">Start Date</label>
-                      <input type="date" name="user_availability[start_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                      <input type="date" name="user_availability[start_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" data-calendar-target="availabilityStartDate">
                   </div>
                   <div>
                       <label class="block text-sm font-medium text-text-primary mb-1">End Date</label>
-                      <input type="date" name="user_availability[end_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                      <input type="date" name="user_availability[end_date]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" data-calendar-target="availabilityEndDate">
                   </div>
               </div>
               <div>
                   <label class="block text-sm font-medium text-text-primary mb-1">Availability Type</label>
-                  <select name="user_availability[availability_type]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                  <select name="user_availability[availability_type]" required class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" data-calendar-target="availabilityType">
                       <option value="unavailable">🚫 Unavailable</option>
                       <option value="busy">📅 Busy (but possible)</option>
                       <option value="preferred">⭐ Preferred dates</option>
@@ -128,19 +156,26 @@
               </div>
               <div>
                   <label class="block text-sm font-medium text-text-primary mb-1">Title (Optional)</label>
-                  <input type="text" name="user_availability[title]" placeholder="Work conference, vacation, etc." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary">
+                  <input type="text" name="user_availability[title]" placeholder="Work conference, vacation, etc." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" data-calendar-target="availabilityTitle">
               </div>
               <div>
                   <label class="block text-sm font-medium text-text-primary mb-1">Description (Optional)</label>
-                  <textarea name="user_availability[description]" rows="3" placeholder="Additional details about your availability..." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary"></textarea>
+                  <textarea name="user_availability[description]" rows="3" placeholder="Additional details about your availability..." class="w-full p-3 bg-background-primary border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" data-calendar-target="availabilityDescription"></textarea>
               </div>
-              <div class="flex justify-end space-x-3">
-                  <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
-                      Cancel
-                  </button>
-                  <button type="submit" class="bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
-                      Add Availability
-                  </button>
+              <div class="flex justify-between items-center">
+                  <div data-calendar-target="deleteAvailabilityContainer" style="display: none;">
+                      <button type="button" data-action="click->calendar#deleteAvailability" class="px-4 py-2 text-white bg-accent-red rounded-lg hover:bg-accent-red-dark transition-colors">
+                          Delete
+                      </button>
+                  </div>
+                  <div class="flex justify-end space-x-3">
+                      <button type="button" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" data-action="click->calendar#closeModal">
+                          Cancel
+                      </button>
+                      <button type="submit" class="bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-accent-red-dark transition-colors" data-calendar-target="availabilitySubmitButton">
+                          Add Availability
+                      </button>
+                  </div>
               </div>
           </form>
       </div>
@@ -175,7 +210,7 @@
       <button data-action="click->calendar#openProposalModal" class="bg-white text-gray-700 w-48 py-2 px-4 rounded-full shadow-lg mb-2 text-sm font-medium">New Date Proposal</button>
       <button data-action="click->calendar#openAvailabilityModal" class.half="bg-white text-gray-700 w-48 py-2 px-4 rounded-full shadow-lg text-sm font-medium">Add Unavailability</button>
     </div>
-    <button data-action="click->fab#toggleMenu" class="bg-primary-accent text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg">
+    <button data-action="click->fab#toggleMenu" class="bg-primary-accent text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-accent-red-dark transition-colors">
       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
     </button>
   </div>
