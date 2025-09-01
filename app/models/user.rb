@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :journal_entries, dependent: :destroy
   has_many :user_availabilities, dependent: :destroy
   has_many :date_proposal_votes, dependent: :destroy
+  has_many :trip_attachments, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   

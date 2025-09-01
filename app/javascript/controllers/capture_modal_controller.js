@@ -15,13 +15,16 @@ export default class extends Controller {
     this.locationSources = []
     this.locationAttempts = {
       gps: false,
-      device: false,
       ip: false
     }
     
     // Initialize retry mechanism
     this.retryCount = 0
     this.maxRetries = 2
+    
+    // Initialize geolocation rate limiting
+    this.geolocationAttempts = this.getGeolocationAttempts()
+    this.maxGeolocationAttempts = 3 // Max 3 attempts per 10 minutes
     
     // Initialize offline capabilities
     this.offlineMode = !navigator.onLine
@@ -156,6 +159,44 @@ export default class extends Controller {
     return false
   }
 
+  getGeolocationAttempts() {
+    // Get recent geolocation attempts from localStorage to prevent rate limiting
+    try {
+      const stored = localStorage.getItem('geolocationAttempts')
+      if (stored) {
+        const attempts = JSON.parse(stored)
+        // Filter to only include attempts from last 10 minutes
+        const tenMinutesAgo = Date.now() - (10 * 60 * 1000)
+        return attempts.filter(timestamp => timestamp > tenMinutesAgo)
+      }
+    } catch (error) {
+      console.log('Could not read geolocation attempts:', error)
+    }
+    return []
+  }
+
+  recordGeolocationAttempt() {
+    // Record a new geolocation attempt
+    try {
+      this.geolocationAttempts.push(Date.now())
+      // Keep only last 10 attempts
+      this.geolocationAttempts = this.geolocationAttempts.slice(-10)
+      localStorage.setItem('geolocationAttempts', JSON.stringify(this.geolocationAttempts))
+    } catch (error) {
+      console.log('Could not record geolocation attempt:', error)
+    }
+  }
+
+  canUseGeolocation() {
+    // Check if we can safely use geolocation without hitting rate limits
+    const recentAttempts = this.getGeolocationAttempts()
+    if (recentAttempts.length >= this.maxGeolocationAttempts) {
+      console.log('Geolocation rate limited - too many recent attempts')
+      return false
+    }
+    return true
+  }
+
   detectMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (navigator.maxTouchPoints > 0 && window.innerWidth < 768)
@@ -242,58 +283,47 @@ export default class extends Controller {
     const button = event.currentTarget
     const originalText = button.textContent
     
+    // Check if we're rate limited
+    if (!this.canUseGeolocation()) {
+      this.showErrorNotification(
+        'Location Temporarily Limited', 
+        'Please wait a few minutes before trying GPS location again. You can still enter your location manually.',
+        'warning'
+      )
+      return
+    }
+    
     button.textContent = 'Getting location...'
     button.disabled = true
 
-    // Reset location state for manual retry
-    this.locationSources = []
-    this.locationAttempts = { gps: false, device: false, ip: false }
-    
-    // Try the hierarchical detection again (manual trigger)
-    await this.initiateHierarchicalLocationDetection()
+    // For manual requests, try GPS first (user explicitly requested it)
+    const gpsSuccess = await this.tryGPSLocation()
+    if (gpsSuccess) {
+      button.textContent = '✓ GPS location'
+    } else {
+      // Fall back to IP location
+      const ipSuccess = await this.tryIPLocation()
+      if (ipSuccess) {
+        button.textContent = '✓ IP location'
+      } else {
+        button.textContent = 'Location failed'
+      }
+    }
     
     // Reset button state
     setTimeout(() => {
-      if (this.locationSources.length > 0) {
-        button.textContent = `✓ ${this.locationSources[0]} location`
-      } else {
-        button.textContent = originalText
-      }
+      button.textContent = originalText
       button.disabled = false
     }, 2000)
   }
 
 
   async initiateHierarchicalLocationDetection() {
-    // Hierarchical location strategy: GPS → Device → IP → Offline Cache → Manual
-    console.log('Starting hierarchical location detection...')
+    // NEW STRATEGY: IP First → GPS Enhancement → Offline Cache → Manual
+    // This avoids browser geolocation rate limits by making IP primary
+    console.log('Starting IP-first location detection...')
     
-    // Step 1: Try GPS location (highest accuracy)
-    const gpsSuccess = await this.tryGPSLocation()
-    if (gpsSuccess) {
-      console.log('GPS location successful')
-      this.storeOfflineLocation({
-        latitude: this.lastLocationAccuracy ? this.element.querySelector('[data-location-target="latitude"]').value : null,
-        longitude: this.element.querySelector('[data-location-target="longitude"]').value,
-        source: 'GPS',
-        accuracy: this.lastLocationAccuracy
-      })
-      return
-    }
-    
-    // Step 2: Try device/browser location (medium accuracy)
-    const deviceSuccess = await this.tryDeviceLocation()
-    if (deviceSuccess) {
-      console.log('Device location successful')
-      this.storeOfflineLocation({
-        latitude: this.element.querySelector('[data-location-target="latitude"]').value,
-        longitude: this.element.querySelector('[data-location-target="longitude"]').value,
-        source: 'Device'
-      })
-      return
-    }
-    
-    // Step 3: Try IP-based location (if online)
+    // Step 1: Try IP-based location FIRST (most reliable, no rate limits)
     if (!this.offlineMode) {
       const ipSuccess = await this.tryIPLocation()
       if (ipSuccess) {
@@ -303,11 +333,14 @@ export default class extends Controller {
           longitude: this.element.querySelector('[data-location-target="longitude"]').value,
           source: 'IP'
         })
+        
+        // Now try to enhance with GPS in background (non-blocking)
+        this.tryGPSEnhancement()
         return
       }
     }
     
-    // Step 4: Try offline cached location (if offline or IP failed)
+    // Step 2: Try offline cached location if IP failed or we're offline
     if (this.offlineMode || this.locationSources.length === 0) {
       const offlineSuccess = await this.getOfflineLocationFallback()
       if (offlineSuccess) {
@@ -316,19 +349,56 @@ export default class extends Controller {
       }
     }
     
-    // Step 5: Check if we should retry before giving up
-    if (await this.retryLocationDetection()) {
-      return // Retry initiated
+    // Step 3: Only try browser geolocation as last resort (to avoid rate limits)
+    console.log('Trying browser geolocation as last resort...')
+    const gpsSuccess = await this.tryGPSLocation()
+    if (gpsSuccess) {
+      console.log('GPS location successful')
+      this.storeOfflineLocation({
+        latitude: this.element.querySelector('[data-location-target="latitude"]').value,
+        longitude: this.element.querySelector('[data-location-target="longitude"]').value,
+        source: 'GPS',
+        accuracy: this.lastLocationAccuracy
+      })
+      return
     }
     
-    // Step 6: All automatic methods failed - user will need to enter manually
+    // Step 4: All methods failed - user needs to enter manually
     console.log('All automatic location methods failed - manual entry required')
     this.showLocationFailureMessage()
   }
 
+  async tryGPSEnhancement() {
+    // Try to enhance IP location with GPS, but don't block on it
+    setTimeout(async () => {
+      try {
+        console.log('Attempting GPS enhancement...')
+        const gpsSuccess = await this.tryGPSLocation()
+        if (gpsSuccess) {
+          console.log('GPS enhancement successful - upgraded location precision')
+          this.showErrorNotification(
+            'Location Enhanced', 
+            'Upgraded to precise GPS location!', 
+            'success'
+          )
+        }
+      } catch (error) {
+        console.log('GPS enhancement failed (this is normal):', error)
+      }
+    }, 1000) // Small delay to let IP location show first
+  }
+
   async tryGPSLocation() {
     if (!navigator.geolocation) return false
+    
+    // Check if we're rate limited before attempting
+    if (!this.canUseGeolocation()) {
+      console.log('Skipping GPS location - rate limited')
+      return false
+    }
+    
     this.locationAttempts.gps = true
+    this.recordGeolocationAttempt()
     
     try {
       // Check permission status first
@@ -339,8 +409,8 @@ export default class extends Controller {
         // Mobile-optimized GPS options
         const options = {
           enableHighAccuracy: true,
-          timeout: this.isMobile ? 10000 : 8000, // Longer timeout on mobile
-          maximumAge: this.isMobile ? 180000 : 300000 // Shorter cache on mobile for fresher location
+          timeout: this.isMobile ? 15000 : 12000, // Increased timeout for better reliability
+          maximumAge: this.isMobile ? 300000 : 600000 // More reasonable cache duration
         }
 
         navigator.geolocation.getCurrentPosition(
@@ -371,65 +441,71 @@ export default class extends Controller {
     }
   }
 
-  async tryDeviceLocation() {
-    if (!navigator.geolocation) return false
-    this.locationAttempts.device = true
-    
-    try {
-      return new Promise((resolve) => {
-        const options = {
-          enableHighAccuracy: false, // Use network/cell tower positioning
-          timeout: 5000,
-          maximumAge: 600000 // 10 minutes cache for device location
-        }
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords
-            this.updateLocationFields(latitude, longitude, 'Device')
-            this.reverseGeocode(latitude, longitude)
-            this.locationSources.push('Device')
-            this.showLocationSourceIndicator('Device', 'success')
-            resolve(true)
-          },
-          (error) => {
-            console.log('Device location failed:', error.message)
-            this.handleLocationError('Device', error)
-            this.showLocationSourceIndicator('Device', 'failed')
-            resolve(false)
-          },
-          options
-        )
-      })
-    } catch (error) {
-      console.log('Device location failed:', error)
-      return false
-    }
-  }
+  // Device location removed - was hitting same rate limits as GPS
 
   async tryIPLocation() {
     this.locationAttempts.ip = true
     
+    // Try primary IP location service first
     try {
-      const response = await fetch('https://api.bigdatacloud.net/data/client-info')
-      const data = await response.json()
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
       
-      if (data.location && data.location.latitude && data.location.longitude) {
-        this.updateLocationFields(data.location.latitude, data.location.longitude, 'IP')
+      const response = await fetch('https://api.bigdatacloud.net/data/client-info', {
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      
+      if (response.ok) {
+        const data = await response.json()
         
-        const locationField = this.element.querySelector('[data-location-target="locationName"]')
-        if (locationField && data.location.city) {
-          locationField.value = data.location.city + (data.location.principalSubdivision ? `, ${data.location.principalSubdivision}` : '')
+        if (data.location && data.location.latitude && data.location.longitude) {
+          this.updateLocationFields(data.location.latitude, data.location.longitude, 'IP')
+          
+          const locationField = this.element.querySelector('[data-location-target="locationName"]')
+          if (locationField && data.location.city) {
+            locationField.value = data.location.city + (data.location.principalSubdivision ? `, ${data.location.principalSubdivision}` : '')
+          }
+          
+          this.locationSources.push('IP')
+          this.showLocationSourceIndicator('IP', 'success')
+          return true
         }
-        
-        this.locationSources.push('IP')
-        this.showLocationSourceIndicator('IP', 'success')
-        return true
       }
     } catch (error) {
-      console.log('IP location failed:', error)
-      this.handleNetworkError('IP Location', error)
-      this.showLocationSourceIndicator('IP', 'failed')
+      console.log('Primary IP location service failed:', error)
+      
+      // Try backup IP location service
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
+        
+        const response = await fetch('https://ipapi.co/json/', {
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        
+        if (response.ok) {
+          const data = await response.json()
+          
+          if (data.latitude && data.longitude && !data.error) {
+            this.updateLocationFields(data.latitude, data.longitude, 'IP_Backup')
+            
+            const locationField = this.element.querySelector('[data-location-target="locationName"]')
+            if (locationField && data.city) {
+              locationField.value = data.city + (data.region ? `, ${data.region}` : '')
+            }
+            
+            this.locationSources.push('IP')
+            this.showLocationSourceIndicator('IP', 'success')
+            return true
+          }
+        }
+      } catch (backupError) {
+        console.log('Backup IP location service failed:', backupError)
+        this.handleNetworkError('IP Location', backupError)
+        this.showLocationSourceIndicator('IP', 'failed')
+      }
     }
     
     return false
@@ -511,9 +587,12 @@ export default class extends Controller {
         break
     }
     
-    // Only show error notification for GPS failures (not device/IP fallbacks)
-    if (source === 'GPS') {
+    // Only show error notification for GPS failures that are likely user-actionable
+    if (source === 'GPS' && error.code === error.PERMISSION_DENIED) {
       this.showErrorNotification(title, message, type)
+    } else {
+      // For other errors, just log them - they're part of normal fallback flow
+      console.log(`${source} location error:`, title, message)
     }
     
     // Track error for potential retry logic
@@ -521,15 +600,19 @@ export default class extends Controller {
   }
 
   shouldRetryLocation() {
-    // Implement intelligent retry logic
+    // Only retry if we have no location sources at all and it's been a while
     if (this.retryCount >= this.maxRetries) return false
+    if (this.locationSources.length > 0) return false // We got something, don't retry
     if (!this.lastLocationError) return false
     
     // Don't retry if user explicitly denied permissions
-    if (this.lastLocationError.error.code === GeolocationPositionError.PERMISSION_DENIED) return false
+    if (this.lastLocationError.error && this.lastLocationError.error.code === GeolocationPositionError.PERMISSION_DENIED) return false
     
-    // Don't retry too quickly (wait at least 2 seconds)
-    if (Date.now() - this.lastLocationError.timestamp < 2000) return false
+    // Only retry after a longer delay to avoid spamming
+    if (Date.now() - this.lastLocationError.timestamp < 10000) return false // 10 second wait
+    
+    // Only retry if we're online (no point retrying IP location when offline)
+    if (this.offlineMode) return false
     
     return true
   }
@@ -548,7 +631,7 @@ export default class extends Controller {
     )
     
     // Reset attempts for retry
-    this.locationAttempts = { gps: false, device: false, ip: false }
+    this.locationAttempts = { gps: false, ip: false }
     this.locationSources = []
     
     await this.initiateHierarchicalLocationDetection()
@@ -570,8 +653,14 @@ export default class extends Controller {
       gpsButton.classList.remove('bg-primary-accent', 'hover:bg-blue-600')
     }
     
-    // Show user-friendly error notification
-    this.showErrorNotification('Location detection failed', 'Please enter your location manually or try the location button again.', 'error')
+    // Only show notification if we truly have no location at all
+    if (this.locationSources.length === 0) {
+      this.showErrorNotification(
+        'Location detection not available', 
+        'You can enter your location manually or try the location button.', 
+        'info'
+      )
+    }
   }
 
   showErrorNotification(title, message, type = 'info') {
@@ -637,23 +726,29 @@ export default class extends Controller {
   }
 
   handleNetworkError(operation, error) {
-    // Handle network-related errors (API calls, etc.)
+    // Handle network-related errors (API calls, etc.) - but be less noisy about expected failures
     let title, message
     
     if (!navigator.onLine) {
       title = 'No Internet Connection'
-      message = `Cannot ${operation.toLowerCase()} while offline. Please check your internet connection and try again.`
+      message = `Cannot ${operation.toLowerCase()} while offline.`
+    } else if (error.name === 'AbortError') {
+      // Timeout is normal, don't show error
+      console.log(`${operation} timed out - this is normal during fallback`)
+      return
     } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
       title = 'Network Error'
-      message = `Unable to complete ${operation.toLowerCase()}. Please check your internet connection.`
+      message = `Unable to complete ${operation.toLowerCase()}.`
     } else {
       title = `${operation} Error`
-      message = `An error occurred during ${operation.toLowerCase()}. Please try again.`
+      message = `An error occurred during ${operation.toLowerCase()}.`
     }
     
-    // Only show network error notifications if it's the first failure
-    if (this.retryCount === 0) {
+    // Only show network error notifications for offline scenarios or on final retry
+    if (!navigator.onLine || (this.retryCount >= this.maxRetries && this.locationSources.length === 0)) {
       this.showErrorNotification(title, message, 'warning')
+    } else {
+      console.log(`${operation} failed:`, title, message)
     }
   }
 

@@ -151,6 +151,45 @@
     </div>
   </div>
 
+  <!-- Attachments Section -->
+  <div class="bg-background-secondary rounded-xl p-4 mb-6">
+    <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+      Attachments
+    </h3>
+
+    <!-- Attachment Upload Form -->
+    <%= form_with(model: [@trip, TripAttachment.new], class: "mb-4") do |form| %>
+      <div class="flex items-center space-x-2">
+        <%= form.text_field :name, placeholder: "Attachment name...", class: "flex-grow bg-background-primary border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-accent focus:border-primary-accent" %>
+        <%= form.file_field :file, class: "text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-accent file:text-white hover:file:bg-primary-accent-dark" %>
+        <%= form.submit "Upload", class: "bg-primary-accent text-white font-bold py-2 px-4 rounded-md hover:bg-primary-accent-dark cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <!-- Attachments List -->
+    <div class="space-y-2">
+      <% @trip.trip_attachments.with_attached_file.each do |attachment| %>
+        <div class="flex items-center justify-between p-3 bg-background-primary rounded-lg">
+          <div>
+            <%= link_to url_for(attachment.file), target: "_blank", class: "font-medium text-primary-accent hover:underline" do %>
+              <%= attachment.name %>
+            <% end %>
+            <div class="text-sm text-text-secondary">
+              Uploaded by <%= attachment.user.email_address %>
+            </div>
+          </div>
+          <%= button_to trip_trip_attachment_path(@trip, attachment), method: :delete, class: "text-gray-400 hover:text-red-500" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          <% end %>
+        </div>
+      <% end %>
+      <% if @trip.trip_attachments.none? %>
+        <p class="text-center text-text-secondary py-4">No attachments yet.</p>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Related Trips (if in series) -->
   <% if @related_trips.any? %>
     <div class="bg-background-secondary rounded-xl p-4 mb-6">

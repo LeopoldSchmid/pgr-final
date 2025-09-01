@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_185236) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_01_182003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -208,6 +208,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_185236) do
     t.index ["trip_id"], name: "index_shopping_lists_on_trip_id"
   end
 
+  create_table "trip_attachments", force: :cascade do |t|
+    t.string "name"
+    t.integer "trip_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_trip_attachments_on_trip_id"
+    t.index ["user_id"], name: "index_trip_attachments_on_user_id"
+  end
+
   create_table "trip_members", force: :cascade do |t|
     t.integer "trip_id", null: false
     t.integer "user_id", null: false
@@ -279,6 +289,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_185236) do
   add_foreign_key "sessions", "users"
   add_foreign_key "shopping_items", "shopping_lists"
   add_foreign_key "shopping_lists", "trips"
+  add_foreign_key "trip_attachments", "trips"
+  add_foreign_key "trip_attachments", "users"
   add_foreign_key "trip_members", "trips"
   add_foreign_key "trip_members", "users"
   add_foreign_key "trips", "users"

@@ -4,10 +4,10 @@ service: plangoreminisce
 # Name of the container image.
 image: plangoreminisce/plangoreminisce
 
-# Deploy to these servers - Update with your Hetzner server IP
+# Deploy to these servers
 servers:
   web:
-    - YOUR_HETZNER_SERVER_IP
+    - 157.180.19.232
   # Uncomment when you want to run background jobs on separate server
   # job:
   #   hosts:
@@ -17,16 +17,12 @@ servers:
 # Enable SSL auto certification via Let's Encrypt 
 proxy:
   ssl: true
-  host: YOUR_DOMAIN_NAME  # e.g., plangoreminisce.yourdomain.com
+  host: plangoreminisce.duzend.net
 
 # Credentials for your image host (Docker Hub)
 registry:
-  # Using Docker Hub as default registry
-  username: YOUR_DOCKER_HUB_USERNAME
-
-  # Always use an access token rather than real password
-  password:
-    - KAMAL_REGISTRY_PASSWORD
+  username: leopoldschmid
+  password: KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -73,9 +69,8 @@ asset_path: /rails/public/assets
 # Configure the image builder.
 builder:
   arch: amd64
-
-  # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
-  # remote: ssh://docker@docker-builder-server
+  # Build image via remote server
+  remote: ssh://root@157.180.19.232
   #
   # # Pass arguments and secrets to the Docker build process
   # args:
@@ -84,9 +79,11 @@ builder:
   #   - GITHUB_TOKEN
   #   - RAILS_MASTER_KEY
 
-# Use a different ssh user than root
-# ssh:
-#   user: app
+# SSH configuration
+ssh:
+  user: root
+  keys:
+    - /etc/ssh/apeServeBeer.pem
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:
