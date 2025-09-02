@@ -14,6 +14,19 @@ class User < ApplicationRecord
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   
+  # Locale preferences
+  validates :locale, inclusion: { in: I18n.available_locales.map(&:to_s), message: :invalid }
+  
+  # Returns user's preferred locale or app default
+  def preferred_locale
+    locale.present? ? locale.to_sym : I18n.default_locale
+  end
+  
+  # Sets user locale preference
+  def locale=(new_locale)
+    super(new_locale.to_s) if new_locale.present?
+  end
+  
   def all_trips
     Trip.where(id: (trips.pluck(:id) + member_trips.pluck(:id)).uniq)
   end

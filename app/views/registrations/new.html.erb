@@ -3,27 +3,27 @@
     <% if @invitation %>
       <div class="bg-background-secondary p-4 rounded-xl mb-6">
         <div class="text-3xl mb-2">🎒</div>
-        <h1 class="text-xl font-bold text-text-primary">You're Almost In!</h1>
-        <p class="text-text-secondary text-sm mt-1">Create your account to join <%= @invitation.trip.name %></p>
+        <h1 class="text-xl font-bold text-text-primary"><%= t('auth.almost_in') %></h1>
+        <p class="text-text-secondary text-sm mt-1"><%= t('auth.create_account_to_join', trip_name: @invitation.trip.name) %></p>
       </div>
-      <h2 class="text-2xl font-bold text-text-primary">Create Account</h2>
-      <p class="mt-2 text-text-secondary">Just a password needed to get started!</p>
+      <h2 class="text-2xl font-bold text-text-primary"><%= t('auth.create_account') %></h2>
+      <p class="mt-2 text-text-secondary"><%= t('auth.password_needed') %></p>
     <% else %>
-      <h1 class="text-3xl font-bold text-text-primary">Create Account</h1>
-      <p class="mt-2 text-text-secondary">Join PlanGoReminisce to start planning trips with friends</p>
+      <h1 class="text-3xl font-bold text-text-primary"><%= t('auth.create_account') %></h1>
+      <p class="mt-2 text-text-secondary"><%= t('auth.join_to_start', app_name: t('app_name')) %></p>
     <% end %>
   </div>
 
   <%= form_with model: @user || User.new, url: registrations_path, local: true, class: "space-y-6" do |form| %>
     <div>
-      <%= form.label :email_address, "Email", class: "block text-sm font-medium text-text-secondary mb-2" %>
+      <%= form.label :email_address, t('auth.email'), class: "block text-sm font-medium text-text-secondary mb-2" %>
       <%= form.email_field :email_address, 
           required: true, 
           autocomplete: "email",
           readonly: @invitation.present?,
           class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary#{' bg-gray-100' if @invitation}" %>
       <% if @invitation %>
-        <p class="mt-1 text-sm text-text-secondary">✓ This email was invited to join the trip</p>
+        <p class="mt-1 text-sm text-text-secondary">✓ <%= t('auth.email_invited') %></p>
       <% end %>
       <% if @user&.errors&.key?(:email_address) && @user.errors[:email_address].any? %>
         <p class="mt-1 text-sm text-accent-red"><%= @user.errors[:email_address].first %></p>
@@ -31,7 +31,7 @@
     </div>
 
     <div>
-      <%= form.label :password, class: "block text-sm font-medium text-text-secondary mb-2" %>
+      <%= form.label :password, t('auth.password'), class: "block text-sm font-medium text-text-secondary mb-2" %>
       <%= form.password_field :password, required: true, autocomplete: "new-password",
           class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
       <% if @user&.errors&.key?(:password) && @user.errors[:password].any? %>
@@ -40,7 +40,7 @@
     </div>
 
     <div>
-      <%= form.label :password_confirmation, "Confirm Password", class: "block text-sm font-medium text-text-secondary mb-2" %>
+      <%= form.label :password_confirmation, t('auth.password_confirmation'), class: "block text-sm font-medium text-text-secondary mb-2" %>
       <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password",
           class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
       <% if @user&.errors&.key?(:password_confirmation) && @user.errors[:password_confirmation].any? %>
@@ -49,16 +49,16 @@
     </div>
 
     <div>
-      <%= form.submit "Create Account", 
+      <%= form.submit t('auth.create_account'), 
           class: "w-full bg-primary-accent text-white py-2 px-4 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200",
-          data: { disable_with: "Creating Account..." } %>
+          data: { disable_with: t('auth.creating_account') } %>
     </div>
   <% end %>
 
   <div class="mt-6 text-center">
     <p class="text-sm text-text-secondary">
-      Already have an account? 
-      <%= link_to "Sign in", new_session_path, class: "font-medium text-primary-accent hover:text-blue-400" %>
+      <%= t('auth.have_account') %> 
+      <%= link_to t('auth.sign_in'), new_session_path, class: "font-medium text-primary-accent hover:text-blue-400" %>
     </p>
   </div>
 </div>

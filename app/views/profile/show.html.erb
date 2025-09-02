@@ -14,7 +14,7 @@
       
       <!-- Profile Info -->
       <div>
-        <h1 class="text-3xl font-bold text-text-primary mb-2">Profile</h1>
+        <h1 class="text-3xl font-bold text-text-primary mb-2"><%= t('profile.title') %></h1>
         <p class="text-text-secondary text-lg"><%= @user.email_address %></p>
       </div>
     </div>
@@ -24,84 +24,110 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
     <div class="bg-background-secondary rounded-xl p-6 text-center">
       <div class="text-3xl font-bold text-primary-accent mb-2"><%= @user_stats[:total_trips] %></div>
-      <div class="text-sm font-medium text-text-secondary">Total Trips</div>
+      <div class="text-sm font-medium text-text-secondary"><%= t('profile.stats.total_trips') %></div>
     </div>
     
     <div class="bg-background-secondary rounded-xl p-6 text-center">
       <div class="text-3xl font-bold text-accent-green mb-2"><%= @user_stats[:completed_trips] %></div>
-      <div class="text-sm font-medium text-text-secondary">Completed</div>
+      <div class="text-sm font-medium text-text-secondary"><%= t('profile.stats.completed') %></div>
     </div>
     
     <div class="bg-background-secondary rounded-xl p-6 text-center">
       <div class="text-3xl font-bold text-accent-yellow mb-2"><%= @user_stats[:journal_entries] %></div>
-      <div class="text-sm font-medium text-text-secondary">Journal Entries</div>
+      <div class="text-sm font-medium text-text-secondary"><%= t('profile.stats.journal_entries') %></div>
     </div>
     
     <div class="bg-background-secondary rounded-xl p-6 text-center">
       <div class="text-3xl font-bold text-accent-red mb-2"><%= @user_stats[:favorite_locations] %></div>
-      <div class="text-sm font-medium text-text-secondary">Favorite Spots</div>
+      <div class="text-sm font-medium text-text-secondary"><%= t('profile.stats.favorite_spots') %></div>
     </div>
+  </div>
+
+  <!-- Language Preferences -->
+  <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
+    <h2 class="text-2xl font-bold text-text-primary mb-6"><%= t('profile.language_preferences') %></h2>
+    
+    <%= form_with model: @user, url: profile_path, method: :patch, local: true, class: "space-y-4" do |form| %>
+      <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
+        <div>
+          <h3 class="font-semibold text-text-primary"><%= t('profile.language') %></h3>
+          <p class="text-sm text-text-secondary"><%= t('profile.current_language') %>: <%= t("profile.languages.#{I18n.locale}") %></p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <%= form.select :locale, 
+              options_for_select([
+                [t('profile.languages.en'), 'en'],
+                [t('profile.languages.de'), 'de']
+              ], @user.locale),
+              {},
+              { 
+                class: "bg-white border border-gray-300 rounded-lg px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-accent",
+                onchange: "this.form.submit();"
+              } %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- Account Settings -->
   <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
-    <h2 class="text-2xl font-bold text-text-primary mb-6">Account Settings</h2>
+    <h2 class="text-2xl font-bold text-text-primary mb-6"><%= t('profile.account_settings') %></h2>
     
     <div class="space-y-4">
       <!-- Account Actions -->
       <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
         <div>
-          <h3 class="font-semibold text-text-primary">Email Address</h3>
+          <h3 class="font-semibold text-text-primary"><%= t('profile.email_address') %></h3>
           <p class="text-sm text-text-secondary"><%= @user.email_address %></p>
         </div>
-        <button class="text-primary-accent hover:text-blue-400 font-medium">Update</button>
+        <button class="text-primary-accent hover:text-blue-400 font-medium"><%= t('actions.update') %></button>
       </div>
       
       <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
         <div>
-          <h3 class="font-semibold text-text-primary">Password</h3>
-          <p class="text-sm text-text-secondary">Last updated recently</p>
+          <h3 class="font-semibold text-text-primary"><%= t('auth.password') %></h3>
+          <p class="text-sm text-text-secondary"><%= t('profile.password_updated_recently') %></p>
         </div>
-        <%= link_to "Change", new_password_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
+        <%= link_to t('auth.change_password'), new_password_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
       </div>
     </div>
   </div>
 
   <!-- App Settings -->
   <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
-    <h2 class="text-2xl font-bold text-text-primary mb-6">App Preferences</h2>
+    <h2 class="text-2xl font-bold text-text-primary mb-6"><%= t('profile.app_preferences') %></h2>
     
     <div class="space-y-4">
       <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
         <div>
-          <h3 class="font-semibold text-text-primary">Recipe Library</h3>
-          <p class="text-sm text-text-secondary">Browse all available recipes</p>
+          <h3 class="font-semibold text-text-primary"><%= t('recipes.recipe_library') %></h3>
+          <p class="text-sm text-text-secondary"><%= t('profile.browse_recipes_desc') %></p>
         </div>
-        <%= link_to "Browse Recipes", recipe_library_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
+        <%= link_to t('profile.browse_recipes'), recipe_library_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
       </div>
       
       <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
         <div>
-          <h3 class="font-semibold text-text-primary">Timeline</h3>
-          <p class="text-sm text-text-secondary">View all your trip moments</p>
+          <h3 class="font-semibold text-text-primary"><%= t('navigation.timeline') %></h3>
+          <p class="text-sm text-text-secondary"><%= t('profile.timeline_desc') %></p>
         </div>
-        <%= link_to "View Timeline", timeline_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
+        <%= link_to t('profile.view_timeline'), timeline_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
       </div>
       
       <div class="flex items-center justify-between p-4 rounded-lg bg-background-primary">
         <div>
-          <h3 class="font-semibold text-text-primary">Favorite Locations</h3>
-          <p class="text-sm text-text-secondary">Manage your saved places</p>
+          <h3 class="font-semibold text-text-primary"><%= t('profile.favorite_locations') %></h3>
+          <p class="text-sm text-text-secondary"><%= t('profile.favorite_locations_desc') %></p>
         </div>
-        <%= link_to "View Locations", favorite_locations_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
+        <%= link_to t('profile.view_locations'), favorite_locations_path, class: "text-primary-accent hover:text-blue-400 font-medium" %>
       </div>
     </div>
   </div>
 
   <!-- Logout -->
   <div class="text-center">
-    <%= button_to "Sign Out", session_path, method: :delete, 
+    <%= button_to t('navigation.logout'), session_path, method: :delete, 
         class: "bg-accent-red text-white px-8 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors shadow-sm",
-        data: { confirm: "Are you sure you want to sign out?" } %>
+        data: { confirm: t('profile.confirm_logout') } %>
   </div>
 </div>

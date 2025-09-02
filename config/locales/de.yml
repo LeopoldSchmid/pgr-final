@@ -1,0 +1,349 @@
+de:
+  # Application name and general
+  app_name: "PlanGoReminisce"
+  
+  # Navigation and common UI elements
+  navigation:
+    home: "Startseite"
+    trips: "Reisen"
+    recipes: "Rezepte"
+    profile: "Profil"
+    timeline: "Zeitleiste"
+    search: "Suchen"
+    logout: "Abmelden"
+  
+  # Common actions and buttons
+  actions:
+    create: "Erstellen"
+    edit: "Bearbeiten"
+    update: "Aktualisieren"
+    delete: "Löschen"
+    save: "Speichern"
+    cancel: "Abbrechen"
+    back: "Zurück"
+    show: "Anzeigen"
+    confirm: "Bestätigen"
+    yes: "Ja"
+    no: "Nein"
+    loading: "Wird geladen..."
+    submit: "Absenden"
+    search: "Suchen"
+    filter: "Filtern"
+    view_all: "Alle anzeigen"
+    add: "Hinzufügen"
+    remove: "Entfernen"
+    close: "Schließen"
+  
+  # Authentication
+  auth:
+    sign_in: "Anmelden"
+    sign_up: "Registrieren"
+    sign_out: "Abmelden"
+    email: "E-Mail"
+    password: "Passwort"
+    password_confirmation: "Passwort bestätigen"
+    remember_me: "Angemeldet bleiben"
+    forgot_password: "Passwort vergessen?"
+    reset_password: "Passwort zurücksetzen"
+    new_password: "Neues Passwort"
+    current_password: "Aktuelles Passwort"
+    change_password: "Passwort ändern"
+    login_required: "Bitte melden Sie sich an, um fortzufahren."
+    invalid_credentials: "Ungültige E-Mail oder Passwort."
+    account_created: "Ihr Konto wurde erfolgreich erstellt."
+    password_updated: "Ihr Passwort wurde erfolgreich aktualisiert."
+    welcome: "Willkommen zurück"
+    create_account: "Konto erstellen"
+    have_account: "Haben Sie bereits ein Konto?"
+    need_account: "Benötigen Sie ein Konto?"
+    sign_in_to_account: "Melden Sie sich in Ihr %{app_name} Konto an"
+    almost_in: "Sie sind fast fertig!"
+    create_account_to_join: "Erstellen Sie Ihr Konto, um %{trip_name} beizutreten"
+    password_needed: "Nur ein Passwort wird benötigt!"
+    join_to_start: "Treten Sie %{app_name} bei, um Reisen mit Freunden zu planen"
+    email_invited: "Diese E-Mail wurde eingeladen, der Reise beizutreten"
+    creating_account: "Konto wird erstellt..."
+  
+  # Trip management
+  trips:
+    title: "Reisen"
+    new_trip: "Neue Reise"
+    edit_trip: "Reise bearbeiten"
+    trip_name: "Reisename"
+    destination: "Reiseziel"
+    start_date: "Startdatum"
+    end_date: "Enddatum"
+    description: "Beschreibung"
+    status: "Status"
+    members: "Teilnehmer"
+    expenses: "Ausgaben"
+    journal: "Reisetagebuch"
+    recipes: "Rezepte"
+    shopping: "Einkaufslisten"
+    my_trips: "Meine Reisen"
+    upcoming_trips: "Anstehende Reisen"
+    past_trips: "Vergangene Reisen"
+    no_trips: "Sie haben noch keine Reisen erstellt."
+    create_first_trip: "Erstellen Sie Ihre erste Reise"
+    trip_created: "Reise wurde erfolgreich erstellt."
+    trip_updated: "Reise wurde erfolgreich aktualisiert."
+    trip_deleted: "Reise wurde erfolgreich gelöscht."
+    invite_members: "Mitglieder einladen"
+    
+    # Trip phases
+    phases:
+      plan: "Planen"
+      go: "Los geht's"
+      reminisce: "Erinnern"
+    
+    # Trip statuses
+    statuses:
+      planning: "In Planung"
+      active: "Aktiv"
+      completed: "Abgeschlossen"
+      cancelled: "Abgebrochen"
+  
+  # Journal entries
+  journal:
+    title: "Reisetagebuch"
+    new_entry: "Neuer Eintrag"
+    edit_entry: "Eintrag bearbeiten"
+    entry_content: "Inhalt"
+    location: "Ort"
+    photos: "Fotos"
+    favorite: "Favorit"
+    created_at: "Erstellt am"
+    no_entries: "Noch keine Einträge vorhanden."
+    create_first_entry: "Erstellen Sie Ihren ersten Eintrag"
+    entry_created: "Eintrag wurde erfolgreich erstellt."
+    entry_updated: "Eintrag wurde erfolgreich aktualisiert."
+    entry_deleted: "Eintrag wurde erfolgreich gelöscht."
+    add_to_favorites: "Zu Favoriten hinzufügen"
+    remove_from_favorites: "Aus Favoriten entfernen"
+    capture_moment: "Moment festhalten"
+    capture_location: "Standort erfassen"
+    location_captured: "Standort erfasst"
+    location_error: "Standort konnte nicht erfasst werden"
+    upload_photos: "Fotos hochladen"
+  
+  # Expenses
+  expenses:
+    title: "Ausgaben"
+    new_expense: "Neue Ausgabe"
+    edit_expense: "Ausgabe bearbeiten"
+    amount: "Betrag"
+    description: "Beschreibung"
+    category: "Kategorie"
+    paid_by: "Bezahlt von"
+    split_between: "Aufgeteilt zwischen"
+    date: "Datum"
+    receipt: "Beleg"
+    settlement: "Abrechnung"
+    who_owes_whom: "Wer schuldet wem"
+    total_expenses: "Gesamtausgaben"
+    your_share: "Ihr Anteil"
+    you_owe: "Sie schulden"
+    owes_you: "Schuldet Ihnen"
+    expense_created: "Ausgabe wurde erfolgreich erstellt."
+    expense_updated: "Ausgabe wurde erfolgreich aktualisiert."
+    expense_deleted: "Ausgabe wurde erfolgreich gelöscht."
+    no_expenses: "Noch keine Ausgaben vorhanden."
+    add_first_expense: "Erste Ausgabe hinzufügen"
+    
+    # Expense categories
+    categories:
+      food: "Essen"
+      accommodation: "Unterkunft"
+      transport: "Transport"
+      activities: "Aktivitäten"
+      shopping: "Einkaufen"
+      other: "Sonstiges"
+  
+  # Invitations
+  invitations:
+    title: "Einladungen"
+    new_invitation: "Neue Einladung"
+    edit_invitation: "Einladung bearbeiten"
+    email_address: "E-Mail-Adresse"
+    role: "Rolle"
+    message: "Nachricht"
+    invite_user: "Benutzer einladen"
+    invitation_sent: "Einladung wurde versendet."
+    invitation_accepted: "Einladung wurde angenommen."
+    invitation_declined: "Einladung wurde abgelehnt."
+    pending_invitations: "Ausstehende Einladungen"
+    accepted_invitations: "Angenommene Einladungen"
+    invite_friends: "Freunde einladen"
+    join_trip: "Reise beitreten"
+    accept_invitation: "Einladung annehmen"
+    decline_invitation: "Einladung ablehnen"
+    
+    # Invitation roles
+    roles:
+      admin: "Administrator"
+      member: "Mitglied"
+  
+  # Recipes
+  recipes:
+    title: "Rezepte"
+    new_recipe: "Neues Rezept"
+    edit_recipe: "Rezept bearbeiten"
+    recipe_name: "Rezeptname"
+    ingredients: "Zutaten"
+    instructions: "Anweisungen"
+    servings: "Portionen"
+    prep_time: "Zubereitungszeit"
+    cook_time: "Kochzeit"
+    total_time: "Gesamtzeit"
+    difficulty: "Schwierigkeit"
+    category: "Kategorie"
+    tags: "Schlagwörter"
+    recipe_created: "Rezept wurde erfolgreich erstellt."
+    recipe_updated: "Rezept wurde erfolgreich aktualisiert."
+    recipe_deleted: "Rezept wurde erfolgreich gelöscht."
+    no_recipes: "Noch keine Rezepte vorhanden."
+    add_first_recipe: "Erstes Rezept hinzufügen"
+    recipe_library: "Rezeptsammlung"
+    
+    # Recipe difficulties
+    difficulties:
+      easy: "Einfach"
+      medium: "Mittel"
+      hard: "Schwer"
+  
+  # Shopping lists
+  shopping:
+    title: "Einkaufslisten"
+    new_list: "Neue Liste"
+    edit_list: "Liste bearbeiten"
+    list_name: "Listenname"
+    items: "Artikel"
+    item_name: "Artikelname"
+    quantity: "Menge"
+    unit: "Einheit"
+    purchased: "Gekauft"
+    add_item: "Artikel hinzufügen"
+    remove_item: "Artikel entfernen"
+    mark_purchased: "Als gekauft markieren"
+    unmark_purchased: "Als nicht gekauft markieren"
+    list_created: "Einkaufsliste wurde erfolgreich erstellt."
+    list_updated: "Einkaufsliste wurde erfolgreich aktualisiert."
+    list_deleted: "Einkaufsliste wurde erfolgreich gelöscht."
+    no_lists: "Noch keine Einkaufslisten vorhanden."
+    create_first_list: "Erste Einkaufsliste erstellen"
+  
+  # Profile and settings
+  profile:
+    title: "Profil"
+    edit_profile: "Profil bearbeiten"
+    personal_info: "Persönliche Informationen"
+    name: "Name"
+    email: "E-Mail"
+    language: "Sprache"
+    preferences: "Einstellungen"
+    profile_updated: "Profil wurde erfolgreich aktualisiert."
+    change_password: "Passwort ändern"
+    
+    # Profile stats
+    stats:
+      total_trips: "Reisen insgesamt"
+      completed: "Abgeschlossen"
+      journal_entries: "Tagebucheinträge"
+      favorite_spots: "Lieblingsorte"
+    
+    # Language preferences
+    language_preferences: "Spracheinstellungen"
+    current_language: "Aktuelle Sprache"
+    
+    # Account settings
+    account_settings: "Kontoeinstellungen"
+    email_address: "E-Mail-Adresse"
+    password_updated_recently: "Kürzlich aktualisiert"
+    
+    # App preferences
+    app_preferences: "App-Einstellungen"
+    browse_recipes: "Rezepte durchsuchen"
+    browse_recipes_desc: "Alle verfügbaren Rezepte durchsuchen"
+    view_timeline: "Zeitleiste anzeigen"
+    timeline_desc: "Alle Ihre Reisemomente anzeigen"
+    favorite_locations: "Lieblingsorte"
+    favorite_locations_desc: "Ihre gespeicherten Orte verwalten"
+    view_locations: "Orte anzeigen"
+    confirm_logout: "Sind Sie sicher, dass Sie sich abmelden möchten?"
+    
+    # Languages
+    languages:
+      en: "Englisch"
+      de: "Deutsch"
+  
+  # Date and time formatting
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      short: "%d.%m."
+      long: "%d. %B %Y"
+      with_time: "%d.%m.%Y um %H:%M"
+  
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%H:%M:%S"
+  
+  # Error messages
+  errors:
+    messages:
+      required: "ist erforderlich"
+      blank: "darf nicht leer sein"
+      too_short: "ist zu kurz (mindestens %{count} Zeichen)"
+      too_long: "ist zu lang (maximal %{count} Zeichen)"
+      invalid: "ist ungültig"
+      confirmation: "stimmt nicht überein"
+      accepted: "muss akzeptiert werden"
+      taken: "ist bereits vergeben"
+      not_found: "wurde nicht gefunden"
+      access_denied: "Zugriff verweigert"
+      
+    # Specific error messages
+    trip_not_found: "Reise wurde nicht gefunden."
+    unauthorized_access: "Sie sind nicht berechtigt, diese Aktion auszuführen."
+    invalid_invitation: "Ungültige oder abgelaufene Einladung."
+    email_already_invited: "Diese E-Mail-Adresse wurde bereits eingeladen."
+    
+  # Success messages
+  success:
+    saved: "Erfolgreich gespeichert."
+    updated: "Erfolgreich aktualisiert."
+    deleted: "Erfolgreich gelöscht."
+    created: "Erfolgreich erstellt."
+    invited: "Einladung erfolgreich versendet."
+    
+  # Empty states
+  empty_states:
+    no_data: "Keine Daten vorhanden"
+    no_results: "Keine Ergebnisse gefunden"
+    start_journey: "Beginnen Sie Ihre Reise"
+    capture_memories: "Halten Sie Ihre Erinnerungen fest"
+    track_expenses: "Verfolgen Sie Ihre Ausgaben"
+    plan_meals: "Planen Sie Ihre Mahlzeiten"
+    
+  # Map and location
+  map:
+    title: "Karte"
+    your_location: "Ihr Standort"
+    trip_locations: "Reiseorte"
+    loading_map: "Karte wird geladen..."
+    location_not_available: "Standort nicht verfügbar"
+    enable_location: "Standort aktivieren"
+    
+  # Notifications
+  notifications:
+    new_expense: "Neue Ausgabe hinzugefügt"
+    new_journal_entry: "Neuer Tagebucheintrag"
+    invitation_received: "Neue Einladung erhalten"
+    trip_updated: "Reise aktualisiert"
+    
+  # PWA
+  pwa:
+    install_message: "Installieren Sie PlanGoReminisce für eine bessere Erfahrung!"
+    install_button: "Installieren"

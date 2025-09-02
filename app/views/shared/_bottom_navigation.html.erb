@@ -7,11 +7,11 @@
   <div class="flex justify-around items-center w-full px-2">
     <%# Navigation items definition - context-aware %>
     <% nav_items = [
-      { path: root_path, icon: 'home', label: "Home", active: current_page?(root_path) },
-      { path: context_aware_navigation_path('plan'), icon: 'clipboard-list', label: "Plan", active: current_page?(context_aware_navigation_path('plan')) || (in_trip_context? && current_page?(plan_trip_path(current_trip_context))) },
-      { path: context_aware_navigation_path('go'), icon: 'paper-airplane', label: "Go", active: current_page?(context_aware_navigation_path('go')) || (in_trip_context? && current_page?(go_trip_path(current_trip_context))) },
-      { path: context_aware_navigation_path('reminisce'), icon: 'camera', label: "Reminisce", active: current_page?(context_aware_navigation_path('reminisce')) || (in_trip_context? && current_page?(reminisce_trip_path(current_trip_context))) },
-      { path: "/profile", icon: 'user', label: "Profile", active: current_page?("/profile") }
+      { path: root_path, icon: 'home', label: t('navigation.home'), active: current_page?(root_path) },
+      { path: context_aware_navigation_path('plan'), icon: 'clipboard-list', label: t('trips.phases.plan'), active: current_page?(context_aware_navigation_path('plan')) || (in_trip_context? && current_page?(plan_trip_path(current_trip_context))) },
+      { path: context_aware_navigation_path('go'), icon: 'paper-airplane', label: t('trips.phases.go'), active: current_page?(context_aware_navigation_path('go')) || (in_trip_context? && current_page?(go_trip_path(current_trip_context))) },
+      { path: context_aware_navigation_path('reminisce'), icon: 'camera', label: t('trips.phases.reminisce'), active: current_page?(context_aware_navigation_path('reminisce')) || (in_trip_context? && current_page?(reminisce_trip_path(current_trip_context))) },
+      { path: "/profile", icon: 'user', label: t('navigation.profile'), active: current_page?("/profile") }
     ] %>
     
     <%# Loop through navigation items and render them %>

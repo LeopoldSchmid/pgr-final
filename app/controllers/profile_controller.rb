@@ -10,8 +10,35 @@ class ProfileController < ApplicationController
       favorite_locations: user_favorite_locations_count
     }
   end
+  
+  def update
+    @user = Current.user
+    
+    if @user.update(user_params)
+      # Update session locale if changed
+      if user_params[:locale].present?
+        session[:locale] = @user.locale
+        I18n.locale = @user.preferred_locale
+      end
+      
+      redirect_to profile_path, notice: t('profile.profile_updated')
+    else
+      # Calculate stats again for re-render
+      @user_stats = {
+        total_trips: user_trips_count,
+        completed_trips: user_completed_trips_count,
+        journal_entries: user_journal_entries_count,
+        favorite_locations: user_favorite_locations_count
+      }
+      render :show, status: :unprocessable_entity
+    end
+  end
 
   private
+  
+  def user_params
+    params.require(:user).permit(:locale)
+  end
 
   def user_trips_count
     # Include trips user owns + trips user is a member of

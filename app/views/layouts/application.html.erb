@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "PlanGoReminisce" %></title>
+    <title><%= content_for(:title) || t('app_name') %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -44,26 +44,26 @@
           <div class="flex justify-between items-center h-16">
             <%= link_to root_path, class: "flex items-center" do %>
               <span class="text-xl font-bold text-primary-accent">
-                PlanGoReminisce
+                <%= t('app_name') %>
               </span>
             <% end %>
             
             <!-- Desktop navigation - hidden on mobile -->
             <div class="hidden md:flex items-center space-x-6">
               <%= link_to root_path, class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(root_path)}" do %>
-                Home
+                <%= t('navigation.home') %>
               <% end %>
               <%= link_to context_aware_navigation_path('plan'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('plan')) || (defined?(current_trip_context) && in_trip_context? && current_page?(plan_trip_path(current_trip_context)))}" do %>
-                Plan
+                <%= t('trips.phases.plan') %>
               <% end %>
               <%= link_to context_aware_navigation_path('go'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('go')) || (defined?(current_trip_context) && in_trip_context? && current_page?(go_trip_path(current_trip_context)))}" do %>
-                Go
+                <%= t('trips.phases.go') %>
               <% end %>
               <%= link_to context_aware_navigation_path('reminisce'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('reminisce')) || (defined?(current_trip_context) && in_trip_context? && current_page?(reminisce_trip_path(current_trip_context)))}" do %>
-                Reminisce
+                <%= t('trips.phases.reminisce') %>
               <% end %>
               <%= link_to "/profile", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?('/profile')}" do %>
-                Profile
+                <%= t('navigation.profile') %>
               <% end %>
             </div>
             
@@ -73,7 +73,7 @@
               <% if pending_invitations.any? %>
                 <%= link_to user_invitations_path, 
                     class: "relative bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-accent/80 transition-all duration-200 shadow-sm" do %>
-                  Invitations
+                  <%= t('invitations.title') %>
                   <span class="absolute -top-2 -right-2 bg-accent-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     <%= pending_invitations.count %>
                   </span>
@@ -94,9 +94,9 @@
       <!-- PWA Install Banner -->
       <div data-controller="pwa-install" class="hidden bg-primary-accent text-white text-center py-3 px-4 sm:px-6 lg:px-8" role="alert">
         <div class="flex items-center justify-between max-w-7xl mx-auto">
-          <p class="font-medium">Install PlanGoReminisce for a better experience!</p>
+          <p class="font-medium"><%= t('pwa.install_message') %></p>
           <div class="flex items-center space-x-4">
-            <button data-action="pwa-install#install" class="bg-white text-primary-accent px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-colors text-sm">Install</button>
+            <button data-action="pwa-install#install" class="bg-white text-primary-accent px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition-colors text-sm"><%= t('pwa.install_button') %></button>
             <button data-action="pwa-install#dismiss" class="text-white opacity-75 hover:opacity-100 transition-opacity">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>

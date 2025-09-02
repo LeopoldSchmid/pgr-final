@@ -1,40 +1,40 @@
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full">
     <div class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-text-primary">Welcome back</h1>
-      <p class="mt-2 text-text-secondary">Sign in to your PlanGoReminisce account</p>
+      <h1 class="text-3xl font-bold text-text-primary"><%= t('auth.welcome') %></h1>
+      <p class="mt-2 text-text-secondary"><%= t('auth.sign_in_to_account', app_name: t('app_name')) %></p>
     </div>
 
     <%= form_with url: session_url, local: true, class: "space-y-6" do |form| %>
       <div>
-        <%= form.label :email_address, "Email", class: "block text-sm font-medium text-text-secondary mb-2" %>
+        <%= form.label :email_address, t('auth.email'), class: "block text-sm font-medium text-text-secondary mb-2" %>
         <%= form.email_field :email_address, required: true, autofocus: true, 
             autocomplete: "username", value: params[:email_address], 
             class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
       </div>
 
       <div>
-        <%= form.label :password, class: "block text-sm font-medium text-text-secondary mb-2" %>
+        <%= form.label :password, t('auth.password'), class: "block text-sm font-medium text-text-secondary mb-2" %>
         <%= form.password_field :password, required: true, autocomplete: "current-password", 
             maxlength: 72, 
             class: "w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent text-text-primary" %>
       </div>
 
       <div class="flex items-center justify-between">
-        <%= link_to "Forgot password?", new_password_path, 
+        <%= link_to t('auth.forgot_password'), new_password_path, 
             class: "text-sm text-primary-accent hover:text-blue-400" %>
       </div>
 
       <div>
-        <%= form.submit "Sign in", 
+        <%= form.submit t('auth.sign_in'), 
             class: "w-full bg-primary-accent text-white py-2 px-4 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200" %>
       </div>
     <% end %>
 
     <div class="mt-6 text-center">
       <p class="text-sm text-text-secondary">
-        Don't have an account? 
-        <%= link_to "Sign up", new_registration_path, class: "font-medium text-primary-accent hover:text-blue-400" %>
+        <%= t('auth.need_account') %> 
+        <%= link_to t('auth.sign_up'), new_registration_path, class: "font-medium text-primary-accent hover:text-blue-400" %>
       </p>
     </div>
   </div>

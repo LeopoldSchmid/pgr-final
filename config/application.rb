@@ -41,5 +41,10 @@ module Plangoreminisce
     
     # Configure Active Storage and VIPS
     config.active_storage.variant_processor = :vips
+    
+    # Configure internationalization
+    config.i18n.available_locales = [:en, :de]
+    config.i18n.default_locale = :en
+    config.i18n.fallbacks = [I18n.default_locale]
   end
 end

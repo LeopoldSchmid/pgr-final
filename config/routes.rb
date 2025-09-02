@@ -1,30 +1,24 @@
 Rails.application.routes.draw do
-  get "timeline" => "timeline#index", as: :timeline
-  get "favorite_locations" => "favorite_locations#index", as: :favorite_locations
-  get "search" => "search#index", as: :search
-  # Standalone invitation routes (for accepting via email links)
-  resources :invitations, only: [:show], param: :token do
-    member do
-      get :accept
-      get :decline
-      patch :accept
-      patch :decline
-    end
-  end
-  
-  # User's invitation inbox (specific route to avoid conflict)
-  get 'invitations' => 'invitations#index', as: :user_invitations
-  
-  # Authentication routes
-  resource :session
-  resources :passwords, param: :token
-  resources :registrations, only: [:new, :create]
-  
-  # Profile route
-  get "profile" => "profile#show"
-  
-  # Trip resources
-  resources :trips do
+  # Locale-aware routes
+  scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+    get "timeline" => "timeline#index", as: :timeline
+    get "favorite_locations" => "favorite_locations#index", as: :favorite_locations
+    get "search" => "search#index", as: :search
+    
+    # User's invitation inbox (specific route to avoid conflict)
+    get 'invitations' => 'invitations#index', as: :user_invitations
+    
+    # Authentication routes
+    resource :session
+    resources :passwords, param: :token
+    resources :registrations, only: [:new, :create]
+    
+    # Profile routes
+    get "profile" => "profile#show"
+    patch "profile" => "profile#update"
+    
+    # Trip resources
+    resources :trips do
     # Trip-specific phase routes (Hub pages)
     get :plan, on: :member
     get :go, on: :member  
@@ -83,17 +77,33 @@ Rails.application.routes.draw do
     end
   end
   
-  # Global phase routes
-  get "plan" => "phases#plan"
-  get "go" => "phases#go"
-  get "reminisce" => "phases#reminisce"
+    # Global phase routes
+    get "plan" => "phases#plan"
+    get "go" => "phases#go"
+    get "reminisce" => "phases#reminisce"
+    
+    # Recipe library (browse all recipes)
+    get 'recipes' => 'recipe_library#index', as: :recipe_library
+    get 'recipes/search' => 'recipe_library#search_suggestions', as: :recipe_search_suggestions
+    post 'recipes/:id/copy' => 'recipe_library#copy', as: :copy_recipe
+    
+    # Main application routes
+    root "home#index"
+  end
   
-  # Recipe library (browse all recipes)
-  get 'recipes' => 'recipe_library#index', as: :recipe_library
-  get 'recipes/search' => 'recipe_library#search_suggestions', as: :recipe_search_suggestions
-  post 'recipes/:id/copy' => 'recipe_library#copy', as: :copy_recipe
+  # Routes outside of locale scope
   
-  # API routes
+  # Standalone invitation routes (for accepting via email links) - keep outside locale for email compatibility
+  resources :invitations, only: [:show], param: :token do
+    member do
+      get :accept
+      get :decline
+      patch :accept
+      patch :decline
+    end
+  end
+  
+  # API routes - keep outside locale scope
   namespace :api do
     resources :food_items, only: [] do
       collection do
@@ -108,9 +118,6 @@ Rails.application.routes.draw do
       end
     end
   end
-  
-  # Main application routes
-  root "home#index"
 
   # Health check for load balancers
   get "up" => "rails/health#show", as: :rails_health_check

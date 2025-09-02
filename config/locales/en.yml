@@ -28,4 +28,351 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  # Application name and general
+  app_name: "PlanGoReminisce"
+  
+  # Navigation and common UI elements
+  navigation:
+    home: "Home"
+    trips: "Trips"
+    recipes: "Recipes"
+    profile: "Profile"
+    timeline: "Timeline"
+    search: "Search"
+    logout: "Sign out"
+  
+  # Common actions and buttons
+  actions:
+    create: "Create"
+    edit: "Edit"
+    update: "Update"
+    delete: "Delete"
+    save: "Save"
+    cancel: "Cancel"
+    back: "Back"
+    show: "Show"
+    confirm: "Confirm"
+    yes: "Yes"
+    no: "No"
+    loading: "Loading..."
+    submit: "Submit"
+    search: "Search"
+    filter: "Filter"
+    view_all: "View all"
+    add: "Add"
+    remove: "Remove"
+    close: "Close"
+  
+  # Authentication
+  auth:
+    sign_in: "Sign in"
+    sign_up: "Sign up"
+    sign_out: "Sign out"
+    email: "Email"
+    password: "Password"
+    password_confirmation: "Password confirmation"
+    remember_me: "Remember me"
+    forgot_password: "Forgot password?"
+    reset_password: "Reset password"
+    new_password: "New password"
+    current_password: "Current password"
+    change_password: "Change password"
+    login_required: "Please sign in to continue."
+    invalid_credentials: "Invalid email or password."
+    account_created: "Your account has been created successfully."
+    password_updated: "Your password has been updated successfully."
+    welcome: "Welcome back"
+    create_account: "Create account"
+    have_account: "Already have an account?"
+    need_account: "Need an account?"
+    sign_in_to_account: "Sign in to your %{app_name} account"
+    almost_in: "You're Almost In!"
+    create_account_to_join: "Create your account to join %{trip_name}"
+    password_needed: "Just a password needed to get started!"
+    join_to_start: "Join %{app_name} to start planning trips with friends"
+    email_invited: "This email was invited to join the trip"
+    creating_account: "Creating Account..."
+  
+  # Trip management
+  trips:
+    title: "Trips"
+    new_trip: "New trip"
+    edit_trip: "Edit trip"
+    trip_name: "Trip name"
+    destination: "Destination"
+    start_date: "Start date"
+    end_date: "End date"
+    description: "Description"
+    status: "Status"
+    members: "Members"
+    expenses: "Expenses"
+    journal: "Journal"
+    recipes: "Recipes"
+    shopping: "Shopping lists"
+    my_trips: "My trips"
+    upcoming_trips: "Upcoming trips"
+    past_trips: "Past trips"
+    no_trips: "You haven't created any trips yet."
+    create_first_trip: "Create your first trip"
+    trip_created: "Trip was created successfully."
+    trip_updated: "Trip was updated successfully."
+    trip_deleted: "Trip was deleted successfully."
+    invite_members: "Invite members"
+    
+    # Trip phases
+    phases:
+      plan: "Plan"
+      go: "Go"
+      reminisce: "Reminisce"
+    
+    # Trip statuses
+    statuses:
+      planning: "Planning"
+      active: "Active"
+      completed: "Completed"
+      cancelled: "Cancelled"
+  
+  # Journal entries
+  journal:
+    title: "Journal"
+    new_entry: "New entry"
+    edit_entry: "Edit entry"
+    entry_content: "Content"
+    location: "Location"
+    photos: "Photos"
+    favorite: "Favorite"
+    created_at: "Created at"
+    no_entries: "No entries yet."
+    create_first_entry: "Create your first entry"
+    entry_created: "Entry was created successfully."
+    entry_updated: "Entry was updated successfully."
+    entry_deleted: "Entry was deleted successfully."
+    add_to_favorites: "Add to favorites"
+    remove_from_favorites: "Remove from favorites"
+    capture_moment: "Capture moment"
+    capture_location: "Capture location"
+    location_captured: "Location captured"
+    location_error: "Could not capture location"
+    upload_photos: "Upload photos"
+  
+  # Expenses
+  expenses:
+    title: "Expenses"
+    new_expense: "New expense"
+    edit_expense: "Edit expense"
+    amount: "Amount"
+    description: "Description"
+    category: "Category"
+    paid_by: "Paid by"
+    split_between: "Split between"
+    date: "Date"
+    receipt: "Receipt"
+    settlement: "Settlement"
+    who_owes_whom: "Who owes whom"
+    total_expenses: "Total expenses"
+    your_share: "Your share"
+    you_owe: "You owe"
+    owes_you: "Owes you"
+    expense_created: "Expense was created successfully."
+    expense_updated: "Expense was updated successfully."
+    expense_deleted: "Expense was deleted successfully."
+    no_expenses: "No expenses yet."
+    add_first_expense: "Add first expense"
+    
+    # Expense categories
+    categories:
+      food: "Food"
+      accommodation: "Accommodation"
+      transport: "Transport"
+      activities: "Activities"
+      shopping: "Shopping"
+      other: "Other"
+  
+  # Invitations
+  invitations:
+    title: "Invitations"
+    new_invitation: "New invitation"
+    edit_invitation: "Edit invitation"
+    email_address: "Email address"
+    role: "Role"
+    message: "Message"
+    invite_user: "Invite user"
+    invitation_sent: "Invitation was sent."
+    invitation_accepted: "Invitation was accepted."
+    invitation_declined: "Invitation was declined."
+    pending_invitations: "Pending invitations"
+    accepted_invitations: "Accepted invitations"
+    invite_friends: "Invite friends"
+    join_trip: "Join trip"
+    accept_invitation: "Accept invitation"
+    decline_invitation: "Decline invitation"
+    
+    # Invitation roles
+    roles:
+      admin: "Admin"
+      member: "Member"
+  
+  # Recipes
+  recipes:
+    title: "Recipes"
+    new_recipe: "New recipe"
+    edit_recipe: "Edit recipe"
+    recipe_name: "Recipe name"
+    ingredients: "Ingredients"
+    instructions: "Instructions"
+    servings: "Servings"
+    prep_time: "Prep time"
+    cook_time: "Cook time"
+    total_time: "Total time"
+    difficulty: "Difficulty"
+    category: "Category"
+    tags: "Tags"
+    recipe_created: "Recipe was created successfully."
+    recipe_updated: "Recipe was updated successfully."
+    recipe_deleted: "Recipe was deleted successfully."
+    no_recipes: "No recipes yet."
+    add_first_recipe: "Add first recipe"
+    recipe_library: "Recipe library"
+    
+    # Recipe difficulties
+    difficulties:
+      easy: "Easy"
+      medium: "Medium"
+      hard: "Hard"
+  
+  # Shopping lists
+  shopping:
+    title: "Shopping lists"
+    new_list: "New list"
+    edit_list: "Edit list"
+    list_name: "List name"
+    items: "Items"
+    item_name: "Item name"
+    quantity: "Quantity"
+    unit: "Unit"
+    purchased: "Purchased"
+    add_item: "Add item"
+    remove_item: "Remove item"
+    mark_purchased: "Mark as purchased"
+    unmark_purchased: "Mark as not purchased"
+    list_created: "Shopping list was created successfully."
+    list_updated: "Shopping list was updated successfully."
+    list_deleted: "Shopping list was deleted successfully."
+    no_lists: "No shopping lists yet."
+    create_first_list: "Create first shopping list"
+  
+  # Profile and settings
+  profile:
+    title: "Profile"
+    edit_profile: "Edit profile"
+    personal_info: "Personal information"
+    name: "Name"
+    email: "Email"
+    language: "Language"
+    preferences: "Preferences"
+    profile_updated: "Profile was updated successfully."
+    change_password: "Change password"
+    
+    # Profile stats
+    stats:
+      total_trips: "Total Trips"
+      completed: "Completed"
+      journal_entries: "Journal Entries"
+      favorite_spots: "Favorite Spots"
+    
+    # Language preferences
+    language_preferences: "Language Preferences"
+    current_language: "Current language"
+    
+    # Account settings
+    account_settings: "Account Settings"
+    email_address: "Email Address"
+    password_updated_recently: "Last updated recently"
+    
+    # App preferences
+    app_preferences: "App Preferences"
+    browse_recipes: "Browse Recipes"
+    browse_recipes_desc: "Browse all available recipes"
+    view_timeline: "View Timeline"
+    timeline_desc: "View all your trip moments"
+    favorite_locations: "Favorite Locations"
+    favorite_locations_desc: "Manage your saved places"
+    view_locations: "View Locations"
+    confirm_logout: "Are you sure you want to sign out?"
+    
+    # Languages
+    languages:
+      en: "English"
+      de: "German"
+  
+  # Date and time formatting
+  date:
+    formats:
+      default: "%m/%d/%Y"
+      short: "%m/%d"
+      long: "%B %d, %Y"
+      with_time: "%m/%d/%Y at %I:%M %p"
+  
+  time:
+    formats:
+      default: "%I:%M %p"
+      short: "%I:%M %p"
+      long: "%I:%M:%S %p"
+  
+  # Error messages
+  errors:
+    messages:
+      required: "is required"
+      blank: "can't be blank"
+      too_short: "is too short (minimum is %{count} characters)"
+      too_long: "is too long (maximum is %{count} characters)"
+      invalid: "is invalid"
+      confirmation: "doesn't match"
+      accepted: "must be accepted"
+      taken: "has already been taken"
+      not_found: "was not found"
+      access_denied: "access denied"
+      
+    # Specific error messages
+    trip_not_found: "Trip was not found."
+    unauthorized_access: "You are not authorized to perform this action."
+    invalid_invitation: "Invalid or expired invitation."
+    email_already_invited: "This email address has already been invited."
+    
+  # Success messages
+  success:
+    saved: "Successfully saved."
+    updated: "Successfully updated."
+    deleted: "Successfully deleted."
+    created: "Successfully created."
+    invited: "Invitation sent successfully."
+    
+  # Empty states
+  empty_states:
+    no_data: "No data available"
+    no_results: "No results found"
+    start_journey: "Start your journey"
+    capture_memories: "Capture your memories"
+    track_expenses: "Track your expenses"
+    plan_meals: "Plan your meals"
+    
+  # Map and location
+  map:
+    title: "Map"
+    your_location: "Your location"
+    trip_locations: "Trip locations"
+    loading_map: "Loading map..."
+    location_not_available: "Location not available"
+    enable_location: "Enable location"
+    
+  # Notifications
+  notifications:
+    new_expense: "New expense added"
+    new_journal_entry: "New journal entry"
+    invitation_received: "New invitation received"
+    trip_updated: "Trip updated"
+    
+  # PWA
+  pwa:
+    install_message: "Install PlanGoReminisce for a better experience!"
+    install_button: "Install"
