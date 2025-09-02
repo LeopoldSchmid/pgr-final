@@ -2,7 +2,7 @@
 service: plangoreminisce
 
 # Name of the container image.
-image: plangoreminisce/plangoreminisce
+image: leopoldschmid/plangoreminisce
 
 # Deploy to these servers
 servers:
@@ -22,7 +22,8 @@ proxy:
 # Credentials for your image host (Docker Hub)
 registry:
   username: leopoldschmid
-  password: KAMAL_REGISTRY_PASSWORD
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
