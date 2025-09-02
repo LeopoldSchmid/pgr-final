@@ -1,0 +1,299 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex gap-4">
+      <%= link_to "← Discussions", trip_discussions_path(@trip), class: "text-primary-accent hover:underline" %>
+      <%= link_to "← Trip", trip_path(@trip), class: "text-primary-accent hover:underline" %>
+    </div>
+  </div>
+
+  <!-- Main Discussion Post -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex gap-3">
+      <!-- Voting -->
+      <div class="flex flex-col items-center">
+        <%= button_to upvote_trip_discussion_path(@trip, @discussion_post), method: :post, class: vote_button_class(@discussion_post, 'upvote', Current.user) do %>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+          </svg>
+        <% end %>
+        <span class="text-lg font-bold text-gray-700 py-1"><%= @discussion_post.net_votes %></span>
+        <%= button_to downvote_trip_discussion_path(@trip, @discussion_post), method: :post, class: vote_button_class(@discussion_post, 'downvote', Current.user) do %>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+          </svg>
+        <% end %>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2 text-xs text-gray-500">
+            <%= user_avatar(@discussion_post.user, size: 6) %>
+            <span class="font-medium"><%= @discussion_post.user.email_address.split('@').first %></span>
+            <span>•</span>
+            <span><%= compact_time_ago(@discussion_post.created_at) %></span>
+          </div>
+          
+          <% if @discussion_post.user == Current.user %>
+            <div class="flex gap-1">
+              <%= link_to edit_trip_discussion_path(@trip, @discussion_post), class: "text-gray-400 hover:text-gray-600" do %>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+              <% end %>
+              <%= link_to trip_discussion_path(@trip, @discussion_post), method: :delete,
+                  confirm: "Are you sure?",
+                  class: "text-gray-400 hover:text-red-500" do %>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                </svg>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <h1 class="text-xl font-bold text-gray-900 mb-3"><%= @discussion_post.title %></h1>
+        
+        <div class="prose max-w-none text-gray-700 mb-4">
+          <%= simple_format(@discussion_post.content) %>
+        </div>
+        
+        <!-- Action Bar -->
+        <div class="flex items-center gap-4 text-xs text-gray-500">
+          <button onclick="showReplyForm('main-reply-form')" class="flex items-center gap-1 hover:text-gray-700">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            </svg>
+            <span>Comment</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Reply Form -->
+  <div id="main-reply-form" class="hidden bg-white rounded-lg shadow p-4 mb-4">
+    <%= form_with model: [@trip, @discussion_post, @new_reply], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
+      <div class="flex-shrink-0 mt-2">
+        <%= user_avatar(Current.user, size: 6) %>
+      </div>
+      
+      <div class="flex-1">
+        <%= form.text_area :content, placeholder: "Add a comment...", rows: 3,
+            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent text-sm mb-3" %>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="hideReplyForm('main-reply-form')" 
+                  class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+          <%= form.submit "Comment", 
+              class: "bg-primary-accent text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-blue-400 transition-all duration-200" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Replies -->
+  <div class="space-y-3">
+    <% if @top_level_replies.any? %>
+      <% @top_level_replies.each_with_index do |reply, index| %>
+        <!-- Top Level Comment -->
+        <div class="comment-level-1 rounded-lg shadow p-4">
+          <div class="flex gap-3">
+            <!-- Voting -->
+            <div class="flex flex-col items-center">
+              <%= button_to upvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, reply), method: :post, class: vote_button_class(reply, 'upvote', Current.user) do %>
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                </svg>
+              <% end %>
+              <span class="text-xs font-medium text-gray-600 py-1"><%= reply.net_votes %></span>
+              <%= button_to downvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, reply), method: :post, class: vote_button_class(reply, 'downvote', Current.user) do %>
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                </svg>
+              <% end %>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <%= user_avatar(reply.user, size: 5) %>
+                  <span class="font-medium"><%= reply.user.email_address.split('@').first %></span>
+                  <span>•</span>
+                  <span><%= compact_time_ago(reply.created_at) %></span>
+                </div>
+                
+                <% if reply.user == Current.user %>
+                  <%= link_to trip_discussion_discussion_reply_path(@trip, @discussion_post, reply), 
+                      method: :delete, confirm: "Are you sure?", data: { turbo_method: :delete },
+                      class: "text-gray-400 hover:text-red-500" do %>
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                  <% end %>
+                <% end %>
+              </div>
+              
+              <div class="prose-sm max-w-none text-gray-700 mb-2">
+                <%= simple_format(reply.content) %>
+              </div>
+              
+              <!-- Reply Action -->
+              <div class="flex items-center gap-4 text-xs text-gray-500">
+                <button onclick="showReplyForm('reply-form-<%= reply.id %>')" class="flex items-center gap-1 hover:text-gray-700">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                  <span>Reply</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Hidden Reply Form for this top-level comment -->
+        <div id="reply-form-<%= reply.id %>" class="hidden bg-gray-50 rounded-lg p-4 ml-6">
+          <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
+            <%= form.hidden_field :parent_id, value: reply.id %>
+            <div class="flex-shrink-0 mt-2">
+              <%= user_avatar(Current.user, size: 5) %>
+            </div>
+            
+            <div class="flex-1">
+              <%= form.text_area :content, placeholder: "Add a reply...", rows: 2,
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent text-sm mb-3" %>
+              
+              <div class="flex justify-end gap-2">
+                <button type="button" onclick="hideReplyForm('reply-form-<%= reply.id %>')" 
+                        class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+                <%= form.submit "Reply", 
+                    class: "bg-primary-accent text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-blue-400 transition-all duration-200" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Second Level Replies (Children) -->
+        <% if reply.children.any? %>
+          <div class="ml-12 space-y-3 thread-border pl-4">
+            <% reply.children.oldest_first.each_with_index do |child, child_index| %>
+              <div class="comment-level-2 rounded-lg shadow-sm p-3">
+                <div class="flex gap-3">
+                  <!-- Voting for child -->
+                  <div class="flex flex-col items-center">
+                    <%= button_to upvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, child), method: :post, class: vote_button_class(child, 'upvote', Current.user) do %>
+                      <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                      </svg>
+                    <% end %>
+                    <span class="text-xs font-medium text-gray-600 py-1"><%= child.net_votes %></span>
+                    <%= button_to downvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, child), method: :post, class: vote_button_class(child, 'downvote', Current.user) do %>
+                      <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                      </svg>
+                    <% end %>
+                  </div>
+                  
+                  <!-- Child Content -->
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <%= user_avatar(child.user, size: 5) %>
+                        <span class="font-medium"><%= child.user.email_address.split('@').first %></span>
+                        <span>•</span>
+                        <span><%= compact_time_ago(child.created_at) %></span>
+                      </div>
+                      
+                      <% if child.user == Current.user %>
+                        <%= link_to trip_discussion_discussion_reply_path(@trip, @discussion_post, child), 
+                            method: :delete, confirm: "Are you sure?", data: { turbo_method: :delete },
+                            class: "text-gray-400 hover:text-red-500" do %>
+                          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                          </svg>
+                        <% end %>
+                      <% end %>
+                    </div>
+                    
+                    <div class="prose-sm max-w-none text-gray-700 mb-2">
+                      <%= simple_format(child.content) %>
+                    </div>
+                    
+                    <!-- Reply to child action -->
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                      <button onclick="showReplyForm('child-reply-form-<%= child.id %>')" class="flex items-center gap-1 hover:text-gray-700">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                        <span>Reply</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Hidden Reply Form for this child comment -->
+              <div id="child-reply-form-<%= child.id %>" class="hidden bg-white rounded-lg p-3 ml-6">
+                <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
+                  <%= form.hidden_field :parent_id, value: reply.id %>
+                  <div class="flex-shrink-0 mt-2">
+                    <%= user_avatar(Current.user, size: 5) %>
+                  </div>
+                  
+                  <div class="flex-1">
+                    <%= form.text_area :content, placeholder: "Add a reply...", rows: 2,
+                        class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent text-sm mb-3" %>
+                    
+                    <div class="flex justify-end gap-2">
+                      <button type="button" onclick="hideReplyForm('child-reply-form-<%= child.id %>')" 
+                              class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+                      <%= form.submit "Reply", 
+                          class: "bg-primary-accent text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-blue-400 transition-all duration-200" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="text-center py-8">
+        <p class="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+function showReplyForm(formId) {
+  document.getElementById(formId).classList.remove('hidden');
+  const textarea = document.querySelector(`#${formId} textarea`);
+  if (textarea) {
+    textarea.focus();
+  }
+}
+
+function hideReplyForm(formId) {
+  document.getElementById(formId).classList.add('hidden');
+}
+
+// Handle navigation back to discussions instead of trip
+window.addEventListener('popstate', function(event) {
+  const currentPath = window.location.pathname;
+  const discussionShowMatch = currentPath.match(/\/trips\/(\d+)\/discussions\/\d+$/);
+  
+  if (discussionShowMatch) {
+    // If we're on a discussion show page and going back, go to discussions index
+    const tripId = discussionShowMatch[1];
+    const locale = '<%= I18n.locale %>';
+    const discussionsPath = `/${locale}/trips/${tripId}/discussions`;
+    
+    // Replace the history state so back button goes to discussions
+    if (document.referrer.includes('/discussions/')) {
+      window.location.href = discussionsPath;
+    }
+  }
+});
+</script>

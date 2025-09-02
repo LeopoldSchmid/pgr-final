@@ -376,3 +376,17 @@ en:
   pwa:
     install_message: "Install PlanGoReminisce for a better experience!"
     install_button: "Install"
+
+  # Discussions
+  discussions:
+    title: "Discussions"
+    new_discussion: "New discussion"
+    created: "Discussion created successfully."
+    updated: "Discussion updated successfully."
+    deleted: "Discussion deleted successfully."
+    no_discussions: "No discussions yet."
+
+  # Discussion replies
+  discussion_replies:
+    created: "Reply added successfully."
+    deleted: "Reply deleted successfully."

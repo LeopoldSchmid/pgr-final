@@ -9,6 +9,7 @@ class Trip < ApplicationRecord
   has_many :recipes, dependent: :destroy
   has_many :shopping_lists, dependent: :destroy
   has_many :trip_attachments, dependent: :destroy
+  has_many :discussion_posts, dependent: :destroy
   
   validates :name, presence: true, length: { maximum: 100 }
   validates :series_name, length: { maximum: 100 }, allow_nil: true

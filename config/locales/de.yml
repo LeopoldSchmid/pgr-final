@@ -347,3 +347,17 @@ de:
   pwa:
     install_message: "Installieren Sie PlanGoReminisce für eine bessere Erfahrung!"
     install_button: "Installieren"
+
+  # Discussions
+  discussions:
+    title: "Diskussionen"
+    new_discussion: "Neue Diskussion"
+    created: "Diskussion erfolgreich erstellt."
+    updated: "Diskussion erfolgreich aktualisiert."
+    deleted: "Diskussion erfolgreich gelöscht."
+    no_discussions: "Noch keine Diskussionen."
+
+  # Discussion replies
+  discussion_replies:
+    created: "Antwort erfolgreich hinzugefügt."
+    deleted: "Antwort erfolgreich gelöscht."

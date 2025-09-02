@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_122800) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_143551) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -71,6 +71,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_122800) do
     t.string "title"
     t.index ["trip_id"], name: "index_date_proposals_on_trip_id"
     t.index ["user_id"], name: "index_date_proposals_on_user_id"
+  end
+
+  create_table "discussion_posts", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.integer "user_id", null: false
+    t.string "title", null: false
+    t.text "content", null: false
+    t.integer "upvotes_count", default: 0, null: false
+    t.integer "downvotes_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_discussion_posts_on_trip_id"
+    t.index ["user_id"], name: "index_discussion_posts_on_user_id"
+  end
+
+  create_table "discussion_replies", force: :cascade do |t|
+    t.integer "discussion_post_id", null: false
+    t.integer "user_id", null: false
+    t.text "content", null: false
+    t.integer "upvotes_count", default: 0, null: false
+    t.integer "downvotes_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "parent_id"
+    t.index ["discussion_post_id"], name: "index_discussion_replies_on_discussion_post_id"
+    t.index ["parent_id"], name: "index_discussion_replies_on_parent_id"
+    t.index ["user_id"], name: "index_discussion_replies_on_user_id"
+  end
+
+  create_table "discussion_votes", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "votable_type", null: false
+    t.integer "votable_id", null: false
+    t.string "vote_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "votable_type", "votable_id"], name: "index_discussion_votes_uniqueness", unique: true
+    t.index ["user_id"], name: "index_discussion_votes_on_user_id"
+    t.index ["votable_type", "votable_id"], name: "index_discussion_votes_on_votable_type_and_votable_id"
   end
 
   create_table "expense_participants", force: :cascade do |t|
@@ -275,6 +314,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_122800) do
   add_foreign_key "date_proposal_votes", "users"
   add_foreign_key "date_proposals", "trips"
   add_foreign_key "date_proposals", "users"
+  add_foreign_key "discussion_posts", "trips"
+  add_foreign_key "discussion_posts", "users"
+  add_foreign_key "discussion_replies", "discussion_posts"
+  add_foreign_key "discussion_replies", "discussion_replies", column: "parent_id"
+  add_foreign_key "discussion_replies", "users"
+  add_foreign_key "discussion_votes", "users"
   add_foreign_key "expense_participants", "expenses"
   add_foreign_key "expense_participants", "users"
   add_foreign_key "expenses", "trips"

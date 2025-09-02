@@ -33,6 +33,14 @@
       color: "bg-primary-accent hover:bg-primary-accent/80"
     }
   
+  when /\/trips\/\d+\/discussions$/
+    { 
+      path: "#", 
+      icon: "+", 
+      tooltip: "New Discussion",
+      color: "bg-blue-600 hover:bg-blue-700",
+      onclick: "showNewDiscussionModal()"
+    }
   when /\/reminisce/
     { 
       path: "#", 
