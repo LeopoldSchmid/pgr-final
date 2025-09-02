@@ -161,7 +161,7 @@
         </div>
         
         <!-- Collapsible Reply Section -->
-        <div id="replies-<%= reply.id %>" class="replies-container hidden">
+        <div id="replies-<%= reply.id %>" class="replies-container" style="max-height: 0; overflow: hidden;">
           <!-- Hidden Reply Form for this top-level comment -->
           <div id="reply-form-<%= reply.id %>" class="hidden bg-gray-50 rounded-lg p-4 ml-8">
           <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
@@ -401,24 +401,21 @@ function toggleCommentExpansion(replyId) {
   const expandIndicator = document.querySelector(`.expand-indicator-${replyId}`);
   
   if (repliesContainer) {
-    const isHidden = repliesContainer.classList.contains('hidden');
+    const isCollapsed = repliesContainer.style.maxHeight === '0px';
     
-    if (isHidden) {
-      // Show replies
-      repliesContainer.classList.remove('hidden');
-      repliesContainer.style.maxHeight = repliesContainer.scrollHeight + 'px';
+    if (isCollapsed) {
+      // Expand replies
+      const fullHeight = repliesContainer.scrollHeight;
+      repliesContainer.style.maxHeight = fullHeight + 'px';
       if (expandIndicator) {
         expandIndicator.classList.add('rotate-180');
       }
     } else {
-      // Hide replies
-      repliesContainer.style.maxHeight = '0';
+      // Collapse replies
+      repliesContainer.style.maxHeight = '0px';
       if (expandIndicator) {
         expandIndicator.classList.remove('rotate-180');
       }
-      setTimeout(() => {
-        repliesContainer.classList.add('hidden');
-      }, 200); // Match transition duration
     }
   }
 }
@@ -464,13 +461,14 @@ window.addEventListener('popstate', function(event) {
   }
 });
 
-// Add smooth transitions
+// Initialize reply containers on page load
 document.addEventListener('DOMContentLoaded', function() {
-  // Add transition styles to replies containers
+  // Ensure all reply containers start collapsed
   const repliesContainers = document.querySelectorAll('.replies-container');
   repliesContainers.forEach(container => {
-    container.style.transition = 'max-height 0.2s ease-out';
-    container.style.overflow = 'hidden';
+    if (container.style.maxHeight !== '0px') {
+      container.style.maxHeight = '0px';
+    }
   });
 });
 </script>

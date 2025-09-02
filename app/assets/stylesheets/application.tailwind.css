@@ -46,7 +46,8 @@
   
   /* Comment interaction styles */
   .replies-container {
-    @apply transition-all duration-200 ease-out overflow-hidden;
+    @apply transition-all duration-300 ease-out;
+    overflow: hidden;
   }
   
   .comment-level-1:hover {
