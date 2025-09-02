@@ -54,7 +54,7 @@ Rails.application.routes.draw do
     
     # Invitations nested under trips
     resources :invitations, only: [:new, :create, :index, :destroy]
-    resources :trip_attachments, only: [:create, :destroy]
+    resources :trip_attachments, only: [:create, :update, :destroy]
     
     # Discussions nested under trips
     resources :discussions do

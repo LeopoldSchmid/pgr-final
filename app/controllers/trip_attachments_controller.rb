@@ -13,6 +13,16 @@ class TripAttachmentsController < ApplicationController
     end
   end
 
+  def update
+    @trip_attachment = @trip.trip_attachments.find(params[:id])
+    
+    if @trip_attachment.update(attachment_update_params)
+      redirect_to plan_trip_path(@trip), notice: 'Attachment name was successfully updated.'
+    else
+      redirect_to plan_trip_path(@trip), alert: "Failed to update attachment: #{@trip_attachment.errors.full_messages.join(', ')}"
+    end
+  end
+
   def destroy
     @trip_attachment = @trip.trip_attachments.find(params[:id])
     @trip_attachment.destroy
@@ -33,5 +43,9 @@ class TripAttachmentsController < ApplicationController
 
   def attachment_params
     params.require(:trip_attachment).permit(:name, :file)
+  end
+
+  def attachment_update_params
+    params.require(:trip_attachment).permit(:name)
   end
 end

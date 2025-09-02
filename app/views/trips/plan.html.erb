@@ -31,38 +31,27 @@
     </div>
   </div>
 
-  <!-- Primary Planning Actions -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-    
-    <!-- Set Dates & Details -->
-    <%= link_to edit_trip_path(@trip), class: "bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105" do %>
-      <div class="flex items-center justify-between mb-4">
-        <div class="text-3xl">📅</div>
-        <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-      </div>
-      <h3 class="text-xl font-bold mb-2">Trip Details</h3>
-      <p class="text-purple-100 text-sm">Set dates, destinations & basic info</p>
-    <% end %>
-
-    <!-- Plan Meals & Recipes -->
-    <%= link_to trip_recipes_path(@trip), class: "bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105" do %>
-      <div class="flex items-center justify-between mb-4">
-        <div class="text-3xl">🍽️</div>
-        <div class="bg-white/20 rounded-full px-2 py-1 text-xs font-medium">
-          <%= @trip.recipes.count %>
-        </div>
-      </div>
-      <h3 class="text-xl font-bold mb-2">Meal Planning</h3>
-      <p class="text-red-100 text-sm">Plan recipes & create shopping lists</p>
-    <% end %>
-
-  </div>
-
-  <!-- Secondary Planning Tools -->
+  <!-- Planning Tools -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
     
+    <!-- Trip Details -->
+    <%= link_to edit_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+      <div class="text-center">
+        <div class="text-2xl mb-2">📅</div>
+        <div class="text-sm font-medium text-text-primary">Trip Details</div>
+        <div class="text-xs text-text-secondary">Dates & info</div>
+      </div>
+    <% end %>
+
+    <!-- Meal Planning -->
+    <%= link_to trip_recipes_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+      <div class="text-center">
+        <div class="text-2xl mb-2">🍽️</div>
+        <div class="text-sm font-medium text-text-primary">Meal Planning</div>
+        <div class="text-xs text-text-secondary"><%= @trip.recipes.count %> recipes</div>
+      </div>
+    <% end %>
+
     <!-- Date Proposals -->
     <%= link_to trip_date_proposals_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
       <div class="text-center">
@@ -194,14 +183,23 @@
         <% if attachment.file.attached? %>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-background-primary rounded-lg">
             <div class="flex-grow min-w-0">
-              <button data-action="attachment-preview#previewFile" 
-                      data-file-url="<%= rails_blob_path(attachment.file) %>"
-                      data-file-name="<%= attachment.name %>"
-                      data-file-type="<%= attachment.file.blob.content_type %>"
-                      data-download-url="<%= rails_blob_path(attachment.file, disposition: 'attachment') %>"
-                      class="font-medium text-primary-accent hover:underline break-all text-left">
-                📎 <%= attachment.name %>
-              </button>
+              <div class="flex items-center gap-2">
+                <button data-action="attachment-preview#previewFile" 
+                        data-file-url="<%= rails_blob_path(attachment.file) %>"
+                        data-file-name="<%= attachment.name %>"
+                        data-file-type="<%= attachment.file.blob.content_type %>"
+                        data-download-url="<%= rails_blob_path(attachment.file, disposition: 'attachment') %>"
+                        class="font-medium text-primary-accent hover:underline break-all text-left">
+                  📎 <span data-attachment-name="<%= attachment.id %>"><%= attachment.name %></span>
+                </button>
+                <button onclick="editAttachmentName(<%= attachment.id %>, '<%= attachment.name.gsub("'", "\\'") %>')"
+                        class="text-gray-400 hover:text-blue-500 p-1" 
+                        title="Edit name">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                  </svg>
+                </button>
+              </div>
               <div class="text-sm text-text-secondary mt-1">
                 Uploaded by <%= attachment.user.email_address %> • 
                 <%= number_to_human_size(attachment.file.blob.byte_size) %>
@@ -283,6 +281,146 @@
   </div>
 
 </div>
+
+<!-- Quick Add Modal -->
+<div id="quickAddModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Quick Add</h2>
+        <button onclick="hideQuickAddModal()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 gap-3">
+        <%= link_to new_trip_recipe_path(@trip), class: "flex items-center p-3 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors" do %>
+          <div class="text-2xl mr-3">🍽️</div>
+          <div>
+            <div class="font-medium text-gray-900">Add Recipe</div>
+            <div class="text-sm text-gray-600">Plan a meal for this trip</div>
+          </div>
+        <% end %>
+        
+        <%= link_to trip_date_proposals_path(@trip), class: "flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors" do %>
+          <div class="text-2xl mr-3">🗳️</div>
+          <div>
+            <div class="font-medium text-gray-900">Date Voting</div>
+            <div class="text-sm text-gray-600">View and create date proposals</div>
+          </div>
+        <% end %>
+        
+        <%= link_to new_trip_discussion_path(@trip), class: "flex items-center p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors" do %>
+          <div class="text-2xl mr-3">💬</div>
+          <div>
+            <div class="font-medium text-gray-900">Start Discussion</div>
+            <div class="text-sm text-gray-600">Create a topic to discuss</div>
+          </div>
+        <% end %>
+        
+        <%= link_to new_trip_expense_path(@trip), class: "flex items-center p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" do %>
+          <div class="text-2xl mr-3">💰</div>
+          <div>
+            <div class="font-medium text-gray-900">Add Expense</div>
+            <div class="text-sm text-gray-600">Track trip expenses</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showQuickAddModal() {
+  document.getElementById('quickAddModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideQuickAddModal() {
+  document.getElementById('quickAddModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('quickAddModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    hideQuickAddModal();
+  }
+});
+
+// Attachment name editing functions
+function editAttachmentName(attachmentId, currentName) {
+  const nameSpan = document.querySelector(`[data-attachment-name="${attachmentId}"]`);
+  const originalHTML = nameSpan.innerHTML;
+  
+  // Create input field
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = currentName;
+  input.className = 'bg-white border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent';
+  input.style.width = Math.max(currentName.length * 8, 100) + 'px';
+  
+  // Replace span with input
+  nameSpan.innerHTML = '';
+  nameSpan.appendChild(input);
+  input.focus();
+  input.select();
+  
+  // Save function
+  function saveEdit() {
+    const newName = input.value.trim();
+    if (newName === '' || newName === currentName) {
+      nameSpan.innerHTML = originalHTML;
+      return;
+    }
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/trips/<%= @trip.id %>/trip_attachments/${attachmentId}`;
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'PATCH';
+    form.appendChild(methodInput);
+    
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = 'authenticity_token';
+    tokenInput.value = document.querySelector('meta[name="csrf-token"]').content;
+    form.appendChild(tokenInput);
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'trip_attachment[name]';
+    nameInput.value = newName;
+    form.appendChild(nameInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+  
+  // Cancel function
+  function cancelEdit() {
+    nameSpan.innerHTML = originalHTML;
+  }
+  
+  // Event listeners
+  input.addEventListener('blur', saveEdit);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
+  });
+}
+</script>
 
 <!-- Attachment Preview Modal -->
 <div id="attachment-modal" class="fixed inset-0 backdrop-blur-md bg-black bg-opacity-40 hidden items-center justify-center z-50" data-controller="attachment-preview">

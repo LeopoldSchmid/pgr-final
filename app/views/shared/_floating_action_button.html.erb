@@ -18,10 +18,11 @@
     }
   when /\/trips\/\d+\/plan/
     { 
-      path: new_trip_recipe_path(@trip), 
+      path: "#", 
       icon: "+", 
-      tooltip: "Add Recipe",
-      color: "bg-blue-600 hover:bg-blue-700"
+      tooltip: "Quick Add",
+      color: "bg-blue-600 hover:bg-blue-700",
+      onclick: "showQuickAddModal()"
     }
   # Trips/go pages now use their own modal FAB - skip this page
   # when /\/trips\/\d+\/go/
