@@ -26,17 +26,36 @@
     @apply text-blue-500 border-0 bg-transparent;
   }
   
-  /* Discussion threading */
+  /* Discussion threading - Compact layout */
   .thread-border {
     @apply border-l-2 border-gray-200;
   }
   
   .comment-level-1 {
-    @apply bg-white;
+    @apply hover:bg-gray-50 transition-colors duration-150;
   }
   
   .comment-level-2 {
-    @apply bg-gray-50;
+    @apply bg-gray-25 hover:bg-gray-100 transition-colors duration-150;
+  }
+  
+  /* Compact post layout */
+  .discussion-post-compact {
+    @apply hover:bg-gray-50 border-b border-gray-100 last:border-b-0;
+  }
+  
+  /* Comment interaction styles */
+  .replies-container {
+    @apply transition-all duration-200 ease-out overflow-hidden;
+  }
+  
+  .comment-level-1:hover {
+    @apply bg-gray-25;
+  }
+  
+  /* Expand indicators */
+  .expand-indicator {
+    @apply transition-transform duration-200 ease-out;
   }
 }
 

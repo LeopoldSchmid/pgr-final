@@ -6,11 +6,7 @@
   <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
     <div class="flex items-center space-x-6">
       <!-- Profile Avatar -->
-      <div class="w-20 h-20 bg-primary-accent rounded-full flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      </div>
+      <%= user_avatar(@user, size: 20) %>
       
       <!-- Profile Info -->
       <div>
@@ -41,6 +37,46 @@
       <div class="text-3xl font-bold text-accent-red mb-2"><%= @user_stats[:favorite_locations] %></div>
       <div class="text-sm font-medium text-text-secondary"><%= t('profile.stats.favorite_spots') %></div>
     </div>
+  </div>
+
+  <!-- Avatar Selection -->
+  <div class="bg-background-secondary rounded-2xl shadow-sm p-8 mb-8">
+    <h2 class="text-2xl font-bold text-text-primary mb-6">Avatar Selection</h2>
+    
+    <%= form_with model: @user, url: profile_path, method: :patch, local: true, class: "space-y-6" do |form| %>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <% avatar_options.each do |key, config| %>
+          <label class="relative cursor-pointer group">
+            <%= form.radio_button :avatar, key, 
+                class: "sr-only peer",
+                onchange: "this.form.submit();" %>
+            <div class="p-4 rounded-lg border-2 border-gray-200 text-center transition-all duration-200 
+                        peer-checked:border-primary-accent peer-checked:bg-primary-accent peer-checked:bg-opacity-10
+                        hover:border-primary-accent hover:bg-gray-50 group-hover:scale-105">
+              <div class="w-12 h-12 mx-auto mb-2 rounded-full <%= config[:bg_color] %> flex items-center justify-center text-xl">
+                <%= config[:icon] %>
+              </div>
+              <span class="text-sm font-medium text-gray-700 peer-checked:text-primary-accent"><%= config[:name] %></span>
+            </div>
+          </label>
+        <% end %>
+        
+        <!-- Default/Reset option -->
+        <label class="relative cursor-pointer group">
+          <%= form.radio_button :avatar, '', 
+              class: "sr-only peer",
+              onchange: "this.form.submit();" %>
+          <div class="p-4 rounded-lg border-2 border-gray-200 text-center transition-all duration-200 
+                      peer-checked:border-primary-accent peer-checked:bg-primary-accent peer-checked:bg-opacity-10
+                      hover:border-primary-accent hover:bg-gray-50 group-hover:scale-105">
+            <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-primary-accent flex items-center justify-center text-xl text-white font-medium">
+              <%= @user.email_address.first.upcase %>
+            </div>
+            <span class="text-sm font-medium text-gray-700 peer-checked:text-primary-accent">Default</span>
+          </div>
+        </label>
+      </div>
+    <% end %>
   </div>
 
   <!-- Language Preferences -->

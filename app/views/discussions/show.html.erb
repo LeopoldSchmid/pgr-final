@@ -7,7 +7,7 @@
   </div>
 
   <!-- Main Discussion Post -->
-  <div class="bg-white rounded-lg shadow p-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4 mb-4">
     <div class="flex gap-3">
       <!-- Voting -->
       <div class="flex flex-col items-center">
@@ -93,14 +93,14 @@
   </div>
 
   <!-- Replies -->
-  <div class="space-y-3">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
     <% if @top_level_replies.any? %>
       <% @top_level_replies.each_with_index do |reply, index| %>
         <!-- Top Level Comment -->
-        <div class="comment-level-1 rounded-lg shadow p-4">
-          <div class="flex gap-3">
+        <div class="comment-level-1 border-b border-gray-100 p-3 last:border-b-0">
+          <div class="flex gap-3 cursor-pointer" onclick="toggleCommentExpansion(<%= reply.id %>)">
             <!-- Voting -->
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center" onclick="event.stopPropagation()">
               <%= button_to upvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, reply), method: :post, class: vote_button_class(reply, 'upvote', Current.user) do %>
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
@@ -135,25 +135,35 @@
                 <% end %>
               </div>
               
-              <div class="prose-sm max-w-none text-gray-700 mb-2">
+              <div class="prose-sm max-w-none text-gray-700 text-sm mb-1">
                 <%= simple_format(reply.content) %>
               </div>
               
               <!-- Reply Action -->
               <div class="flex items-center gap-4 text-xs text-gray-500">
-                <button onclick="showReplyForm('reply-form-<%= reply.id %>')" class="flex items-center gap-1 hover:text-gray-700">
+                <button onclick="event.stopPropagation(); showReplyForm('reply-form-<%= reply.id %>')" class="flex items-center gap-1 hover:text-gray-700">
                   <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
                   </svg>
                   <span>Reply</span>
                 </button>
+                <% if reply.children.any? %>
+                  <div class="flex items-center gap-1 text-gray-400">
+                    <svg class="w-3 h-3 expand-indicator-<%= reply.id %> transform transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                    </svg>
+                    <span><%= pluralize(reply.children.count, 'reply') %></span>
+                  </div>
+                <% end %>
               </div>
             </div>
           </div>
         </div>
         
-        <!-- Hidden Reply Form for this top-level comment -->
-        <div id="reply-form-<%= reply.id %>" class="hidden bg-gray-50 rounded-lg p-4 ml-6">
+        <!-- Collapsible Reply Section -->
+        <div id="replies-<%= reply.id %>" class="replies-container hidden">
+          <!-- Hidden Reply Form for this top-level comment -->
+          <div id="reply-form-<%= reply.id %>" class="hidden bg-gray-50 rounded-lg p-4 ml-8">
           <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
             <%= form.hidden_field :parent_id, value: reply.id %>
             <div class="flex-shrink-0 mt-2">
@@ -176,9 +186,13 @@
         
         <!-- Second Level Replies (Children) -->
         <% if reply.children.any? %>
-          <div class="ml-12 space-y-3 thread-border pl-4">
-            <% reply.children.oldest_first.each_with_index do |child, child_index| %>
-              <div class="comment-level-2 rounded-lg shadow-sm p-3">
+          <div class="ml-12 mt-3 space-y-2 thread-border pl-4">
+            <!-- Show first 3 replies by default -->
+            <% visible_children = reply.children.oldest_first.limit(3) %>
+            <% hidden_children = reply.children.oldest_first.offset(3) %>
+            
+            <% visible_children.each_with_index do |child, child_index| %>
+              <div class="comment-level-2 border-b border-gray-50 pb-2 last:border-b-0 last:pb-0">
                 <div class="flex gap-3">
                   <!-- Voting for child -->
                   <div class="flex flex-col items-center">
@@ -216,7 +230,7 @@
                       <% end %>
                     </div>
                     
-                    <div class="prose-sm max-w-none text-gray-700 mb-2">
+                    <div class="prose-sm max-w-none text-gray-700 text-sm mb-1">
                       <%= simple_format(child.content) %>
                     </div>
                     
@@ -234,7 +248,7 @@
               </div>
               
               <!-- Hidden Reply Form for this child comment -->
-              <div id="child-reply-form-<%= child.id %>" class="hidden bg-white rounded-lg p-3 ml-6">
+              <div id="child-reply-form-<%= child.id %>" class="hidden bg-white rounded-lg p-3 ml-8">
                 <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
                   <%= form.hidden_field :parent_id, value: reply.id %>
                   <div class="flex-shrink-0 mt-2">
@@ -255,11 +269,113 @@
                 <% end %>
               </div>
             <% end %>
-          </div>
+            
+            <!-- Hidden replies (show more button) -->
+            <% if hidden_children.any? %>
+              <div class="hidden-replies-<%= reply.id %> hidden">
+                <% hidden_children.each_with_index do |child, child_index| %>
+                  <div class="comment-level-2 border-b border-gray-50 pb-2 last:border-b-0 last:pb-0">
+                    <div class="flex gap-3">
+                      <!-- Voting for hidden child -->
+                      <div class="flex flex-col items-center">
+                        <%= button_to upvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, child), method: :post, class: vote_button_class(child, 'upvote', Current.user) do %>
+                          <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                          </svg>
+                        <% end %>
+                        <span class="text-xs font-medium text-gray-600 py-1"><%= child.net_votes %></span>
+                        <%= button_to downvote_trip_discussion_discussion_reply_path(@trip, @discussion_post, child), method: :post, class: vote_button_class(child, 'downvote', Current.user) do %>
+                          <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                          </svg>
+                        <% end %>
+                      </div>
+                      
+                      <!-- Hidden Child Content -->
+                      <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                          <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <%= user_avatar(child.user, size: 5) %>
+                            <span class="font-medium"><%= child.user.email_address.split('@').first %></span>
+                            <span>•</span>
+                            <span><%= compact_time_ago(child.created_at) %></span>
+                          </div>
+                          
+                          <% if child.user == Current.user %>
+                            <%= link_to trip_discussion_discussion_reply_path(@trip, @discussion_post, child), 
+                                method: :delete, confirm: "Are you sure?", data: { turbo_method: :delete },
+                                class: "text-gray-400 hover:text-red-500" do %>
+                              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                              </svg>
+                            <% end %>
+                          <% end %>
+                        </div>
+                        
+                        <div class="prose-sm max-w-none text-gray-700 text-sm mb-1">
+                          <%= simple_format(child.content) %>
+                        </div>
+                        
+                        <!-- Reply to hidden child action -->
+                        <div class="flex items-center gap-4 text-xs text-gray-500">
+                          <button onclick="showReplyForm('child-reply-form-<%= child.id %>')" class="flex items-center gap-1 hover:text-gray-700">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            <span>Reply</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Hidden Reply Form for hidden child -->
+                  <div id="child-reply-form-<%= child.id %>" class="hidden bg-white rounded-lg p-3 ml-8">
+                    <%= form_with model: [@trip, @discussion_post, DiscussionReply.new], url: trip_discussion_discussion_replies_path(@trip, @discussion_post), local: true, class: "flex gap-3" do |form| %>
+                      <%= form.hidden_field :parent_id, value: reply.id %>
+                      <div class="flex-shrink-0 mt-2">
+                        <%= user_avatar(Current.user, size: 5) %>
+                      </div>
+                      
+                      <div class="flex-1">
+                        <%= form.text_area :content, placeholder: "Add a reply...", rows: 2,
+                            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent text-sm mb-3" %>
+                        
+                        <div class="flex justify-end gap-2">
+                          <button type="button" onclick="hideReplyForm('child-reply-form-<%= child.id %>')" 
+                                  class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+                          <%= form.submit "Reply", 
+                              class: "bg-primary-accent text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-blue-400 transition-all duration-200" %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Show/Hide More Replies Button -->
+              <button onclick="toggleReplies(<%= reply.id %>)" 
+                      class="show-more-btn-<%= reply.id %> flex items-center gap-2 text-xs text-primary-accent hover:text-blue-400 font-medium py-2">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                </svg>
+                <span>Show <%= hidden_children.count %> more replies</span>
+              </button>
+              
+              <button onclick="toggleReplies(<%= reply.id %>)" 
+                      class="hide-more-btn-<%= reply.id %> hidden flex items-center gap-2 text-xs text-primary-accent hover:text-blue-400 font-medium py-2">
+                <svg class="w-3 h-3 transform rotate-180" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+                </svg>
+                <span>Show fewer replies</span>
+              </button>
+            <% end %>
+            </div>
         <% end %>
+        </div>
       <% end %>
     <% else %>
-      <div class="text-center py-8">
+      <div class="text-center py-6 px-4">
         <p class="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
       </div>
     <% end %>
@@ -279,6 +395,57 @@ function hideReplyForm(formId) {
   document.getElementById(formId).classList.add('hidden');
 }
 
+// Toggle comment expansion (show/hide replies)
+function toggleCommentExpansion(replyId) {
+  const repliesContainer = document.getElementById(`replies-${replyId}`);
+  const expandIndicator = document.querySelector(`.expand-indicator-${replyId}`);
+  
+  if (repliesContainer) {
+    const isHidden = repliesContainer.classList.contains('hidden');
+    
+    if (isHidden) {
+      // Show replies
+      repliesContainer.classList.remove('hidden');
+      repliesContainer.style.maxHeight = repliesContainer.scrollHeight + 'px';
+      if (expandIndicator) {
+        expandIndicator.classList.add('rotate-180');
+      }
+    } else {
+      // Hide replies
+      repliesContainer.style.maxHeight = '0';
+      if (expandIndicator) {
+        expandIndicator.classList.remove('rotate-180');
+      }
+      setTimeout(() => {
+        repliesContainer.classList.add('hidden');
+      }, 200); // Match transition duration
+    }
+  }
+}
+
+// Toggle nested replies visibility (show more/fewer)
+function toggleReplies(replyId) {
+  const hiddenReplies = document.querySelector(`.hidden-replies-${replyId}`);
+  const showMoreBtn = document.querySelector(`.show-more-btn-${replyId}`);
+  const hideMoreBtn = document.querySelector(`.hide-more-btn-${replyId}`);
+  
+  if (hiddenReplies && showMoreBtn && hideMoreBtn) {
+    const isHidden = hiddenReplies.classList.contains('hidden');
+    
+    if (isHidden) {
+      // Show hidden replies
+      hiddenReplies.classList.remove('hidden');
+      showMoreBtn.classList.add('hidden');
+      hideMoreBtn.classList.remove('hidden');
+    } else {
+      // Hide replies
+      hiddenReplies.classList.add('hidden');
+      showMoreBtn.classList.remove('hidden');
+      hideMoreBtn.classList.add('hidden');
+    }
+  }
+}
+
 // Handle navigation back to discussions instead of trip
 window.addEventListener('popstate', function(event) {
   const currentPath = window.location.pathname;
@@ -295,5 +462,15 @@ window.addEventListener('popstate', function(event) {
       window.location.href = discussionsPath;
     }
   }
+});
+
+// Add smooth transitions
+document.addEventListener('DOMContentLoaded', function() {
+  // Add transition styles to replies containers
+  const repliesContainers = document.querySelectorAll('.replies-container');
+  repliesContainers.forEach(container => {
+    container.style.transition = 'max-height 0.2s ease-out';
+    container.style.overflow = 'hidden';
+  });
 });
 </script>

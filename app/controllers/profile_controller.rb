@@ -10,18 +10,18 @@ class ProfileController < ApplicationController
       favorite_locations: user_favorite_locations_count
     }
   end
-  
+
   def update
     @user = Current.user
-    
+
     if @user.update(user_params)
       # Update session locale if changed
       if user_params[:locale].present?
         session[:locale] = @user.locale
         I18n.locale = @user.preferred_locale
       end
-      
-      redirect_to profile_path, notice: t('profile.profile_updated')
+
+      redirect_to profile_path, notice: t("profile.profile_updated")
     else
       # Calculate stats again for re-render
       @user_stats = {
@@ -35,9 +35,9 @@ class ProfileController < ApplicationController
   end
 
   private
-  
+
   def user_params
-    params.require(:user).permit(:locale)
+    params.require(:user).permit(:locale, :avatar)
   end
 
   def user_trips_count
@@ -50,7 +50,7 @@ class ProfileController < ApplicationController
   def user_completed_trips_count
     owned_trips = Current.user.trips.completed.count
     member_trips = Trip.joins(:trip_members)
-                      .where(trip_members: { user: Current.user }, status: 'completed')
+                      .where(trip_members: { user: Current.user }, status: "completed")
                       .distinct.count
     owned_trips + member_trips
   end

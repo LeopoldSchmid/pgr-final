@@ -2,11 +2,11 @@ module ApplicationHelper
   include ActionView::Helpers::TextHelper
 
   def format_journal_content(content)
-    return '' if content.blank?
-    
+    return "" if content.blank?
+
     # First apply simple_format for line breaks and paragraphs
     formatted_content = simple_format(content)
-    
+
     # Then auto-link URLs
     auto_link(formatted_content)
   end
@@ -14,11 +14,11 @@ module ApplicationHelper
   # Navigation context helpers
   def current_trip_context
     # Only look for trip context in trip-related routes
-    return nil unless params[:controller] == 'trips' || params[:trip_id].present?
-    
-    trip_id = params[:trip_id] || (params[:controller] == 'trips' ? params[:id] : nil)
+    return nil unless params[:controller] == "trips" || params[:trip_id].present?
+
+    trip_id = params[:trip_id] || (params[:controller] == "trips" ? params[:id] : nil)
     return nil unless trip_id
-    
+
     # Find the trip if user has access
     begin
       Current.user.trips.find(trip_id)
@@ -59,11 +59,11 @@ module ApplicationHelper
   end
 
   def compact_time_ago(time)
-    return '' unless time.present?
-    
+    return "" unless time.present?
+
     now = Time.current
     diff = now - time
-    
+
     if time.to_date == now.to_date
       # Same day - show time (HH:MM)
       time.strftime("%H:%M")
@@ -84,30 +84,53 @@ module ApplicationHelper
 
   def user_avatar(user, size: 8)
     size_class = case size
-                 when 5 then "w-5 h-5 text-xs"
-                 when 6 then "w-6 h-6 text-xs"
-                 when 8 then "w-8 h-8 text-sm"
-                 else "w-8 h-8 text-sm"
-                 end
-    
+    when 5 then "w-5 h-5 text-xs"
+    when 6 then "w-6 h-6 text-xs"
+    when 8 then "w-8 h-8 text-sm"
+    when 20 then "w-20 h-20 text-2xl"
+    else "w-8 h-8 text-sm"
+    end
+
     content_tag :div, class: "flex-shrink-0" do
-      content_tag :div, 
-        user.email_address.first.upcase,
-        class: "#{size_class} bg-primary-accent text-white rounded-full flex items-center justify-center font-medium"
+      if user.avatar.present? && avatar_options.key?(user.avatar.to_sym)
+        avatar_config = avatar_options[user.avatar.to_sym]
+        content_tag :div,
+          avatar_config[:icon],
+          class: "#{size_class} #{avatar_config[:bg_color]} text-white rounded-full flex items-center justify-center font-medium"
+      else
+        # Fallback to initial
+        content_tag :div,
+          user.email_address.first.upcase,
+          class: "#{size_class} bg-primary-accent text-white rounded-full flex items-center justify-center font-medium"
+      end
     end
   end
-  
+
+  def avatar_options
+    {
+      traveler: { icon: "✈️", bg_color: "bg-blue-500", name: "Traveler" },
+      adventurer: { icon: "🏔️", bg_color: "bg-green-600", name: "Adventurer" },
+      photographer: { icon: "📷", bg_color: "bg-purple-500", name: "Photographer" },
+      foodie: { icon: "🍽️", bg_color: "bg-orange-500", name: "Foodie" },
+      explorer: { icon: "🧭", bg_color: "bg-teal-500", name: "Explorer" },
+      beachgoer: { icon: "🏖️", bg_color: "bg-cyan-500", name: "Beach Lover" },
+      hiker: { icon: "🥾", bg_color: "bg-amber-600", name: "Hiker" },
+      cultural: { icon: "🏛️", bg_color: "bg-indigo-500", name: "Culture Enthusiast" },
+      nature: { icon: "🌿", bg_color: "bg-emerald-600", name: "Nature Lover" },
+      wanderer: { icon: "🎒", bg_color: "bg-rose-500", name: "Wanderer" }
+    }
+  end
+
   def vote_button_class(votable, vote_type, current_user)
     user_vote = votable.user_vote(current_user)
     base_class = "p-1"
-    
+
     if user_vote == vote_type
       # User has voted this way - show active state
-      vote_type == 'upvote' ? "vote-upvote-active #{base_class}" : "vote-downvote-active #{base_class}"
+      vote_type == "upvote" ? "vote-upvote-active #{base_class}" : "vote-downvote-active #{base_class}"
     else
       # User hasn't voted this way - show default state
-      vote_type == 'upvote' ? "vote-upvote #{base_class}" : "vote-downvote #{base_class}"
+      vote_type == "upvote" ? "vote-upvote #{base_class}" : "vote-downvote #{base_class}"
     end
   end
-  
 end

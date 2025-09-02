@@ -168,32 +168,40 @@
     </h3>
 
     <!-- Attachment Upload Form -->
-    <%= form_with(model: [@trip, TripAttachment.new], class: "mb-4") do |form| %>
-      <div class="flex items-center space-x-2">
-        <%= form.text_field :name, placeholder: "Attachment name...", class: "flex-grow bg-background-primary border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-accent focus:border-primary-accent" %>
-        <%= form.file_field :file, class: "text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-accent file:text-white hover:file:bg-primary-accent-dark" %>
-        <%= form.submit "Upload", class: "bg-primary-accent text-white font-bold py-2 px-4 rounded-md hover:bg-primary-accent-dark cursor-pointer" %>
+    <%= form_with(model: [@trip, TripAttachment.new], local: true, class: "mb-4") do |form| %>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <%= form.text_field :name, placeholder: "Attachment name...", class: "flex-grow bg-background-primary border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-accent focus:border-primary-accent sm:min-w-0", required: true %>
+        <%= form.file_field :file, class: "text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-accent file:text-white hover:file:bg-primary-accent-dark", required: true %>
+        <%= form.submit "Upload", class: "bg-primary-accent text-white font-bold py-2 px-4 rounded-md hover:bg-primary-accent-dark cursor-pointer whitespace-nowrap" %>
       </div>
     <% end %>
 
     <!-- Attachments List -->
     <div class="space-y-2">
-      <% @trip.trip_attachments.with_attached_file.each do |attachment| %>
-        <div class="flex items-center justify-between p-3 bg-background-primary rounded-lg">
-          <div>
-            <%= link_to url_for(attachment.file), target: "_blank", class: "font-medium text-primary-accent hover:underline" do %>
-              <%= attachment.name %>
-            <% end %>
-            <div class="text-sm text-text-secondary">
-              Uploaded by <%= attachment.user.email_address %>
+      <% @trip.trip_attachments.includes(:user, file_attachment: :blob).each do |attachment| %>
+        <% if attachment.file.attached? %>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-background-primary rounded-lg">
+            <div class="flex-grow min-w-0">
+              <%= link_to rails_blob_path(attachment.file, disposition: "attachment"), target: "_blank", class: "font-medium text-primary-accent hover:underline break-all" do %>
+                📎 <%= attachment.name %>
+              <% end %>
+              <div class="text-sm text-text-secondary mt-1">
+                Uploaded by <%= attachment.user.email_address %> • 
+                <%= number_to_human_size(attachment.file.blob.byte_size) %>
+                <% if attachment.file.blob.content_type.present? %>
+                  • <%= attachment.file.blob.content_type %>
+                <% end %>
+              </div>
             </div>
+            <%= button_to trip_trip_attachment_path(@trip, attachment), method: :delete, 
+                          data: { confirm: "Are you sure you want to delete this attachment?" },
+                          class: "text-gray-400 hover:text-red-500 self-start sm:self-center flex-shrink-0" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <% end %>
           </div>
-          <%= button_to trip_trip_attachment_path(@trip, attachment), method: :delete, class: "text-gray-400 hover:text-red-500" do %>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-          <% end %>
-        </div>
+        <% end %>
       <% end %>
-      <% if @trip.trip_attachments.none? %>
+      <% if @trip.trip_attachments.none? || @trip.trip_attachments.none? { |a| a.file.attached? } %>
         <p class="text-center text-text-secondary py-4">No attachments yet.</p>
       <% end %>
     </div>

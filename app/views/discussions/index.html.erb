@@ -5,19 +5,20 @@
   </div>
 
   <!-- Discussion Posts List -->
-  <div class="space-y-4">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
     <% if @discussion_posts.any? %>
       <% @discussion_posts.each do |post| %>
-        <div class="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow duration-200">
+        <div class="border-b border-gray-100 p-3 hover:bg-gray-50 transition-colors duration-150 last:border-b-0 cursor-pointer" 
+             onclick="window.location.href='<%= trip_discussion_path(@trip, post) %>'">
           <div class="flex gap-3">
             <!-- Voting -->
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center" onclick="event.stopPropagation()">
               <%= button_to upvote_trip_discussion_path(@trip, post), method: :post, class: vote_button_class(post, 'upvote', Current.user) do %>
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
                 </svg>
               <% end %>
-              <span class="text-sm font-medium text-gray-700 py-1"><%= post.net_votes %></span>
+              <span class="text-xs font-medium text-gray-700 py-0.5"><%= post.net_votes %></span>
               <%= button_to downvote_trip_discussion_path(@trip, post), method: :post, class: vote_button_class(post, 'downvote', Current.user) do %>
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
@@ -50,12 +51,12 @@
                 <% end %>
               </div>
               
-              <h3 class="text-lg font-medium text-gray-900 mb-2 leading-tight">
+              <h3 class="text-base font-medium text-gray-900 mb-1 leading-tight">
                 <%= link_to post.title, trip_discussion_path(@trip, post), 
                     class: "hover:text-primary-accent transition-colors" %>
               </h3>
               
-              <p class="text-gray-600 text-sm line-clamp-2 mb-2"><%= truncate(post.content, length: 200) %></p>
+              <p class="text-gray-600 text-xs line-clamp-2 mb-1"><%= truncate(post.content, length: 150) %></p>
               
               <div class="flex items-center text-xs text-gray-500">
                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
@@ -68,8 +69,8 @@
         </div>
       <% end %>
     <% else %>
-      <div class="text-center py-12">
-        <p class="text-gray-500 text-lg">No discussions yet. Start the conversation!</p>
+      <div class="text-center py-8 px-4">
+        <p class="text-gray-500 text-sm">No discussions yet. Start the conversation!</p>
       </div>
     <% end %>
   </div>
