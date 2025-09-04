@@ -1,7 +1,7 @@
 class JournalEntriesController < ApplicationController
   before_action :require_authentication
   before_action :set_trip
-  before_action :set_journal_entry, only: [:update, :destroy, :toggle_favorite]
+  before_action :set_journal_entry, only: [:edit, :update, :destroy, :toggle_favorite]
 
   def create
     Rails.logger.debug "=== JournalEntriesController#create called ==="
@@ -25,11 +25,30 @@ class JournalEntriesController < ApplicationController
     end
   end
 
+  def edit
+    # Journal entry is loaded by before_action
+  end
+
   def update
-    if @journal_entry.update(journal_entry_params)
-      redirect_to go_trip_path(@trip), notice: 'Journal entry updated! ✏️'
+    # Handle images separately to avoid overwriting existing images with empty array
+    update_params = journal_entry_params.except(:images, :images_to_delete)
+    
+    if @journal_entry.update(update_params)
+      # Delete marked images
+      if params[:journal_entry][:images_to_delete].present?
+        image_ids_to_delete = params[:journal_entry][:images_to_delete].split(',').map(&:to_i)
+        @journal_entry.images.where(id: image_ids_to_delete).each(&:purge)
+      end
+      
+      # Only add new images if provided
+      if params[:journal_entry][:images].present? && params[:journal_entry][:images].reject(&:blank?).any?
+        @journal_entry.images.attach(params[:journal_entry][:images].reject(&:blank?))
+      end
+      
+      flash[:alert_message] = 'Journal entry updated! ✏️'
+      redirect_to journal_trip_path(@trip)
     else
-      redirect_to go_trip_path(@trip), alert: 'Could not update journal entry.'
+      render :edit
     end
   end
 
@@ -66,6 +85,7 @@ class JournalEntriesController < ApplicationController
     end
   end
 
+
   private
 
   def generate_csv(journal_entries)
@@ -88,6 +108,6 @@ class JournalEntriesController < ApplicationController
   end
 
   def journal_entry_params
-    params.require(:journal_entry).permit(:content, :location, :entry_date, :favorite, :latitude, :longitude, :category, :global_favorite, images: [])
+    params.require(:journal_entry).permit(:content, :location, :entry_date, :favorite, :latitude, :longitude, :category, :global_favorite, :images_to_delete, images: [])
   end
 end

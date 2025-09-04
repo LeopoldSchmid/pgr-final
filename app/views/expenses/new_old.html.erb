@@ -1,0 +1,189 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4 mb-4">
+    <%= link_to trip_expenses_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center" do %>
+      <span class="mr-2">←</span> Back to Expenses • <span class="ml-2">Add New Expense</span>
+    <% end %>
+  </div>
+
+  <!-- Add Expense Form -->
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4">
+    <%= form_with model: [@trip, @expense], local: true, class: "space-y-4", 
+        data: { controller: "image-preview expense-split" } do |form| %>
+      
+      <!-- Basic Info -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <%= form.label :amount, "Amount", class: "block text-text-primary font-medium mb-1 text-sm" %>
+          <div class="relative">
+            <%= form.number_field :amount, 
+                step: 0.01, placeholder: "25.50", required: true,
+                data: { action: "input->expense-split#calculateRemaining" },
+                class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+            <span class="absolute right-2 top-2 text-text-secondary text-xs">EUR</span>
+          </div>
+        </div>
+        
+        <div>
+          <%= form.label :category, "Category", class: "block text-text-primary font-medium mb-1 text-sm" %>
+          <%= form.select :category, 
+              options_for_select([
+                ['🍽️ Food', 'food'], ['🏨 Hotel', 'accommodation'], 
+                ['🚗 Transport', 'transport'], ['🎯 Activity', 'activities'],
+                ['🛒 Shopping', 'shopping'], ['💰 Other', 'other']
+              ], @expense.category),
+              {}, class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
+        
+        <div>
+          <%= form.label :payer_id, "Who Paid", class: "block text-text-primary font-medium mb-1 text-sm" %>
+          <%= form.select :payer_id, 
+              options_for_select(@trip_members.uniq.map { |member| 
+                [member.email_address.split('@').first + (member == Current.user ? ' (You)' : ''), member.id] 
+              }, Current.user.id),
+              {}, class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
+        
+        <div>
+          <%= form.label :expense_date, "Date", class: "block text-text-primary font-medium mb-1 text-sm" %>
+          <%= form.date_field :expense_date, 
+              class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <%= form.label :description, "Description", class: "block text-text-primary font-medium mb-1 text-sm" %>
+        <%= form.text_field :description, 
+            placeholder: "Dinner at Café Central", required: true,
+            class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+      </div>
+
+      <!-- Receipt Upload -->
+      <div class="bg-blue-50 rounded-xl p-4">
+        <%= form.label :receipt, class: "block text-text-primary font-semibold mb-2" do %>
+          📷 Receipt (optional)
+        <% end %>
+        <%= form.file_field :receipt, 
+            accept: "image/*",
+            data: { 
+              image_preview_target: "input",
+              action: "change->image-preview#preview"
+            },
+            class: "w-full text-sm text-text-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-200 file:text-blue-800 hover:file:bg-blue-300 cursor-pointer" %>
+        
+        <!-- Receipt Preview -->
+        <div data-image-preview-target="container" class="mt-4 hidden">
+          <div class="relative inline-block">
+            <img data-image-preview-target="preview" 
+                 class="max-w-full h-48 object-cover rounded-lg shadow-md" 
+                 alt="Receipt preview">
+            <button type="button" 
+                    data-action="click->image-preview#removeImage"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors">
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Participants Selection and Splitting -->
+      <div class="bg-blue-50 rounded-xl p-4" data-controller="expense-split">
+        <h4 class="font-semibold text-text-primary mb-3">👥 How to split this expense?</h4>
+        
+        <!-- Split Type Selection -->
+        <div class="mb-4">
+          <div class="flex space-x-4">
+            <label class="flex items-center cursor-pointer">
+              <input type="radio" name="split_type" value="equal" checked 
+                     data-action="change->expense-split#toggleSplitType"
+                     class="mr-2 text-yellow-600 focus:ring-yellow-500">
+              <span class="text-yellow-800 font-medium">Split Equally</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input type="radio" name="split_type" value="custom" 
+                     data-action="change->expense-split#toggleSplitType"
+                     class="mr-2 text-yellow-600 focus:ring-yellow-500">
+              <span class="text-yellow-800 font-medium">Custom Amounts</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Equal Split (default) -->
+        <div data-expense-split-target="equalSplit">
+          <p class="text-yellow-700 text-sm mb-4">Select who should share this expense equally (defaults to everyone if none selected)</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <% @trip_members.uniq.each do |member| %>
+              <label class="flex items-center p-3 bg-white rounded-lg border border-yellow-300 cursor-pointer hover:bg-yellow-100 transition-colors">
+                <%= check_box_tag 'expense[participant_ids][]', member.id, true, 
+                    class: "mr-3 rounded scale-125 text-yellow-600 focus:ring-yellow-500" %>
+                <div>
+                  <span class="font-medium text-yellow-800"><%= member.email_address %></span>
+                  <% if member == Current.user %>
+                    <span class="text-yellow-600 text-sm ml-2">(You)</span>
+                  <% end %>
+                  <% if member == @trip.user %>
+                    <span class="text-yellow-600 text-sm ml-2">(Trip Owner)</span>
+                  <% end %>
+                </div>
+              </label>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Custom Split -->
+        <div data-expense-split-target="customSplit" class="hidden">
+          <p class="text-yellow-700 text-sm mb-4">Enter custom amounts for each participant (must add up to total amount)</p>
+          <div class="space-y-3">
+            <% @trip_members.uniq.each do |member| %>
+              <div class="flex items-center p-3 bg-white rounded-lg border border-yellow-300">
+                <input type="hidden" name="expense[custom_participant_ids][]" value="<%= member.id %>">
+                <div class="flex-1 mr-3">
+                  <span class="font-medium text-yellow-800"><%= member.email_address %></span>
+                  <% if member == Current.user %>
+                    <span class="text-yellow-600 text-sm ml-2">(You)</span>
+                  <% end %>
+                </div>
+                <div class="flex items-center">
+                  <%= number_field_tag "expense[custom_amounts][#{member.id}]", "0.00", 
+                      step: 0.01, min: 0,
+                      class: "w-24 p-2 border border-yellow-300 rounded-lg text-right focus:ring-yellow-500 focus:border-yellow-500",
+                      data: { action: "input->expense-split#calculateRemaining" } %>
+                  <span class="ml-2 text-yellow-600 text-sm">EUR</span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <div class="mt-3 p-3 bg-yellow-100 rounded-lg">
+            <div class="text-sm text-yellow-800">
+              <span>Total assigned: </span>
+              <span data-expense-split-target="totalAssigned" class="font-bold">0.00</span>
+              <span> EUR</span>
+            </div>
+            <div class="text-sm text-yellow-800">
+              <span>Remaining: </span>
+              <span data-expense-split-target="remaining" class="font-bold">0.00</span>
+              <span> EUR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <%= form.label :expense_date, class: "block text-purple-700 font-medium mb-2" do %>
+          📅 Date
+        <% end %>
+        <%= form.date_field :expense_date, 
+            class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="text-center pt-4">
+        <%= form.submit "💰 Add Expense", 
+            class: "bg-primary-accent text-background-primary px-8 py-4 rounded-xl font-bold hover:bg-blue-600 transition-all duration-200 shadow-lg hover:shadow-md text-lg" %>
+      </div>
+    <% end %>
+  </div>
+</div>

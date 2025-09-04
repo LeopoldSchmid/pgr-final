@@ -1,131 +1,167 @@
 <div class="container mx-auto px-4 py-6">
   <!-- Header -->
-  <div class="mb-6">
-    <%= link_to trip_expenses_path(@trip), class: "text-purple-700 hover:text-purple-900 font-medium flex items-center group mb-4" do %>
-      <span class="transform group-hover:-translate-x-1 transition-transform mr-2">💰</span> Back to Expenses
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4 mb-4">
+    <%= link_to trip_expenses_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center" do %>
+      <span class="mr-2">←</span> Back to Expenses • <span class="ml-2">Add New Expense</span>
     <% end %>
-    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-800 to-pink-700 bg-clip-text text-transparent">
-      Add New Expense
-    </h1>
-    <p class="text-purple-700 mt-2">Track a new expense for <%= @trip.name %></p>
   </div>
 
   <!-- Add Expense Form -->
-  <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-8">
-    <%= form_with model: [@trip, @expense], local: true, class: "space-y-6", 
-        data: { controller: "image-preview" } do |form| %>
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4">
+    <%= form_with model: [@trip, @expense], local: true, class: "space-y-4", 
+        data: { controller: "expense-split", action: "submit->expense-split#submitExpenseSplitForm", expense_split_page_value: "new" } do |form| %>
       
-      <!-- Amount and Category Row -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Amount -->
-        <div>
-          <%= form.label :amount, class: "block text-purple-700 font-medium mb-2" do %>
-            💰 Amount
-          <% end %>
-          <div class="relative">
+      <!-- Basic Info - Inline Labels and Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex items-center space-x-3">
+          <%= form.label :amount, "Amount", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
+          <div class="relative flex-1">
             <%= form.number_field :amount, 
-                step: 0.01,
-                placeholder: "25.50",
-                class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
-            <span class="absolute right-3 top-3 text-purple-600 text-sm">EUR</span>
+                step: 0.01, placeholder: "25.50", required: true,
+                data: { action: "input->expense-split#calculateRemaining" },
+                class: "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+            <span class="absolute right-2 top-2 text-text-secondary text-xs">EUR</span>
           </div>
         </div>
-
-        <!-- Category -->
-        <div>
-          <%= form.label :category, class: "block text-purple-700 font-medium mb-2" do %>
-            🏷️ Category
-          <% end %>
+        
+        <div class="flex items-center space-x-3">
+          <%= form.label :category, "Category", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
           <%= form.select :category, 
               options_for_select([
-                ['🍽️ Food & Drinks', 'food'],
-                ['🏨 Accommodation', 'accommodation'], 
-                ['🚗 Transport', 'transport'],
-                ['🎯 Activities', 'activities'],
-                ['🛒 Shopping', 'shopping'],
-                ['💰 Other', 'other']
+                ['🍽️ Food', 'food'], ['🏨 Hotel', 'accommodation'], 
+                ['🚗 Transport', 'transport'], ['🎯 Activity', 'activities'],
+                ['🛒 Shopping', 'shopping'], ['💰 Other', 'other']
               ], @expense.category),
-              {},
-              class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
+              {}, class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <%= form.label :payer_id, "Who Paid", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
+          <%= form.select :payer_id, 
+              options_for_select(@trip_members.uniq.map { |member| 
+                [member.email_address.split('@').first + (member == Current.user ? ' (You)' : ''), member.id] 
+              }, Current.user.id),
+              {}, class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <%= form.label :expense_date, "Date", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
+          <%= form.date_field :expense_date, 
+              class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
         </div>
       </div>
 
       <!-- Description -->
-      <div>
-        <%= form.label :description, class: "block text-purple-700 font-medium mb-2" do %>
-          📝 Description
-        <% end %>
+      <div class="flex items-center space-x-3">
+        <%= form.label :description, "Description", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
         <%= form.text_field :description, 
-            placeholder: "Dinner at Café Central",
-            class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
+            placeholder: "Dinner at Café Central", required: true,
+            class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
       </div>
 
       <!-- Receipt Upload -->
-      <div class="bg-purple-100 rounded-xl p-4">
-        <%= form.label :receipt, class: "block text-purple-800 font-semibold mb-2" do %>
-          📷 Receipt (optional)
-        <% end %>
-        <%= form.file_field :receipt, 
-            accept: "image/*",
-            data: { 
-              image_preview_target: "input",
-              action: "change->image-preview#preview"
-            },
-            class: "w-full text-sm text-purple-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-200 file:text-purple-800 hover:file:bg-purple-300 cursor-pointer" %>
-        
-        <!-- Receipt Preview -->
-        <div data-image-preview-target="container" class="mt-4 hidden">
-          <div class="relative inline-block">
-            <img data-image-preview-target="preview" 
-                 class="max-w-full h-48 object-cover rounded-lg shadow-md" 
-                 alt="Receipt preview">
-            <button type="button" 
-                    data-action="click->image-preview#removeImage"
-                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors">
-              ×
+      <div class="flex items-center space-x-3">
+        <%= form.label :receipt, "Receipt", class: "text-text-primary font-medium text-sm w-20 flex-shrink-0" %>
+        <div class="flex-1 flex items-center space-x-3">
+          <div class="relative">
+            <%= form.file_field :receipt, accept: "image/*", 
+                data: { action: "change->expense-split#previewReceipt" },
+                class: "absolute inset-0 w-full h-full opacity-0 cursor-pointer" %>
+            <button type="button" class="bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs border text-text-secondary">
+              Choose File
             </button>
+          </div>
+          <div data-expense-split-target="receiptPreview" class="hidden">
+            <img data-expense-split-target="receiptImage" class="h-8 w-8 object-cover rounded border" alt="Receipt preview">
           </div>
         </div>
       </div>
 
-
-      <!-- Participants Selection -->
-      <div class="bg-yellow-50 rounded-xl p-4">
-        <h4 class="font-semibold text-yellow-900 mb-3">👥 Who participated in this expense?</h4>
-        <p class="text-yellow-700 text-sm mb-4">Select who should share this expense (defaults to everyone if none selected)</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <% @trip_members.uniq.each do |member| %>
-            <label class="flex items-center p-3 bg-white rounded-lg border border-yellow-300 cursor-pointer hover:bg-yellow-100 transition-colors">
-              <%= check_box_tag 'expense[participant_ids][]', member.id, true, 
-                  class: "mr-3 rounded scale-125 text-yellow-600 focus:ring-yellow-500" %>
-              <div>
-                <span class="font-medium text-yellow-800"><%= member.email_address %></span>
-                <% if member == Current.user %>
-                  <span class="text-yellow-600 text-sm ml-2">(You)</span>
-                <% end %>
-                <% if member == @trip.user %>
-                  <span class="text-yellow-600 text-sm ml-2">(Trip Owner)</span>
-                <% end %>
-              </div>
+      <!-- Split Type -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-medium text-text-primary">Split Among</h4>
+          <div class="flex space-x-3 text-sm">
+            <label class="flex items-center cursor-pointer">
+              <input type="radio" name="split_type" value="equal" checked 
+                     data-action="change->expense-split#toggleSplitType"
+                     class="mr-1">
+              <span>Equal</span>
             </label>
-          <% end %>
+            <label class="flex items-center cursor-pointer">
+              <input type="radio" name="split_type" value="custom" 
+                     data-action="change->expense-split#toggleSplitType"
+                     class="mr-1">
+              <span>Custom</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Equal Split -->
+        <div data-expense-split-target="equalSplit">
+          <div class="space-y-2 text-sm">
+            <% @trip_members.uniq.each do |member| %>
+              <label class="flex items-center justify-between p-2 bg-background-primary rounded border cursor-pointer hover:bg-blue-50">
+                <div class="flex items-center">
+                  <%= check_box_tag 'expense[participant_ids][]', member.id, true, 
+                      class: "mr-2", data: { action: "change->expense-split#handleEqualAmountUpdate" } %>
+                  <%= member.email_address.split('@').first %><%= ' (You)' if member == Current.user %>
+                </div>
+                <span class="text-right font-medium" data-expense-split-target="equalAmount<%= member.id %>">0.00 EUR</span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Custom Split -->
+        <div data-expense-split-target="customSplit" class="hidden">
+          <div class="space-y-2 text-sm">
+            <% @trip_members.uniq.each do |member| %>
+              <div class="flex items-center justify-between p-2 bg-background-primary rounded border"
+                   data-expense-split-target="customRow<%= member.id %>">
+                <div class="flex items-center">
+                  <input type="checkbox" 
+                         data-expense-split-target="customParticipant<%= member.id %>"
+                         data-action="change->expense-split#toggleCustomParticipant"
+                         data-member-id="<%= member.id %>"
+                         class="mr-2" checked>
+                  <span><%= member.email_address.split('@').first %><%= ' (You)' if member == Current.user %></span>
+                </div>
+                <div class="flex items-center">
+                  <%= number_field_tag "expense[custom_amounts][#{member.id}]", "0.00", 
+                      step: 0.01, min: 0,
+                      class: "w-16 p-1 border rounded text-right text-xs",
+                      data: { 
+                        action: "input->expense-split#calculateRemaining",
+                        expense_split_target: "customAmount#{member.id}"
+                      } %>
+                  <span class="ml-1 text-xs">EUR</span>
+                </div>
+              </div>
+            <% end %>
+            <div class="flex justify-between items-center bg-blue-50 p-2 rounded text-xs">
+              <button type="button" 
+                      data-action="click->expense-split#splitEvenly"
+                      class="text-blue-600 hover:text-blue-800 font-medium">
+                ↻ Split Evenly Among Selected
+              </button>
+              <div>
+                <span>Remaining: </span>
+                <span data-expense-split-target="remaining" class="font-bold">0.00</span> EUR
+                <span data-expense-split-target="validationError" class="text-red-600 ml-2 hidden">⚠ Must equal total</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Date -->
-      <div>
-        <%= form.label :expense_date, class: "block text-purple-700 font-medium mb-2" do %>
-          📅 Date
+      <!-- Submit -->
+      <div class="flex justify-end space-x-3">
+        <%= link_to trip_expenses_path(@trip), class: "px-4 py-2 text-text-secondary hover:text-text-primary" do %>
+          Cancel
         <% end %>
-        <%= form.date_field :expense_date, 
-            class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
-      </div>
-
-      <!-- Submit Button -->
-      <div class="text-center pt-4">
-        <%= form.submit "💰 Add Expense", 
-            class: "bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg transform hover:scale-105 text-lg" %>
+        <%= form.submit "Add Expense", 
+            class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
       </div>
     <% end %>
   </div>

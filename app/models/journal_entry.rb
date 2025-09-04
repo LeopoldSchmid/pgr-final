@@ -13,7 +13,7 @@ class JournalEntry < ApplicationRecord
   validates :category, inclusion: { in: %w(restaurant hotel attraction transport shopping other), allow_nil: true }
   
   scope :favorites, -> { where(favorite: true) }
-  scope :by_date, -> { order(:entry_date, :created_at) }
+  scope :by_date, -> { order(entry_date: :desc, created_at: :desc) }
   scope :recent, -> { order(created_at: :desc) }
   scope :with_location, -> { where.not(latitude: nil, longitude: nil) }
   scope :with_images, -> { joins(:images_attachments).distinct }

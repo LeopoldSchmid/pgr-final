@@ -1,0 +1,17 @@
+owner:
+  email_address: owner@example.com
+  password_digest: <%= BCrypt::Password.create('password', cost: 4) %>
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+member:
+  email_address: member@example.com  
+  password_digest: <%= BCrypt::Password.create('password', cost: 4) %>
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+other_user:
+  email_address: other@example.com
+  password_digest: <%= BCrypt::Password.create('password', cost: 4) %>
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>

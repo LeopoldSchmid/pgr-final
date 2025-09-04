@@ -104,15 +104,24 @@
       </div>
     <% end %>
 
+    <!-- JavaScript Alert Messages -->
+    <% if flash[:alert_message] %>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          alert('<%= j(flash[:alert_message]) %>');
+        });
+      </script>
+    <% end %>
+
     <!-- Flash messages -->
     <% if notice %>
-      <div class="bg-accent-green bg-opacity-20 border border-accent-green text-accent-green px-4 py-3 rounded-lg mx-4 mt-4">
+      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mx-4 mt-4">
         <%= notice %>
       </div>
     <% end %>
 
     <% if alert %>
-      <div class="bg-accent-red bg-opacity-20 border border-accent-red text-accent-red px-4 py-3 rounded-lg mx-4 mt-4">
+      <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mx-4 mt-4">
         <%= alert %>
       </div>
     <% end %>

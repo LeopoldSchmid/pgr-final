@@ -1,0 +1,24 @@
+lunch_owner:
+  expense: lunch
+  user: owner
+  amount_owed: 22.75
+
+lunch_member:
+  expense: lunch
+  user: member  
+  amount_owed: 22.75
+
+hotel_owner:
+  expense: hotel
+  user: owner
+  amount_owed: 60.00
+
+hotel_member:
+  expense: hotel
+  user: member
+  amount_owed: 60.00
+
+transport_owner:
+  expense: transport
+  user: owner
+  amount_owed: 25.00

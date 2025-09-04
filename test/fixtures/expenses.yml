@@ -1,0 +1,32 @@
+lunch:
+  amount: 45.50
+  description: "Lunch at Café Central"
+  category: food
+  expense_date: <%= Date.current %>
+  currency: EUR
+  trip: planning
+  payer: owner
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+hotel:
+  amount: 120.00
+  description: "Hotel Night 1"
+  category: accommodation
+  expense_date: <%= Date.current - 1.day %>
+  currency: EUR
+  trip: planning 
+  payer: member
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+transport:
+  amount: 25.00
+  description: "Taxi to airport"
+  category: transport
+  expense_date: <%= Date.current %>
+  currency: EUR
+  trip: active
+  payer: owner
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
