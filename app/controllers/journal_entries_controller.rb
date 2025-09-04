@@ -53,8 +53,14 @@ class JournalEntriesController < ApplicationController
   end
 
   def destroy
-    @journal_entry.destroy
-    redirect_to go_trip_path(@trip), notice: 'Journal entry deleted! 🗑️'
+    Rails.logger.info "Attempting to destroy journal entry #{@journal_entry.id}"
+    if @journal_entry.destroy
+      Rails.logger.info "Journal entry #{@journal_entry.id} destroyed successfully"
+      redirect_to go_trip_path(@trip), notice: 'Journal entry deleted! 🗑️'
+    else
+      Rails.logger.error "Failed to destroy journal entry #{@journal_entry.id}: #{@journal_entry.errors.full_messages.join(', ')}"
+      redirect_to go_trip_path(@trip), alert: "Could not delete journal entry: #{@journal_entry.errors.full_messages.join(', ')}"
+    end
   end
 
   def toggle_favorite
