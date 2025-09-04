@@ -1,6 +1,8 @@
 class TripAttachment < ApplicationRecord
   belongs_to :trip
   belongs_to :user
+  has_many :trip_attachment_comments, dependent: :destroy
+  has_many :discussion_votes, as: :votable, dependent: :destroy
 
   has_many_attached :files
 
@@ -13,6 +15,23 @@ class TripAttachment < ApplicationRecord
   # Backward compatibility method
   def file
     files.first
+  end
+
+  # Instagram-like functionality
+  def likes_count
+    discussion_votes.upvotes.count
+  end
+
+  def comments_count
+    trip_attachment_comments.count
+  end
+
+  def user_liked?(user)
+    discussion_votes.exists?(user: user, vote_type: 'upvote')
+  end
+
+  def user_vote(user)
+    discussion_votes.find_by(user: user)&.vote_type
   end
 
   private

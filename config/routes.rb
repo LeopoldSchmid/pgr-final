@@ -42,6 +42,7 @@ Rails.application.routes.draw do
       delete :bulk_destroy, on: :collection
       get :bulk_export, on: :collection
       resources :comments, only: [:create, :destroy]
+      resource :journal_entry_vote, only: [:create], path: 'vote'
     end
     
     # Expenses nested under trips
@@ -54,7 +55,10 @@ Rails.application.routes.draw do
     
     # Invitations nested under trips
     resources :invitations, only: [:new, :create, :index, :destroy]
-    resources :trip_attachments, only: [:create, :update, :destroy]
+    resources :trip_attachments, only: [:create, :update, :destroy] do
+      resources :trip_attachment_comments, only: [:create, :destroy], path: 'comments'
+      resource :trip_attachment_vote, only: [:create], path: 'vote'
+    end
     
     # Discussions nested under trips
     resources :discussions do

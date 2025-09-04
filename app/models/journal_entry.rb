@@ -4,6 +4,7 @@ class JournalEntry < ApplicationRecord
   
   has_many_attached :images
   has_many :comments, dependent: :destroy
+  has_many :discussion_votes, as: :votable, dependent: :destroy
   
   validates :content, presence: true
   validates :entry_date, presence: true
@@ -39,5 +40,22 @@ class JournalEntry < ApplicationRecord
     return location if location.present?
     return "📍 #{latitude.round(4)}, #{longitude.round(4)}" if has_location?
     nil
+  end
+
+  # Instagram-like functionality
+  def likes_count
+    discussion_votes.upvotes.count
+  end
+
+  def comments_count
+    comments.count
+  end
+
+  def user_liked?(user)
+    discussion_votes.exists?(user: user, vote_type: 'upvote')
+  end
+
+  def user_vote(user)
+    discussion_votes.find_by(user: user)&.vote_type
   end
 end

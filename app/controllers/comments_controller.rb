@@ -8,16 +8,16 @@ class CommentsController < ApplicationController
     @comment.user = Current.user
 
     if @comment.save
-      redirect_to reminisce_trip_path(@trip), notice: 'Comment added!'
+      redirect_to journal_trip_path(@trip), notice: 'Comment added!'
     else
-      redirect_to reminisce_trip_path(@trip), alert: 'Could not add comment.'
+      redirect_to journal_trip_path(@trip), alert: 'Could not add comment.'
     end
   end
 
   def destroy
     @comment = @journal_entry.comments.find(params[:id])
     @comment.destroy
-    redirect_to reminisce_trip_path(@trip), notice: 'Comment deleted!'
+    redirect_to journal_trip_path(@trip), notice: 'Comment deleted!'
   end
 
   private

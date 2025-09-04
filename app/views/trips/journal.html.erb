@@ -186,6 +186,76 @@
               <% end %>
             </div>
           </div>
+
+          <!-- Instagram-like Actions -->
+          <div class="mt-4 pt-3 border-t border-gray-100">
+            <!-- Like Button and Count -->
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-4">
+                <%= button_to trip_journal_entry_journal_entry_vote_path(@trip, entry), method: :post,
+                              remote: true,
+                              class: "flex items-center space-x-1 text-gray-600 hover:text-red-500 transition-colors #{'text-red-500' if entry.user_liked?(Current.user)}",
+                              data: { 
+                                journal_entry_id: entry.id,
+                                turbo_stream: true
+                              } do %>
+                  <svg class="w-5 h-5 #{'fill-current' if entry.user_liked?(Current.user)}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                  </svg>
+                <% end %>
+                
+                <button class="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition-colors" onclick="toggleComments('entry-<%= entry.id %>')">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="text-sm text-gray-600">
+                <span id="likes-count-entry-<%= entry.id %>"><%= entry.likes_count %></span> like<%= 's' unless entry.likes_count == 1 %>
+                • <%= entry.comments_count %> comment<%= 's' unless entry.comments_count == 1 %>
+              </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div id="comments-section-entry-<%= entry.id %>" class="hidden">
+              <!-- Existing Comments -->
+              <div class="space-y-2 mb-3">
+                <% entry.comments.order(created_at: :desc).limit(3).each do |comment| %>
+                  <div class="flex items-start space-x-2 text-sm">
+                    <span class="font-medium text-gray-700"><%= comment.user.email_address.split('@').first %>:</span>
+                    <span class="text-gray-600 flex-1"><%= comment.content %></span>
+                    <% if comment.user == Current.user || @trip.user == Current.user %>
+                      <%= button_to trip_journal_entry_comment_path(@trip, entry, comment), 
+                                    method: :delete,
+                                    data: { confirm: "Delete this comment?" },
+                                    class: "text-gray-400 hover:text-red-500 text-xs" do %>
+                        ×
+                      <% end %>
+                    <% end %>
+                  </div>
+                <% end %>
+                
+                <% if entry.comments_count > 3 %>
+                  <button class="text-xs text-gray-500 hover:text-gray-700" onclick="loadAllComments('entry-<%= entry.id %>')">
+                    View all <%= entry.comments_count %> comments
+                  </button>
+                <% end %>
+              </div>
+
+              <!-- Add Comment Form -->
+              <%= form_with model: [@trip, entry, Comment.new], 
+                            local: true,
+                            class: "flex items-center space-x-2" do |form| %>
+                <%= form.text_field :content, 
+                                  placeholder: "Add a comment...", 
+                                  class: "flex-1 text-sm border-none bg-gray-50 rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400",
+                                  maxlength: 500 %>
+                <%= form.submit "Post", 
+                              class: "text-sm text-blue-500 hover:text-blue-700 font-medium px-2 py-1" %>
+              <% end %>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>
@@ -218,6 +288,23 @@
   <% end %>
 
 </div>
+
+<script>
+// Instagram-like functionality for journal entries
+function toggleComments(entryId) {
+  const commentsSection = document.getElementById(`comments-section-${entryId}`);
+  if (commentsSection.classList.contains('hidden')) {
+    commentsSection.classList.remove('hidden');
+  } else {
+    commentsSection.classList.add('hidden');
+  }
+}
+
+function loadAllComments(entryId) {
+  // This could be implemented later to load all comments via AJAX
+  console.log(`Loading all comments for ${entryId}`);
+}
+</script>
 
 <!-- Simple Lightbox Modal -->
 <div id="lightbox-modal" class="fixed inset-0 backdrop-blur-md bg-black bg-opacity-40 hidden items-center justify-center z-50" data-controller="gallery">
