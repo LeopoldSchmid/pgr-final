@@ -57,7 +57,7 @@
           </div>
         </div>
         
-        <%= form_with url: bulk_destroy_trip_journal_entries_path(@trip), method: :delete, data: { bulk_actions_target: "form" } do |f| %>
+        <%= form_with url: bulk_destroy_trip_journal_entries_path(@trip), method: :delete, data: { "bulk-actions-target": "form" } do |f| %>
           <% @journal_entries.each do |entry| %>
             <div class="bg-background-secondary rounded-2xl shadow-lg p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400' : '' %>">
               <div class="flex items-start justify-between mb-4">

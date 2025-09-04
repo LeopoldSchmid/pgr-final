@@ -44,128 +44,151 @@
   <!-- Journal Entries -->
   <% if @journal_entries.any? %>
     
-    <!-- Bulk Actions (if needed) -->
-    <div class="mb-4" data-controller="bulk-actions" data-bulk-actions-trip-id="<%= @trip.id %>">
-      <div class="flex items-center justify-between text-sm text-text-secondary">
-        <label class="flex items-center">
-          <input type="checkbox" data-action="bulk-actions#toggleAll" class="mr-2 rounded"> 
-          Select all for bulk actions
-        </label>
-        <div class="flex space-x-2">
-          <button type="button" 
-                  data-action="bulk-actions#deleteSelected" 
-                  data-bulk-actions-target="deleteButton"
-                  class="bg-red-500 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-600 transition-colors hidden">
-            Delete Selected
-          </button>
-          <button type="button" 
-                  data-action="bulk-actions#exportSelected" 
-                  data-bulk-actions-target="exportButton"
-                  class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-600 transition-colors hidden">
-            Export Selected
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Entry List -->
-    <%= form_with url: bulk_destroy_trip_journal_entries_path(@trip), method: :delete, data: { bulk_actions_target: "form" } do |f| %>
-      <div class="space-y-4">
-        <% @journal_entries.each do |entry| %>
-          <div class="bg-background-secondary rounded-xl shadow-sm p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400 ring-opacity-50' : '' %>">
-            
-            <!-- Entry Header -->
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <input type="checkbox" 
-                       name="journal_entry_ids[]" 
-                       value="<%= entry.id %>" 
-                       data-action="bulk-actions#toggleEntry" 
-                       class="rounded">
-                
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <h3 class="font-bold text-text-primary">
-                      <%= entry.entry_date.strftime("%B %d, %Y") %>
-                    </h3>
-                    <% if entry.favorite? %>
-                      <span class="text-yellow-500">★</span>
-                    <% end %>
-                  </div>
-                  <div class="text-sm text-text-secondary">
-                    <%= entry.user.email_address %> • <%= time_ago_in_words(entry.created_at) %> ago
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Entry Actions -->
-              <div class="flex space-x-2">
-                <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), 
-                    method: :patch, 
-                    class: "text-yellow-500 hover:text-yellow-600 #{entry.favorite? ? 'opacity-100' : 'opacity-50'} transition-opacity" do %>
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                <% end %>
-                
-                <%= link_to trip_journal_entry_path(@trip, entry), 
-                    method: :delete,
-                    class: "text-red-500 hover:text-red-600 transition-colors",
-                    data: { confirm: "Delete this memory?" } do %>
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                <% end %>
-              </div>
-            </div>
-
-            <!-- Entry Images -->
-            <% if entry.images.attached? %>
-              <div class="mb-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-                <% entry.images.each do |image| %>
-                  <%= image_tag image.variant(resize_to_limit: [400, 400], quality: 80), 
-                      class: "w-full h-32 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer" %>
-                <% end %>
-              </div>
-            <% end %>
-
-            <!-- Entry Content -->
-            <div class="text-text-primary leading-relaxed mb-4">
-              <%= format_journal_content(entry.content) %>
-            </div>
-
-            <!-- Entry Location and Metadata -->
-            <div class="flex items-center justify-between text-sm text-text-secondary pt-4 border-t border-gray-200">
-              <div class="flex items-center space-x-4">
-                <% if entry.location_name %>
-                  <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <%= entry.location_name %>
-                  </div>
-                <% end %>
-                
-                <% if entry.category %>
-                  <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
-                    <%= entry.category.capitalize %>
-                  </span>
-                <% end %>
-              </div>
-              
+    <div class="space-y-4">
+      <% @journal_entries.each do |entry| %>
+        <div class="bg-background-secondary rounded-xl shadow-sm p-6 <%= entry.favorite? ? 'ring-2 ring-yellow-400 ring-opacity-50' : '' %>">
+          
+          <!-- Entry Header -->
+          <div class="flex items-start justify-between mb-4">
+            <div>
               <div class="flex items-center space-x-2">
-                <% if entry.has_location? %>
-                  <%= link_to map_trip_path(@trip), class: "text-primary-accent hover:underline" do %>
-                    View on map
-                  <% end %>
+                <h3 class="font-bold text-text-primary">
+                  <%= entry.entry_date.strftime("%B %d, %Y") %>
+                </h3>
+                <% if entry.favorite? %>
+                  <span class="text-yellow-500">★</span>
                 <% end %>
               </div>
+              <div class="text-sm text-text-secondary">
+                <%= entry.user.email_address %> • <%= time_ago_in_words(entry.created_at) %> ago
+              </div>
+            </div>
+            
+            <!-- Entry Actions -->
+            <div class="flex space-x-2">
+              <%= link_to toggle_favorite_trip_journal_entry_path(@trip, entry), 
+                  method: :patch, 
+                  class: "text-yellow-500 hover:text-yellow-600 #{entry.favorite? ? 'opacity-100' : 'opacity-50'} transition-opacity" do %>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              <% end %>
+              
+              <%= link_to trip_journal_entry_path(@trip, entry), 
+                  method: :delete,
+                  class: "text-red-500 hover:text-red-600 transition-colors",
+                  data: { confirm: "Delete this memory?" } do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              <% end %>
             </div>
           </div>
-        <% end %>
-      </div>
-    <% end %>
+
+          <!-- Entry Images -->
+          <% if entry.images.attached? %>
+            <% if entry.images.count == 1 %>
+              <!-- Single image - no carousel needed -->
+              <div class="mb-4">
+                <%= image_tag entry.images.first.variant(resize_to_limit: [600, 600]), 
+                    class: "w-full max-w-md mx-auto h-64 object-cover rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]",
+                    data: { 
+                      action: "click->gallery#openLightbox", 
+                      gallery_image_url: rails_blob_path(entry.images.first.variant(resize_to_limit: [1200, 1200])),
+                      gallery_caption: "#{entry.entry_date.strftime('%B %d, %Y')} - #{entry.location_name}"
+                    } %>
+              </div>
+            <% else %>
+              <!-- Multiple images - carousel -->
+              <div class="mb-4 relative bg-gray-50 rounded-lg overflow-hidden" data-controller="image-carousel" data-image-carousel-total-value="<%= entry.images.count %>">
+                <!-- Image counter -->
+                <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs z-10">
+                  <span data-image-carousel-target="counter">1</span>/<%= entry.images.count %>
+                </div>
+                
+                <!-- Main display area -->
+                <div class="relative h-64 bg-white rounded-lg overflow-hidden">
+                  <div data-image-carousel-target="container" class="flex transition-transform duration-300 ease-in-out h-full">
+                    <% entry.images.each_with_index do |image, index| %>
+                      <div class="flex-shrink-0 w-full h-full">
+                        <%= image_tag image.variant(resize_to_limit: [600, 600]), 
+                            class: "w-full h-full object-cover cursor-pointer",
+                            data: { 
+                              action: "click->gallery#openLightbox", 
+                              gallery_image_url: rails_blob_path(image.variant(resize_to_limit: [1200, 1200])),
+                              gallery_caption: "#{entry.entry_date.strftime('%B %d, %Y')} - #{entry.location_name}"
+                            } %>
+                      </div>
+                    <% end %>
+                  </div>
+                  
+                  <!-- Navigation arrows -->
+                  <button type="button" 
+                          data-action="image-carousel#previousImage"
+                          class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold hover:bg-opacity-75 transition-opacity">
+                    ‹
+                  </button>
+                  <button type="button"
+                          data-action="image-carousel#nextImage" 
+                          class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold hover:bg-opacity-75 transition-opacity">
+                    ›
+                  </button>
+                </div>
+                
+                <!-- Thumbnail strip -->
+                <div class="flex gap-1 justify-center p-2 bg-gray-100 overflow-x-auto">
+                  <% entry.images.each_with_index do |image, index| %>
+                    <button type="button"
+                            data-action="image-carousel#goToImage"
+                            data-image-carousel-index-param="<%= index %>"
+                            class="flex-shrink-0 w-12 h-12 rounded overflow-hidden border-2 <%= index == 0 ? 'border-blue-500' : 'border-transparent' %>"
+                            data-image-carousel-target="thumbnail">
+                      <%= image_tag image.variant(resize_to_limit: [100, 100]), 
+                          class: "w-full h-full object-cover" %>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+
+          <!-- Entry Content -->
+          <div class="text-text-primary leading-relaxed mb-4">
+            <%= format_journal_content(entry.content) %>
+          </div>
+
+          <!-- Entry Location and Metadata -->
+          <div class="flex items-center justify-between text-sm text-text-secondary pt-4 border-t border-gray-200">
+            <div class="flex items-center space-x-4">
+              <% if entry.location_name %>
+                <div class="flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <%= entry.location_name %>
+                </div>
+              <% end %>
+              
+              <% if entry.category %>
+                <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
+                  <%= entry.category.capitalize %>
+                </span>
+              <% end %>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <% if entry.has_location? %>
+                <%= link_to map_trip_path(@trip), class: "text-primary-accent hover:underline" do %>
+                  View on map
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
 
   <% else %>
     <!-- Empty State -->
@@ -194,4 +217,15 @@
     </div>
   <% end %>
 
+</div>
+
+<!-- Simple Lightbox Modal -->
+<div id="lightbox-modal" class="fixed inset-0 backdrop-blur-md bg-black bg-opacity-40 hidden items-center justify-center z-50" data-controller="gallery">
+  <div class="relative max-w-4xl max-h-full p-4">
+    <button data-action="gallery#closeLightbox" class="absolute -top-4 -right-4 text-white text-2xl hover:text-gray-300 z-10">
+      ×
+    </button>
+    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+    <div id="lightbox-caption" class="text-white text-center mt-4 text-sm"></div>
+  </div>
 </div>

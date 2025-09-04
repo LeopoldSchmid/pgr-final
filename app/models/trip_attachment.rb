@@ -2,29 +2,43 @@ class TripAttachment < ApplicationRecord
   belongs_to :trip
   belongs_to :user
 
-  has_one_attached :file
+  has_many_attached :files
 
   validates :name, presence: true
-  validate :file_presence
-  validate :file_size_validation
-  validate :file_content_type_validation
+  validate :files_presence
+  validate :files_size_validation
+  validate :files_content_type_validation
+  validate :files_count_validation
+
+  # Backward compatibility method
+  def file
+    files.first
+  end
 
   private
 
-  def file_presence
-    errors.add(:file, 'must be attached') unless file.attached?
+  def files_presence
+    errors.add(:files, 'must be attached') unless files.attached?
   end
 
-  def file_size_validation
-    return unless file.attached?
+  def files_size_validation
+    return unless files.attached?
 
-    if file.blob.byte_size > 10.megabytes
-      errors.add(:file, 'must be less than 10MB')
+    files.each_with_index do |file, index|
+      if file.blob.byte_size > 10.megabytes
+        errors.add(:files, "file #{index + 1} must be less than 10MB")
+      end
+    end
+
+    # Total size validation (50MB for all files combined)
+    total_size = files.sum { |file| file.blob.byte_size }
+    if total_size > 50.megabytes
+      errors.add(:files, 'total size must be less than 50MB')
     end
   end
 
-  def file_content_type_validation
-    return unless file.attached?
+  def files_content_type_validation
+    return unless files.attached?
 
     acceptable_types = %w[
       image/jpeg image/jpg image/png image/gif image/webp 
@@ -33,8 +47,18 @@ class TripAttachment < ApplicationRecord
       text/plain text/csv
     ]
 
-    unless acceptable_types.include?(file.blob.content_type)
-      errors.add(:file, 'must be a valid file type (images, PDFs, documents, or text files)')
+    files.each_with_index do |file, index|
+      unless acceptable_types.include?(file.blob.content_type)
+        errors.add(:files, "file #{index + 1} must be a valid file type (images, PDFs, documents, or text files)")
+      end
+    end
+  end
+
+  def files_count_validation
+    return unless files.attached?
+
+    if files.count > 10
+      errors.add(:files, 'cannot upload more than 10 files at once')
     end
   end
 end

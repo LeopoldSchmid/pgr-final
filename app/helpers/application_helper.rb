@@ -7,8 +7,21 @@ module ApplicationHelper
     # First apply simple_format for line breaks and paragraphs
     formatted_content = simple_format(content)
 
-    # Then auto-link URLs
-    auto_link(formatted_content)
+    # Then auto-link URLs using a custom implementation
+    auto_link_urls(formatted_content)
+  end
+
+  private
+
+  def auto_link_urls(text)
+    return text unless text.present?
+    
+    # Simple URL regex pattern - more conservative
+    url_pattern = /(https?:\/\/[^\s<>"]+)/i
+
+    text.gsub(url_pattern) do |url|
+      %(<a href="#{url}" target="_blank" rel="noopener noreferrer" class="text-primary-accent hover:underline">#{url}</a>)
+    end.html_safe
   end
 
   # Navigation context helpers

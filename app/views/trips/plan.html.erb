@@ -157,41 +157,40 @@
     </h3>
 
     <!-- Attachment Upload Form -->
-    <%= form_with(model: [@trip, TripAttachment.new], local: true, class: "mb-4", data: { controller: "attachment-form" }) do |form| %>
+    <%= form_with(model: [@trip, TripAttachment.new], local: true, class: "mb-4", data: { controller: "multi-attachment-form" }) do |form| %>
       <div class="flex flex-col gap-3">
         <div class="flex flex-col sm:flex-row gap-2">
-          <%= form.text_field :name, placeholder: "Attachment name...", class: "flex-grow bg-background-primary border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-accent focus:border-primary-accent sm:min-w-0", required: true, data: { attachment_form_target: "nameInput" } %>
-          <%= form.file_field :file, class: "text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-accent file:text-white hover:file:bg-primary-accent-dark", required: true, data: { attachment_form_target: "fileInput", action: "change->attachment-form#fileSelected" } %>
-          <%= form.submit "Upload", class: "bg-primary-accent text-white font-bold py-2 px-4 rounded-md hover:bg-primary-accent-dark cursor-pointer whitespace-nowrap" %>
+          <%= form.text_field :name, placeholder: "Memory name...", class: "flex-grow bg-background-primary border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-accent focus:border-primary-accent sm:min-w-0", required: true, data: { multi_attachment_form_target: "nameInput" } %>
+          <%= form.file_field :files, multiple: true, accept: "image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv", class: "text-sm text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-accent file:text-white hover:file:bg-primary-accent-dark", required: true, data: { multi_attachment_form_target: "fileInput", action: "change->multi-attachment-form#filesSelected" }, onchange: "console.log('File input changed:', this.files); if(this.files.length > 0) { document.querySelector('[data-multi-attachment-form-target=\"uploadButton\"]').textContent = 'Upload ' + this.files.length + ' file' + (this.files.length > 1 ? 's' : ''); }" %>
+          <%= form.submit "Upload", class: "bg-primary-accent text-white font-bold py-2 px-4 rounded-md hover:bg-primary-accent-dark cursor-pointer whitespace-nowrap", data: { multi_attachment_form_target: "uploadButton" } %>
         </div>
         
         <!-- File Preview -->
-        <div data-attachment-form-target="previewContainer" class="hidden">
+        <div data-multi-attachment-form-target="previewContainer" class="hidden">
           <!-- Preview content will be populated by Stimulus controller -->
         </div>
         
-        <!-- Remove File Button (shown when file is selected) -->
-        <button type="button" data-action="attachment-form#removeFile" class="hidden text-sm text-gray-500 hover:text-gray-700 self-start" data-attachment-form-target="removeButton">
-          Remove selected file
+        <!-- Remove Files Button (shown when files are selected) -->
+        <button type="button" data-action="multi-attachment-form#removeFiles" class="hidden text-sm text-gray-500 hover:text-gray-700 self-start" data-multi-attachment-form-target="removeButton">
+          Remove selected files
         </button>
       </div>
     <% end %>
 
     <!-- Attachments List -->
-    <div class="space-y-2">
-      <% @trip.trip_attachments.includes(:user, file_attachment: :blob).each do |attachment| %>
-        <% if attachment.file.attached? %>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-background-primary rounded-lg">
-            <div class="flex-grow min-w-0">
-              <div class="flex items-center gap-2">
-                <button data-action="attachment-preview#previewFile" 
-                        data-file-url="<%= rails_blob_path(attachment.file) %>"
-                        data-file-name="<%= attachment.name %>"
-                        data-file-type="<%= attachment.file.blob.content_type %>"
-                        data-download-url="<%= rails_blob_path(attachment.file, disposition: 'attachment') %>"
-                        class="font-medium text-primary-accent hover:underline break-all text-left">
-                  📎 <span data-attachment-name="<%= attachment.id %>"><%= attachment.name %></span>
-                </button>
+    <div class="space-y-4">
+      <% @trip.trip_attachments.includes(:user).with_attached_files.each do |attachment| %>
+        <% if attachment.files.attached? %>
+          <% image_files = attachment.files.select { |file| file.blob.content_type&.start_with?('image/') } %>
+          <% other_files = attachment.files.reject { |file| file.blob.content_type&.start_with?('image/') } %>
+          
+          <div class="bg-background-primary rounded-lg p-4">
+            <!-- Attachment Header -->
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2 flex-grow min-w-0">
+                <h4 class="font-medium text-text-primary">
+                  <span data-attachment-name="<%= attachment.id %>"><%= attachment.name %></span>
+                </h4>
                 <button onclick="editAttachmentName(<%= attachment.id %>, '<%= attachment.name.gsub("'", "\\'") %>')"
                         class="text-gray-400 hover:text-blue-500 p-1" 
                         title="Edit name">
@@ -200,35 +199,147 @@
                   </svg>
                 </button>
               </div>
-              <div class="text-sm text-text-secondary mt-1">
-                Uploaded by <%= attachment.user.email_address %> • 
-                <%= number_to_human_size(attachment.file.blob.byte_size) %>
-                <% if attachment.file.blob.content_type.present? %>
-                  • <%= attachment.file.blob.content_type %>
+              
+              <div class="flex items-center gap-2">
+                <!-- Delete Button -->
+                <%= button_to trip_trip_attachment_path(@trip, attachment), method: :delete, 
+                              data: { confirm: "Are you sure you want to delete this memory and all its files?" },
+                              class: "text-gray-400 hover:text-red-500 p-1" do %>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 <% end %>
               </div>
             </div>
-            <div class="flex items-center gap-2 self-start sm:self-center flex-shrink-0">
-              <!-- Download Button -->
-              <%= link_to rails_blob_path(attachment.file, disposition: "attachment"), 
-                          class: "text-gray-400 hover:text-blue-500 p-1", 
-                          title: "Download" do %>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-              <% end %>
-              <!-- Delete Button -->
-              <%= button_to trip_trip_attachment_path(@trip, attachment), method: :delete, 
-                            data: { confirm: "Are you sure you want to delete this attachment?" },
-                            class: "text-gray-400 hover:text-red-500 p-1" do %>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              <% end %>
+
+            <!-- Image Carousel (if there are images) -->
+            <% if image_files.any? %>
+              <% 
+                image_urls = image_files.map { |file| rails_blob_path(file) }
+                image_names = image_files.map { |file| "#{attachment.name} - Image #{image_files.index(file) + 1}" }
+                download_urls = image_files.map { |file| rails_blob_path(file, disposition: 'attachment') }
+              %>
+              
+              <div class="mb-4" 
+                   data-controller="image-carousel" 
+                   data-image-carousel-image-urls-value="<%= image_urls.to_json %>"
+                   data-image-carousel-image-names-value="<%= image_names.to_json %>"
+                   data-image-carousel-download-urls-value="<%= download_urls.to_json %>">
+                
+                <!-- Image Counter and Controls -->
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600">
+                      <span data-image-carousel-target="imageCounter">1 / <%= image_files.count %></span>
+                    </span>
+                    <% if image_files.count > 1 %>
+                      <span class="text-xs text-gray-500">• Swipe or use arrows to navigate</span>
+                    <% end %>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button data-action="image-carousel#downloadCurrentImage" 
+                            class="text-gray-400 hover:text-blue-500 p-1" 
+                            title="Download current image">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                    </button>
+                    <button data-action="image-carousel#openFullscreen" 
+                            class="text-gray-400 hover:text-blue-500 p-1" 
+                            title="View fullscreen">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Main Carousel Display -->
+                <div class="relative bg-gray-50 rounded-lg overflow-hidden" style="height: 300px;">
+                  <!-- Main Image Container -->
+                  <div data-image-carousel-target="mainImage" 
+                       class="w-full h-full flex items-center justify-center cursor-pointer"
+                       data-action="click->image-carousel#openFullscreen">
+                    <!-- Image will be loaded by controller -->
+                  </div>
+                  
+                  <!-- Navigation Arrows -->
+                  <% if image_files.count > 1 %>
+                    <button data-image-carousel-target="prevButton"
+                            data-action="image-carousel#previousImage" 
+                            class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75 transition-opacity">
+                      ‹
+                    </button>
+                    <button data-image-carousel-target="nextButton"
+                            data-action="image-carousel#nextImage" 
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75 transition-opacity">
+                      ›
+                    </button>
+                  <% end %>
+                </div>
+                
+                <!-- Thumbnail Strip -->
+                <% if image_files.count > 1 %>
+                  <div data-image-carousel-target="thumbnailStrip" 
+                       class="flex gap-2 mt-3 overflow-x-auto pb-2">
+                    <% image_files.each_with_index do |image_file, index| %>
+                      <div data-index="<%= index %>" 
+                           data-action="click->image-carousel#goToImage"
+                           class="flex-shrink-0 cursor-pointer rounded overflow-hidden border-2 border-transparent hover:border-gray-300 transition-colors <%= 'ring-2 ring-blue-500 ring-offset-2' if index == 0 %>">
+                        <img src="<%= rails_blob_path(image_file) %>" 
+                             alt="Thumbnail <%= index + 1 %>" 
+                             class="w-16 h-16 object-cover <%= 'opacity-70' if index != 0 %>">
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <!-- Other Files List -->
+            <% if other_files.any? %>
+              <div class="space-y-2 <%= 'mt-4' if image_files.any? %>">
+                <h5 class="text-sm font-medium text-gray-700 mb-2">Documents & Files</h5>
+                <% other_files.each do |file| %>
+                  <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <div class="flex items-center gap-2 flex-grow min-w-0">
+                      <button data-action="attachment-preview#previewFile" 
+                              data-file-url="<%= rails_blob_path(file) %>"
+                              data-file-name="<%= file.filename %>"
+                              data-file-type="<%= file.blob.content_type %>"
+                              data-download-url="<%= rails_blob_path(file, disposition: 'attachment') %>"
+                              class="text-primary-accent hover:underline text-sm break-all text-left">
+                        📄 <%= file.filename %>
+                      </button>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs text-gray-500">
+                        <%= number_to_human_size(file.blob.byte_size) %>
+                      </span>
+                      <%= link_to rails_blob_path(file, disposition: "attachment"), 
+                                  class: "text-gray-400 hover:text-blue-500 p-1", 
+                                  title: "Download" do %>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <!-- Attachment Meta -->
+            <div class="text-xs text-text-secondary mt-3 pt-2 border-t border-gray-200">
+              Uploaded by <%= attachment.user.email_address %> • 
+              <%= attachment.files.count %> file<%= 's' if attachment.files.count != 1 %> • 
+              <%= number_to_human_size(attachment.files.sum { |f| f.blob.byte_size }) %> total
             </div>
           </div>
         <% end %>
       <% end %>
-      <% if @trip.trip_attachments.none? || @trip.trip_attachments.none? { |a| a.file.attached? } %>
-        <p class="text-center text-text-secondary py-4">No attachments yet.</p>
+      
+      <% if @trip.trip_attachments.none? || @trip.trip_attachments.none? { |a| a.files.attached? } %>
+        <p class="text-center text-text-secondary py-8 text-lg">No memories yet.</p>
+        <p class="text-center text-text-secondary text-sm">Upload your first photos and documents to start building your trip memories!</p>
       <% end %>
     </div>
   </div>

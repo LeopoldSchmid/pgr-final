@@ -15,7 +15,7 @@ class JournalEntry < ApplicationRecord
   scope :by_date, -> { order(:entry_date, :created_at) }
   scope :recent, -> { order(created_at: :desc) }
   scope :with_location, -> { where.not(latitude: nil, longitude: nil) }
-  scope :with_images, -> { joins(:images_attachments) }
+  scope :with_images, -> { joins(:images_attachments).distinct }
   scope :global_favorites, -> { where(global_favorite: true) }
   
   def favorite?

@@ -4,14 +4,24 @@ class JournalEntriesController < ApplicationController
   before_action :set_journal_entry, only: [:update, :destroy, :toggle_favorite]
 
   def create
+    Rails.logger.debug "=== JournalEntriesController#create called ==="
+    Rails.logger.debug "Params: #{params.inspect}"
+    Rails.logger.debug "Trip: #{@trip.name}"
+    Rails.logger.debug "User: #{Current.user.email_address}"
+    
     @journal_entry = @trip.journal_entries.build(journal_entry_params)
     @journal_entry.user = Current.user
     @journal_entry.entry_date ||= Date.current
     
+    Rails.logger.debug "Journal entry built: #{@journal_entry.inspect}"
+    Rails.logger.debug "Journal entry valid?: #{@journal_entry.valid?}"
+    Rails.logger.debug "Journal entry errors: #{@journal_entry.errors.full_messages}"
+    
     if @journal_entry.save
       redirect_to go_trip_path(@trip), notice: 'Journal entry added! 📝'
     else
-      redirect_to go_trip_path(@trip), alert: 'Could not save journal entry.'
+      Rails.logger.error "Failed to save journal entry: #{@journal_entry.errors.full_messages}"
+      redirect_to go_trip_path(@trip), alert: "Could not save journal entry: #{@journal_entry.errors.full_messages.join(', ')}"
     end
   end
 
