@@ -20,8 +20,11 @@
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <% @planning_trips.first(3).each do |trip| %>
-            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
+          <% @planning_trips.first(3).each_with_index do |trip, index| %>
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4 card-hover"
+                 data-controller="animate-on-scroll"
+                 data-animate-on-scroll-animation-class-value="animate-slide-up"
+                 data-animate-on-scroll-delay-value="<%= index * 100 %>">
               <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
@@ -50,8 +53,11 @@
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <% @active_trips.first(3).each do |trip| %>
-            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
+          <% @active_trips.first(3).each_with_index do |trip, index| %>
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4 card-hover"
+                 data-controller="animate-on-scroll"
+                 data-animate-on-scroll-animation-class-value="animate-slide-up"
+                 data-animate-on-scroll-delay-value="<%= index * 100 %>">
               <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
@@ -80,8 +86,11 @@
           <% end %>
         </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <% @completed_trips.first(3).each do |trip| %>
-            <div class="bg-background-secondary rounded-lg shadow-sm p-4">
+          <% @completed_trips.first(3).each_with_index do |trip, index| %>
+            <div class="bg-background-secondary rounded-lg shadow-sm p-4 card-hover"
+                 data-controller="animate-on-scroll"
+                 data-animate-on-scroll-animation-class-value="animate-slide-up"
+                 data-animate-on-scroll-delay-value="<%= index * 100 %>">
               <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-text-primary"><%= trip.name %></h3>
                 <% if trip.user != Current.user %>
@@ -100,10 +109,12 @@
 
     <!-- Empty State -->
     <% if @planning_trips.empty? && @active_trips.empty? && @completed_trips.empty? %>
-      <div class="bg-background-secondary rounded-2xl shadow-sm">
+      <div class="bg-background-secondary rounded-2xl shadow-sm"
+           data-controller="animate-on-scroll"
+           data-animate-on-scroll-animation-class-value="animate-scale-in">
         <div class="px-8 py-12">
           <div class="text-center">
-            <div class="text-6xl mb-4 opacity-60">🌱</div>
+            <div class="text-6xl mb-4 opacity-60 animate-bounce">🌱</div>
             <p class="text-text-secondary text-lg mb-6">No trips yet. Plant the seed for your first adventure!</p>
             <%= link_to "Create Your First Trip", new_trip_path, class: "bg-primary-accent text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-400 transition-all duration-200 shadow-lg transform hover:scale-105" %>
           </div>
@@ -133,19 +144,28 @@
 
         <!-- Features -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div class="bg-background-secondary rounded-lg p-6">
+          <div class="bg-background-secondary rounded-lg p-6 card-hover"
+               data-controller="animate-on-scroll"
+               data-animate-on-scroll-animation-class-value="animate-slide-up"
+               data-animate-on-scroll-delay-value="0">
             <div class="text-3xl mb-4">📅</div>
             <h3 class="text-xl font-semibold text-text-primary mb-2">Plan Together</h3>
             <p class="text-text-secondary">Coordinate dates, destinations, and activities collaboratively</p>
           </div>
-          
-          <div class="bg-background-secondary rounded-lg p-6">
+
+          <div class="bg-background-secondary rounded-lg p-6 card-hover"
+               data-controller="animate-on-scroll"
+               data-animate-on-scroll-animation-class-value="animate-slide-up"
+               data-animate-on-scroll-delay-value="100">
             <div class="text-3xl mb-4">🎒</div>
             <h3 class="text-xl font-semibold text-text-primary mb-2">Trip Companion</h3>
             <p class="text-text-secondary">Manage expenses, shopping lists, and meal plans on the go</p>
           </div>
-          
-          <div class="bg-background-secondary rounded-lg p-6">
+
+          <div class="bg-background-secondary rounded-lg p-6 card-hover"
+               data-controller="animate-on-scroll"
+               data-animate-on-scroll-animation-class-value="animate-slide-up"
+               data-animate-on-scroll-delay-value="200">
             <div class="text-3xl mb-4">📸</div>
             <h3 class="text-xl font-semibold text-text-primary mb-2">Reminisce</h3>
             <p class="text-text-secondary">Preserve memories and learn from past trips for future planning</p>
