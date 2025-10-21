@@ -56,13 +56,13 @@
 %>
 
 <% if fab_config && authenticated? %>
-  <div class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
+  <div class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40" data-controller="fab">
     <!-- Main FAB -->
-    <%= link_to fab_config[:path], 
-        class: "flex items-center justify-center w-14 h-14 #{fab_config[:color]} text-white rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110 backdrop-blur-sm",
+    <%= link_to fab_config[:path],
+        class: "flex items-center justify-center w-14 h-14 #{fab_config[:color]} text-white rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110 backdrop-blur-sm fab-entrance",
         title: fab_config[:tooltip],
         onclick: fab_config[:onclick],
-        data: { turbo: fab_config[:onclick] ? false : true } do %>
+        data: { turbo: fab_config[:onclick] ? false : true, fab_target: "button" } do %>
       <span class="text-xl filter drop-shadow-sm"><%= fab_config[:icon] %></span>
     <% end %>
   </div>
