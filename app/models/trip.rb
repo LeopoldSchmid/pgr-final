@@ -13,31 +13,30 @@ class Trip < ApplicationRecord
   
   validates :name, presence: true, length: { maximum: 100 }
   validates :series_name, length: { maximum: 100 }, allow_nil: true
-  validates :status, inclusion: { in: %w[planning active completed] }
-  
+
   after_create :create_owner_membership
-  
-  scope :planning, -> { where(status: 'planning') }
-  scope :active, -> { where(status: 'active') }
-  scope :completed, -> { where(status: 'completed') }
+
   scope :in_series, ->(series_name) { where(series_name: series_name) }
-  
+
   def current_phase
     return 'reminisce' if completed?
-    return 'go' if active? && (start_date.nil? || start_date <= Date.current)
+    return 'go' if active?
     'plan'
   end
-  
+
   def planning?
-    status == 'planning'
+    !active? && !completed?
   end
-  
+
   def active?
-    status == 'active'
+    return false if start_date.nil? || end_date.nil?
+    today = Date.current
+    today >= start_date && today <= end_date
   end
-  
+
   def completed?
-    status == 'completed'
+    return false if end_date.nil?
+    Date.current > end_date
   end
   
   def favorite_moments

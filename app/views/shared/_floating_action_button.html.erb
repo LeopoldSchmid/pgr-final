@@ -67,17 +67,6 @@
     <% end %>
   </div>
 
-  <!-- Mini FAB for secondary actions (only on specific pages) -->
-  <% if request.path == root_path %>
-    <div class="fixed bottom-40 right-4 md:bottom-24 md:right-6 z-40">
-      <%= link_to recipe_library_path,
-          class: "flex items-center justify-center w-12 h-12 bg-secondary hover:bg-gray-600 text-accent rounded-full shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:scale-110",
-          title: "Browse Recipes" do %>
-        <span class="text-lg">≡</span>
-      <% end %>
-    </div>
-  <% end %>
-
   <!-- Contextual help FAB for complex pages -->
   <% if request.path.match?(/\/trips\/\d+\/plan/) %>
     <div class="fixed bottom-40 right-4 md:bottom-24 md:right-6 z-40">

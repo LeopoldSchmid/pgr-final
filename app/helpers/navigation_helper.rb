@@ -54,10 +54,10 @@ module NavigationHelper
         select_trip_path(return_to: memories_path)
       end
     when :expenses
-      if current_trip && current_trip.id
-        trip_expenses_path(current_trip)
+      if current_trip
+        expenses_path
       else
-        select_trip_path(return_to: :expenses)
+        select_trip_path(return_to: expenses_path)
       end
     else
       root_path

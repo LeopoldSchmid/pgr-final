@@ -11,25 +11,6 @@
     </p>
   </div>
 
-  <!-- Current Trip Indicator -->
-  <% if @current_trip_id %>
-    <div class="mb-6 p-4 bg-primary-accent/10 border border-primary-accent/20 rounded-lg">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <span class="text-primary-accent font-medium">📍 <%= t('trip_switcher.current_trip') %>:</span>
-          <span class="font-semibold text-text-primary">
-            <%= @all_trips.find { |t| t.id == @current_trip_id }&.name || t('trip_switcher.unknown') %>
-          </span>
-        </div>
-        <%= button_to clear_trip_context_path, method: :delete,
-            class: "text-sm text-text-secondary hover:text-text-primary transition-colors",
-            data: { turbo_confirm: t('trip_switcher.clear_confirm') } do %>
-          <%= t('trip_switcher.clear_context') %>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-
   <!-- Active Trips -->
   <% if @active_trips.any? %>
     <div class="mb-8">
@@ -88,10 +69,4 @@
     </div>
   <% end %>
 
-  <!-- Back Button -->
-  <div class="mt-6">
-    <%= link_to root_path, class: "text-text-secondary hover:text-text-primary transition-colors" do %>
-      ← <%= t('common.back_to_home') %>
-    <% end %>
-  </div>
 </div>

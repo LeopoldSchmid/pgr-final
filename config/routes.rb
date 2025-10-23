@@ -26,6 +26,14 @@ Rails.application.routes.draw do
     get 'plans' => 'plans#index', as: :plans
     get 'memories' => 'memories#index', as: :memories
 
+    # Context-based expenses routes
+    resources :expenses, only: [:index, :new, :create, :edit, :update, :destroy] do
+      member do
+        patch :toggle_settled
+        get :duplicate
+      end
+    end
+
     # Trip resources
     resources :trips do
     # Trip-specific phase routes (Hub pages)

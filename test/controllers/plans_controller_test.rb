@@ -17,14 +17,15 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     @trip = Trip.create!(
       user: @user,
       name: "Test Trip",
-      status: "planning",
-      start_date: Date.current + 10.days
+      start_date: Date.current + 10.days,
+      end_date: Date.current + 15.days
     )
 
     @unauthorized_trip = Trip.create!(
       user: @other_user,
       name: "Other Trip",
-      status: "planning"
+      start_date: Date.current + 20.days,
+      end_date: Date.current + 25.days
     )
 
     # Create some planning data

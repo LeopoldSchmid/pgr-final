@@ -12,7 +12,8 @@ class CalendarSystemTest < ActionDispatch::IntegrationTest
       name: "Test Trip",
       description: "A test trip for calendar functionality",
       user: @user,
-      status: 'planning'
+      start_date: 1.month.from_now,
+      end_date: 1.month.from_now + 7.days
     )
     
     login_as(@user)

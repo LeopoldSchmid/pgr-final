@@ -112,7 +112,7 @@
                     Add to Trip
                   </button>
                   <div class="dropdown-menu absolute z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden min-w-48">
-                    <% Current.user.trips.where(status: ['planning', 'active']).limit(5).each do |trip| %>
+                    <% Current.user.trips.to_a.reject(&:completed?).first(5).each do |trip| %>
                       <%= form_with url: copy_recipe_path(recipe), method: :post, local: true, class: "block" do |form| %>
                         <%= form.hidden_field :trip_id, value: trip.id %>
                         <%= form.submit trip.name, class: "w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-gray-100 border-0 bg-transparent" %>

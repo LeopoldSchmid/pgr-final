@@ -411,11 +411,7 @@
           </div>
         <% end %>
       <% end %>
-      
-      <% if @trip.trip_attachments.none? || @trip.trip_attachments.none? { |a| a.files.attached? } %>
-        <p class="text-center text-text-secondary py-8 text-lg">No memories yet.</p>
-        <p class="text-center text-text-secondary text-sm">Upload your first photos and documents to start building your trip memories!</p>
-      <% end %>
+
     </div>
   </div>
 
@@ -429,7 +425,6 @@
             <div>
               <div class="font-medium text-text-primary"><%= related_trip.name %></div>
               <div class="text-sm text-text-secondary">
-                <%= related_trip.status.humanize %> • 
                 <%= related_trip.start_date ? related_trip.start_date.strftime("%b %Y") : "Dates TBD" %>
               </div>
             </div>
@@ -447,24 +442,6 @@
       </div>
     </div>
   <% end %>
-
-  <!-- Action Buttons -->
-  <div class="flex justify-center space-x-4">
-    <% if @trip.start_date && @trip.end_date %>
-      <%= link_to go_trip_path(@trip), class: "bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors" do %>
-        Start Trip →
-      <% end %>
-    <% else %>
-      <div class="text-center">
-        <div class="bg-gray-100 text-gray-500 px-6 py-3 rounded-lg font-semibold">
-          Complete planning to start trip
-        </div>
-        <div class="text-xs text-text-secondary mt-1">
-          Set dates to get started
-        </div>
-      </div>
-    <% end %>
-  </div>
 
 </div>
 

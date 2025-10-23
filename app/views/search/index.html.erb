@@ -26,7 +26,9 @@
             <%= link_to trip, class: "card-modern block" do %>
               <h3 class="font-semibold text-text-primary mb-1"><%= trip.name %></h3>
               <p class="text-sm text-text-secondary"><%= trip.description.truncate(100) %></p>
-              <span class="text-xs text-gray-500 mt-2 block"><%= trip.status.capitalize %></span>
+              <% if trip.start_date %>
+                <span class="text-xs text-gray-500 mt-2 block"><%= trip.start_date.strftime("%b %Y") %></span>
+              <% end %>
             <% end %>
           <% end %>
         </div>

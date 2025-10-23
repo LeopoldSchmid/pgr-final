@@ -56,8 +56,8 @@ module TripContext
 
     all_trips = (owned_trips + member_trips).uniq
 
-    # First, check for active trips
-    active_trip = all_trips.find { |t| t.status == "active" }
+    # First, check for active trips (date-based)
+    active_trip = all_trips.find(&:active?)
     return active_trip if active_trip
 
     # Otherwise, find the trip with the earliest start_date in the future

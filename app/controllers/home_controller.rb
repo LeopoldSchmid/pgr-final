@@ -9,11 +9,11 @@ class HomeController < ApplicationController
       member_trips = Trip.joins(:trip_members)
                         .where(trip_members: { user: Current.user })
       all_trips = (owned_trips + member_trips).uniq
-      
-      # Categorize trips by status
-      @planning_trips = all_trips.select { |t| t.status == 'planning' }.sort_by(&:created_at).reverse
-      @active_trips = all_trips.select { |t| t.status == 'active' }.sort_by(&:start_date || Time.current).reverse  
-      @completed_trips = all_trips.select { |t| t.status == 'completed' }.sort_by(&:end_date || Time.current).reverse
+
+      # Categorize trips by date-based status
+      @planning_trips = all_trips.select(&:planning?).sort_by(&:created_at).reverse
+      @active_trips = all_trips.select(&:active?).sort_by { |t| t.start_date || Time.current }.reverse
+      @completed_trips = all_trips.select(&:completed?).sort_by { |t| t.end_date || Time.current }.reverse
     else
       # Show landing page for guests
     end

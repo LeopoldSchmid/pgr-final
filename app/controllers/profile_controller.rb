@@ -48,11 +48,12 @@ class ProfileController < ApplicationController
   end
 
   def user_completed_trips_count
-    owned_trips = Current.user.trips.completed.count
+    owned_trips = Current.user.trips.to_a
     member_trips = Trip.joins(:trip_members)
-                      .where(trip_members: { user: Current.user }, status: "completed")
-                      .distinct.count
-    owned_trips + member_trips
+                      .where(trip_members: { user: Current.user })
+                      .distinct.to_a
+    all_trips = (owned_trips + member_trips).uniq
+    all_trips.count(&:completed?)
   end
 
   def user_journal_entries_count

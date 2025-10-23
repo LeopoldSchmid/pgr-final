@@ -9,12 +9,10 @@ class MemoriesController < ApplicationController
     @journal_entries = @trip.journal_entries
                             .includes(:user, :comments, :trip_attachment_votes)
                             .order(entry_date: :desc, created_at: :desc)
-                            .page(params[:page]).per(20)
 
     @trip_attachments = @trip.trip_attachments
                              .includes(:user, :trip_attachment_comments, :trip_attachment_votes)
                              .order(created_at: :desc)
-                             .page(params[:page]).per(20)
 
     # Merge and sort by date for unified timeline
     all_memories = (@journal_entries.to_a + @trip_attachments.to_a)

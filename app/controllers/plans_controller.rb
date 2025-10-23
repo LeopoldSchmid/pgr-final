@@ -7,13 +7,13 @@ class PlansController < ApplicationController
 
     # Load planning-related resources for the current trip
     @date_proposals = @trip.date_proposals.includes(:proposed_by, :user_availabilities).order(created_at: :desc)
-    @discussions = @trip.discussions.includes(:user).order(created_at: :desc).limit(10)
+    @discussions = @trip.discussion_posts.includes(:user).order(created_at: :desc).limit(10)
     @shopping_lists = @trip.shopping_lists.order(created_at: :desc)
-    @recipes = @trip.recipes.where(selected: true).order(created_at: :desc)
+    @recipes = @trip.recipes.where(selected_for_shopping: true).order(created_at: :desc)
 
     # Count stats for overview
     @total_proposals = @date_proposals.count
-    @total_discussions = @trip.discussions.count
+    @total_discussions = @trip.discussion_posts.count
     @total_shopping_items = @trip.shopping_lists.joins(:shopping_items).count
     @selected_recipes_count = @recipes.count
   end

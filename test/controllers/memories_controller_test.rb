@@ -17,14 +17,15 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
     @trip = Trip.create!(
       user: @user,
       name: "Test Trip",
-      status: "active",
-      start_date: Date.current
+      start_date: 1.day.ago,
+      end_date: 5.days.from_now
     )
 
     @unauthorized_trip = Trip.create!(
       user: @other_user,
       name: "Other Trip",
-      status: "active"
+      start_date: 2.days.ago,
+      end_date: 4.days.from_now
     )
 
     # Create some memories (journal entries and attachments)

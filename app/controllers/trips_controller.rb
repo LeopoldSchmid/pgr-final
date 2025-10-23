@@ -40,13 +40,12 @@ class TripsController < ApplicationController
   end
 
   def new
-    @trip = Current.user.trips.build(status: 'planning')
+    @trip = Current.user.trips.build
     @user_trips = Current.user.trips.order(name: :asc)
   end
 
   def create
     @trip = Current.user.trips.build(trip_params.except(:template_trip_id))
-    @trip.status = 'planning'
 
     if params[:trip][:template_trip_id].present?
       template_trip = Current.user.trips.find(params[:trip][:template_trip_id])
@@ -198,6 +197,6 @@ class TripsController < ApplicationController
   end
 
   def trip_params
-    params.require(:trip).permit(:name, :description, :start_date, :end_date, :status, :series_name, :template_trip_id)
+    params.require(:trip).permit(:name, :description, :start_date, :end_date, :series_name, :template_trip_id)
   end
 end

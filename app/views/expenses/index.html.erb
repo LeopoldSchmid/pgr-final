@@ -1,13 +1,9 @@
 <div class="container mx-auto px-4 py-6">
   <!-- Header -->
   <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6">
-    <%= link_to @trip, class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-4" do %>
-      <span class="transform group-hover:-translate-x-1 transition-transform mr-2">←</span> Back to Trip
-    <% end %>
     <h1 class="text-2xl font-bold text-text-primary">
       💰 Trip Expenses
     </h1>
-    <p class="text-text-secondary mt-2"><%= @trip.name %> • <%= @expenses.count %> expenses</p>
   </div>
 
   <!-- Compact Stats & Actions -->
@@ -18,7 +14,7 @@
         <div>Balance: <span class="font-bold <%= @user_balance >= 0 ? 'text-green-600' : 'text-red-600' %>"><%= @user_balance >= 0 ? '+' : '' %><%= "%.2f" % @user_balance %> EUR</span></div>
         <div><%= @expenses.count %> expenses</div>
       </div>
-      <%= link_to new_trip_expense_path(@trip), 
+      <%= link_to new_expense_path, 
           class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors" do %>
         ➕ Add Expense
       <% end %>
@@ -56,7 +52,7 @@
               </div>
               <% if @trip.user_can_manage_expenses?(Current.user) %>
                 <div class="flex space-x-1">
-                  <%= link_to edit_trip_expense_path(@trip, expense), 
+                  <%= link_to edit_expense_path(expense), 
                       class: "text-primary-accent hover:text-blue-600 text-sm" do %>
                     ✏️
                   <% end %>
@@ -77,8 +73,7 @@
       <div class="bg-background-secondary rounded-2xl shadow-lg p-12 text-center">
         <div class="text-6xl mb-4 opacity-60">💰</div>
         <h3 class="text-xl font-bold text-text-primary mb-3">No Expenses Yet</h3>
-        <p class="text-text-secondary mb-6">Start tracking your trip expenses to keep everyone organized!</p>
-        <%= link_to new_trip_expense_path(@trip), 
+        <%= link_to new_expense_path, 
             class: "inline-flex items-center bg-primary-accent text-background-primary px-6 py-3 rounded-xl font-bold hover:bg-blue-600 transition-all duration-200 shadow-lg hover:shadow-md" do %>
           <span class="mr-2">➕</span> Add First Expense
         <% end %>

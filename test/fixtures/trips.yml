@@ -1,7 +1,6 @@
 planning:
   name: "Test Trip to Paris"
   description: "A wonderful trip to Paris"
-  status: planning
   start_date: <%= 1.month.from_now %>
   end_date: <%= 1.month.from_now + 5.days %>
   user: owner
@@ -9,9 +8,8 @@ planning:
   updated_at: <%= 1.week.ago %>
 
 active:
-  name: "Current Trip to London" 
+  name: "Current Trip to London"
   description: "Active trip to London"
-  status: active
   start_date: <%= 1.day.ago %>
   end_date: <%= 3.days.from_now %>
   user: owner
@@ -21,7 +19,6 @@ active:
 completed:
   name: "Past Trip to Rome"
   description: "Completed trip to Rome"
-  status: completed
   start_date: <%= 1.month.ago %>
   end_date: <%= 3.weeks.ago %>
   user: member

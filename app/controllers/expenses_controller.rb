@@ -1,5 +1,6 @@
 class ExpensesController < ApplicationController
   before_action :require_authentication
+  before_action :ensure_trip_context
   before_action :set_trip
   before_action :set_expense, only: [:show, :edit, :update, :destroy, :duplicate]
   before_action :check_expense_permissions, only: [:create, :edit, :update, :destroy]
@@ -52,7 +53,7 @@ class ExpensesController < ApplicationController
       end
       
       if success
-        redirect_to trip_expenses_path(@trip), notice: '💰 Expense added successfully!'
+        redirect_to expenses_path, notice: '💰 Expense added successfully!'
       else
         @trip_members = [@trip.user] + @trip.active_members
         render :new, status: :unprocessable_entity
@@ -95,7 +96,7 @@ class ExpensesController < ApplicationController
       end
       
       if success
-        redirect_to trip_expenses_path(@trip), notice: '💰 Expense updated successfully!'
+        redirect_to expenses_path, notice: '💰 Expense updated successfully!'
       else
         @trip_members = [@trip.user] + @trip.active_members
         @selected_participant_ids = @expense.participants.pluck(:id)
@@ -112,7 +113,7 @@ class ExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    redirect_to trip_expenses_path(@trip), notice: '🗑️ Expense deleted successfully!'
+    redirect_to expenses_path, notice: '🗑️ Expense deleted successfully!'
   end
 
   def duplicate
@@ -129,16 +130,23 @@ class ExpensesController < ApplicationController
         )
       end
       
-      redirect_to trip_expenses_path(@trip), notice: '📋 Expense duplicated successfully!'
+      redirect_to expenses_path, notice: '📋 Expense duplicated successfully!'
     else
-      redirect_to trip_expenses_path(@trip), alert: 'Failed to duplicate expense.'
+      redirect_to expenses_path, alert: 'Failed to duplicate expense.'
     end
   end
 
   private
 
+  def ensure_trip_context
+    unless current_trip
+      flash[:alert] = 'Please select a trip first.'
+      redirect_to select_trip_path(return_to: expenses_path)
+    end
+  end
+
   def set_trip
-    @trip = Current.user.all_trips.find(params[:trip_id])
+    @trip = current_trip
   end
   
   def set_split_type

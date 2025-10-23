@@ -13,7 +13,8 @@ class NavigationHelperTest < ActionView::TestCase
     @trip = Trip.create!(
       user: @user,
       name: "My Test Trip",
-      status: "planning"
+      start_date: 1.month.from_now,
+      end_date: 1.month.from_now + 5.days
     )
 
     sign_in_as(@user)

@@ -11,10 +11,10 @@ class TripSwitcherController < ApplicationController
 
     @all_trips = (@owned_trips.to_a + @member_trips.to_a).uniq.sort_by(&:created_at).reverse
 
-    # Categorize trips
-    @planning_trips = @all_trips.select { |t| t.status == 'planning' }
-    @active_trips = @all_trips.select { |t| t.status == 'active' }
-    @completed_trips = @all_trips.select { |t| t.status == 'completed' }
+    # Categorize trips by date-based status
+    @planning_trips = @all_trips.select(&:planning?)
+    @active_trips = @all_trips.select(&:active?)
+    @completed_trips = @all_trips.select(&:completed?)
 
     @current_trip_id = session[:current_trip_id]
     @return_to = params[:return_to]

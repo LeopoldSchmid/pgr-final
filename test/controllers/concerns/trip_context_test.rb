@@ -91,8 +91,8 @@ class TripContextTest < ActiveSupport::TestCase
   end
 
   test "current_trip_or_next returns next scheduled trip when no active trip" do
-    # Make active trip completed
-    @active_trip.update!(status: "completed")
+    # Make active trip completed by setting end date in the past
+    @active_trip.update!(start_date: 1.month.ago, end_date: 3.weeks.ago)
 
     sign_in_as(@user)
 

@@ -17,26 +17,30 @@ class TripSwitcherControllerTest < ActionDispatch::IntegrationTest
     @trip1 = Trip.create!(
       user: @user,
       name: "Trip 1",
-      status: "planning"
+      start_date: 1.month.from_now,
+      end_date: 1.month.from_now + 5.days
     )
 
     @trip2 = Trip.create!(
       user: @user,
       name: "Trip 2",
-      status: "active"
+      start_date: 1.day.ago,
+      end_date: 3.days.from_now
     )
 
     @member_trip = Trip.create!(
       user: @other_user,
       name: "Member Trip",
-      status: "planning"
+      start_date: 2.months.from_now,
+      end_date: 2.months.from_now + 7.days
     )
     @member_trip.add_member(@user)
 
     @unauthorized_trip = Trip.create!(
       user: @other_user,
       name: "Unauthorized Trip",
-      status: "planning"
+      start_date: 3.months.from_now,
+      end_date: 3.months.from_now + 4.days
     )
   end
 
