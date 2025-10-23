@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::Base
   include Authentication
   include TripContext
+  
+  helper_method :current_trip, :current_trip_or_next
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
   

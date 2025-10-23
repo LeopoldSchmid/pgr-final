@@ -32,7 +32,16 @@ class TripSwitcherController < ApplicationController
 
     set_current_trip(trip)
 
-    return_path = params[:return_to].presence || trip_path(trip)
+    return_path = if params[:return_to].present?
+                    return_to = params[:return_to]
+                    if return_to.start_with?('/')
+                      return_to
+                    else
+                      "/#{return_to}"
+                    end
+                  else
+                    trip_path(trip)
+                  end
     redirect_to return_path, notice: "Switched to #{trip.name}"
   end
 

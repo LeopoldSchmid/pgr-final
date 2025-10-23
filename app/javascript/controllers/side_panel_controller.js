@@ -7,6 +7,7 @@ export default class extends Controller {
   static targets = ["panel", "backdrop"]
 
   connect() {
+    console.log("Side panel controller connected");
     // Close panel when clicking outside on mobile
     this.boundHandleClickOutside = this.handleClickOutside.bind(this)
 
@@ -20,6 +21,7 @@ export default class extends Controller {
   }
 
   toggle(event) {
+    console.log("Toggling side panel");
     event.preventDefault()
     event.stopPropagation()
 
@@ -34,6 +36,7 @@ export default class extends Controller {
   }
 
   open() {
+    console.log("Opening side panel");
     // Show backdrop on mobile
     if (this.hasBackdropTarget) {
       this.backdropTarget.classList.remove('hidden')
@@ -56,6 +59,7 @@ export default class extends Controller {
   }
 
   close() {
+    console.log("Closing side panel");
     // Hide backdrop on mobile
     if (this.hasBackdropTarget) {
       this.backdropTarget.classList.remove('opacity-100')
@@ -76,13 +80,7 @@ export default class extends Controller {
   }
 
   handleClickOutside(event) {
-    // Don't close if clicking inside the panel
-    if (this.panelTarget.contains(event.target)) {
-      return
-    }
-
-    // Don't close if clicking the avatar button
-    if (event.target.closest('[data-controller="side-panel"]')) {
+    if (event.target.closest('[data-side-panel-element]')) {
       return
     }
 

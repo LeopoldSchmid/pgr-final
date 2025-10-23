@@ -43,8 +43,8 @@
 
         <!-- Avatar Button with notification badge -->
         <button type="button"
-                data-controller="side-panel"
                 data-action="click->side-panel#toggle"
+                data-side-panel-element="button"
                 class="relative flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary-accent rounded-full">
           <%= user_avatar(Current.user, size: 8) %>
 

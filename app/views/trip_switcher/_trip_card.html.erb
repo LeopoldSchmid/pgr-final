@@ -23,9 +23,9 @@
       </div>
 
       <div class="flex items-center space-x-6 text-xs text-text-secondary">
-        <span><%= trip.journal_entries.count %> <%= t('journal_entries.title').downcase %></span>
+        <span><%= trip.journal_entries.count %> <%= t('journal.title').downcase %></span>
         <span><%= trip.expenses.count %> <%= t('expenses.title').downcase %></span>
-        <span><%= trip.active_members.count + 1 %> <%= t('trip_members.title').downcase %></span>
+        <span><%= trip.active_members.count + 1 %> <%= t('trips.members').downcase %></span>
       </div>
     </div>
 
