@@ -35,7 +35,17 @@ module NavigationHelper
       root_path
     when :trip
       if current_trip
-        trip_path(current_trip)
+        # Use context-based trip hub page based on current phase
+        case current_trip.current_phase
+        when 'plan'
+          trip_plan_context_path
+        when 'go'
+          trip_go_context_path
+        when 'reminisce'
+          trip_reminisce_context_path
+        else
+          trip_plan_context_path
+        end
       elsif current_trip_or_next
         trip_path(current_trip_or_next)
       else

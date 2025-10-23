@@ -34,6 +34,11 @@ Rails.application.routes.draw do
       end
     end
 
+    # Context-based trip hub pages (alternative to /trips/:id/plan, etc.)
+    get 'trip/plan' => 'trips#plan', as: :trip_plan_context
+    get 'trip/go' => 'trips#go', as: :trip_go_context
+    get 'trip/reminisce' => 'trips#reminisce', as: :trip_reminisce_context
+
     # Trip resources
     resources :trips do
     # Trip-specific phase routes (Hub pages)

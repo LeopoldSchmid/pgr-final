@@ -185,15 +185,25 @@ class TripsController < ApplicationController
   private
 
   def set_trip
-    # Find trips user owns OR is a member of
-    owned_trips = Current.user.trips.where(id: params[:id])
-    member_trips = Trip.joins(:trip_members)
-                      .where(trip_members: { user: Current.user }, id: params[:id])
-    
-    trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
-    @trip = trip_relation.first
-    
-    raise ActiveRecord::RecordNotFound unless @trip
+    # Support both context-based routes (no :id param) and traditional routes (with :id param)
+    if params[:id].present?
+      # Traditional route with explicit trip ID
+      owned_trips = Current.user.trips.where(id: params[:id])
+      member_trips = Trip.joins(:trip_members)
+                        .where(trip_members: { user: Current.user }, id: params[:id])
+
+      trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
+      @trip = trip_relation.first
+
+      raise ActiveRecord::RecordNotFound unless @trip
+    else
+      # Context-based route - use current trip from session
+      @trip = current_trip
+      unless @trip
+        flash[:alert] = 'Please select a trip first.'
+        redirect_to select_trip_path(return_to: request.path) and return
+      end
+    end
   end
 
   def trip_params

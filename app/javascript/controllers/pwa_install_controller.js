@@ -33,8 +33,8 @@ export default class extends Controller {
   dismiss() {
     console.log("Dismissing PWA install banner");
     this.element.classList.add('hidden');
-    // Optionally, set a flag in sessionStorage to not show again
-    sessionStorage.setItem('pwa_install_dismissed', 'true');
+    // Set a flag in localStorage to persist dismissal across sessions
+    localStorage.setItem('pwa_install_dismissed', 'true');
   }
 
   handleAppInstalled() {
@@ -49,7 +49,7 @@ export default class extends Controller {
     if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
       // App is running in standalone mode (installed)
       this.element.classList.add('hidden');
-    } else if (sessionStorage.getItem('pwa_install_dismissed')) {
+    } else if (localStorage.getItem('pwa_install_dismissed')) {
       // User previously dismissed the banner
       this.element.classList.add('hidden');
     }

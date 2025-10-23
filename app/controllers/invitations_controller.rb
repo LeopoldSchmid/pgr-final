@@ -15,6 +15,8 @@ class InvitationsController < ApplicationController
     else
       # User's personal invitation inbox
       @pending_invitations = Invitation.where(email: Current.user.email_address).pending.includes(:trip, :invited_by)
+      @accepted_invitations = Invitation.where(email: Current.user.email_address).accepted.includes(:trip, :invited_by).order(updated_at: :desc).limit(10)
+      @declined_invitations = Invitation.where(email: Current.user.email_address).declined.includes(:trip, :invited_by).order(updated_at: :desc).limit(10)
       render :user_invitations_index
     end
   end
@@ -95,9 +97,9 @@ class InvitationsController < ApplicationController
 
   def decline
     if @invitation.decline!
-      render :declined
+      redirect_to user_invitations_path, notice: "Invitation declined."
     else
-      redirect_to invitation_path(@invitation.token), 
+      redirect_to invitation_path(@invitation.token),
                   alert: "Unable to decline invitation."
     end
   end
