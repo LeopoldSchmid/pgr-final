@@ -3,7 +3,9 @@
   <%= navigation_context_indicator.html_safe if navigation_context_indicator %>
   
   <!-- Trip Header -->
-  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6">
+  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6"
+       data-controller="animate-on-scroll"
+       data-animate-on-scroll-animation-class-value="animate-slide-down">
     <div class="mb-4">
       <%= link_to plan_path, class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-3" do %>
         <span class="transform group-hover:-translate-x-1 transition-transform mr-2">←</span> All Planning
@@ -33,9 +35,9 @@
 
   <!-- Planning Tools -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-    
+
     <!-- Trip Details -->
-    <%= link_to edit_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to edit_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 100 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">📅</div>
         <div class="text-sm font-medium text-text-primary">Trip Details</div>
@@ -44,7 +46,7 @@
     <% end %>
 
     <!-- Meal Planning -->
-    <%= link_to trip_recipes_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_recipes_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 150 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">🍽️</div>
         <div class="text-sm font-medium text-text-primary">Meal Planning</div>
@@ -53,7 +55,7 @@
     <% end %>
 
     <!-- Date Proposals -->
-    <%= link_to trip_date_proposals_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_date_proposals_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 200 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">🗳️</div>
         <div class="text-sm font-medium text-text-primary">Date Voting</div>
@@ -62,7 +64,7 @@
     <% end %>
 
     <!-- Shopping Lists -->
-    <%= link_to trip_shopping_lists_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_shopping_lists_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 250 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">🛒</div>
         <div class="text-sm font-medium text-text-primary">Shopping Lists</div>
@@ -71,7 +73,7 @@
     <% end %>
 
     <!-- Invitations -->
-    <%= link_to trip_invitations_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_invitations_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 300 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">✉️</div>
         <div class="text-sm font-medium text-text-primary">Invite People</div>
@@ -80,7 +82,7 @@
     <% end %>
 
     <!-- Discussions -->
-    <%= link_to trip_discussions_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_discussions_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 350 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">💬</div>
         <div class="text-sm font-medium text-text-primary">Discussions</div>
@@ -110,7 +112,9 @@
   </div>
 
   <!-- Planning Progress Summary -->
-  <div class="bg-background-secondary rounded-xl p-4 mb-6">
+  <div class="bg-background-secondary rounded-xl p-4 mb-6"
+       data-controller="animate-on-scroll"
+       data-animate-on-scroll-animation-class-value="animate-fade-in">
     <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -150,7 +154,8 @@
   </div>
 
   <!-- Attachments Section -->
-  <div class="bg-background-secondary rounded-xl p-4 mb-6" data-controller="attachment-preview">
+  <div class="bg-background-secondary rounded-xl p-4 mb-6" data-controller="attachment-preview animate-on-scroll"
+       data-animate-on-scroll-animation-class-value="animate-slide-up">
     <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
       Attachments

@@ -26,7 +26,23 @@ module ApplicationHelper
 
   # Navigation context helpers
   def current_trip_context
-    # Only look for trip context in trip-related routes
+    # First check session for persisted trip context
+    if session[:current_trip_id]
+      trip = begin
+        Current.user.trips.find_by(id: session[:current_trip_id])
+      rescue ActiveRecord::RecordNotFound, NoMethodError
+        nil
+      end
+
+      # Also check if user is a member
+      trip ||= Trip.joins(:trip_members)
+                   .where(trip_members: { user: Current.user }, id: session[:current_trip_id])
+                   .first rescue nil
+
+      return trip if trip
+    end
+
+    # Fall back to URL params for trip context
     return nil unless params[:controller] == "trips" || params[:trip_id].present?
 
     trip_id = params[:trip_id] || (params[:controller] == "trips" ? params[:id] : nil)

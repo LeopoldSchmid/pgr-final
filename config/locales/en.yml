@@ -34,12 +34,20 @@ en:
   # Navigation and common UI elements
   navigation:
     home: "Home"
+    trip: "Trip"
     trips: "Trips"
+    plans: "Plans"
+    memories: "Memories"
+    expenses: "Expenses"
     recipes: "Recipes"
     profile: "Profile"
     timeline: "Timeline"
     search: "Search"
+    menu: "Menu"
+    sign_out: "Sign out"
     logout: "Sign out"
+    current_trip: "Current Trip"
+    calendar: "Calendar"
   
   # Common actions and buttons
   actions:
@@ -390,3 +398,54 @@ en:
   discussion_replies:
     created: "Reply added successfully."
     deleted: "Reply deleted successfully."
+
+  # Trip Switcher
+  trip_switcher:
+    title: "Select a Trip"
+    subtitle: "Choose which trip you'd like to view"
+    current_trip: "Current Trip"
+    clear_context: "Clear selection"
+    clear_confirm: "Are you sure you want to clear the trip context?"
+    select: "Select"
+    selected: "Selected"
+    current: "Current"
+    active_trips: "Active Trips"
+    planning_trips: "Planning Trips"
+    completed_trips: "Completed Trips"
+    no_trips:
+      title: "No trips yet"
+      description: "Create your first trip to get started!"
+    unknown: "Unknown Trip"
+
+  # Plans
+  plans:
+    title: "Plans"
+    subtitle: "Planning for %{trip}"
+    stats:
+      date_proposals: "Date Proposals"
+      discussions: "Discussions"
+      recipes: "Recipes"
+      shopping_items: "Shopping Items"
+    errors:
+      no_trip_selected: "Please select a trip first"
+
+  # Memories
+  memories:
+    title: "Memories"
+    subtitle: "Memories from %{trip}"
+    stats:
+      journal_entries: "Journal Entries"
+      photos: "Photos"
+      favorites: "Favorites"
+      locations: "Locations"
+    empty:
+      title: "No memories yet"
+      description: "Start capturing your trip memories!"
+      cta: "Create First Entry"
+    errors:
+      no_trip_selected: "Please select a trip first"
+
+  # Common
+  common:
+    view_all: "View all"
+    back_to_home: "Back to Home"

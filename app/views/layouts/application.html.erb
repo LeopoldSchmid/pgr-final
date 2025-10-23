@@ -37,58 +37,14 @@
 
   <body class="min-h-screen bg-gradient-primary text-text-primary font-sans overflow-x-hidden" data-controller="page-transition">
     <% if authenticated? %>
-      <!-- Top Navigation for authenticated users -->
-      <nav class="sticky top-0 bg-background-secondary shadow-sm z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between items-center h-16">
-            <%= link_to root_path, class: "flex items-center" do %>
-              <span class="text-xl font-bold text-primary-accent">
-                <%= t('app_name') %>
-              </span>
-            <% end %>
-            
-            <!-- Desktop navigation - hidden on mobile -->
-            <div class="hidden md:flex items-center space-x-6">
-              <%= link_to root_path, class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(root_path)}" do %>
-                <%= t('navigation.home') %>
-              <% end %>
-              <%= link_to context_aware_navigation_path('plan'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('plan')) || (defined?(current_trip_context) && in_trip_context? && current_page?(plan_trip_path(current_trip_context)))}" do %>
-                <%= t('trips.phases.plan') %>
-              <% end %>
-              <%= link_to context_aware_navigation_path('go'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('go')) || (defined?(current_trip_context) && in_trip_context? && current_page?(go_trip_path(current_trip_context)))}" do %>
-                <%= t('trips.phases.go') %>
-              <% end %>
-              <%= link_to context_aware_navigation_path('reminisce'), class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?(context_aware_navigation_path('reminisce')) || (defined?(current_trip_context) && in_trip_context? && current_page?(reminisce_trip_path(current_trip_context)))}" do %>
-                <%= t('trips.phases.reminisce') %>
-              <% end %>
-              <%= link_to "/profile", class: "text-text-primary hover:text-primary-accent font-semibold transition-colors px-3 py-2 rounded-lg #{'text-primary-accent' if current_page?('/profile')}" do %>
-                <%= t('navigation.profile') %>
-              <% end %>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-              <!-- Invitation notifications -->
-              <% pending_invitations = Invitation.where(email: Current.user.email_address).pending %>
-              <% if pending_invitations.any? %>
-                <%= link_to user_invitations_path, 
-                    class: "relative bg-primary-accent text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-accent/80 transition-all duration-200 shadow-sm" do %>
-                  <%= t('invitations.title') %>
-                  <span class="absolute -top-2 -right-2 bg-accent-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    <%= pending_invitations.count %>
-                  </span>
-                <% end %>
-              <% end %>
-              
-              <span class="text-text-secondary hidden sm:block font-medium"><%= Current.user.email_address %></span>
-              <%= button_to session_path, method: :delete, class: "text-text-secondary hover:text-text-primary transition-colors" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <!-- New Top Bar -->
+      <%= render 'shared/top_bar' %>
+
+      <!-- Left Sidebar (Desktop) -->
+      <%= render 'shared/left_sidebar' %>
+
+      <!-- Avatar Side Panel -->
+      <%= render 'shared/avatar_side_panel' %>
 
       <!-- PWA Install Banner -->
       <div data-controller="pwa-install" class="hidden bg-primary-accent text-white text-center py-3 px-4 sm:px-6 lg:px-8" role="alert">
@@ -115,13 +71,13 @@
 
     <!-- Flash messages -->
     <% if notice %>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mx-4 mt-4">
+      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mx-4 mt-4 animate-slide-down shadow-sm">
         <%= notice %>
       </div>
     <% end %>
 
     <% if alert %>
-      <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mx-4 mt-4">
+      <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mx-4 mt-4 animate-slide-down shadow-sm">
         <%= alert %>
       </div>
     <% end %>

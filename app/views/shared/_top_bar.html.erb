@@ -1,0 +1,61 @@
+<!-- Top Bar - Responsive design for mobile and desktop -->
+<div class="sticky top-0 bg-background-secondary shadow-sm z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Left Side: Back Button (mobile only) + Context -->
+      <div class="flex items-center space-x-3">
+        <!-- Back Button - only on mobile, not on home page -->
+        <% if show_back_button? %>
+          <%= link_to back_path, class: "md:hidden text-text-primary hover:text-primary-accent" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          <% end %>
+        <% end %>
+
+        <!-- Trip Context / App Name - clickable to switch trip -->
+        <% if current_trip %>
+          <%= link_to select_trip_path, class: "flex items-center space-x-2 hover:text-primary-accent transition-colors group" do %>
+            <span class="text-lg font-bold text-text-primary group-hover:text-primary-accent">
+              <%= current_trip.name %>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-text-secondary group-hover:text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          <% end %>
+        <% else %>
+          <%= link_to root_path, class: "flex items-center" do %>
+            <span class="text-lg font-bold text-primary-accent">
+              <%= t('app_name') %>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Right Side: Help + Avatar -->
+      <div class="flex items-center space-x-4">
+        <!-- Help Icon -->
+        <%= link_to "#", class: "text-text-secondary hover:text-text-primary transition-colors hidden sm:block" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        <% end %>
+
+        <!-- Avatar Button with notification badge -->
+        <button type="button"
+                data-controller="side-panel"
+                data-action="click->side-panel#toggle"
+                class="relative flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary-accent rounded-full">
+          <%= user_avatar(Current.user, size: 8) %>
+
+          <!-- Notification Badge -->
+          <% if pending_invitations_count > 0 %>
+            <span class="absolute -top-1 -right-1 bg-accent-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              <%= pending_invitations_count %>
+            </span>
+          <% end %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,20 +8,9 @@ module ActiveSupport
     parallelize(workers: :number_of_processors)
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
+    # fixtures :all
 
     # Add more helper methods to be used by all tests here...
-  end
-end
-
-# Create mock data for testing
-class ActiveRecord::FixtureSet
-  # Create test users
-  def self.create_fixtures(fixtures_directory, table_names, class_names = {})
-    super
-  rescue
-    # Handle fixture creation errors gracefully
-    Rails.logger.warn "Could not create fixtures" if defined?(Rails.logger)
   end
 end
 

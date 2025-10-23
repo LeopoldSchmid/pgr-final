@@ -16,7 +16,16 @@ Rails.application.routes.draw do
     # Profile routes
     get "profile" => "profile#show"
     patch "profile" => "profile#update"
-    
+
+    # Trip Switcher routes
+    get 'select_trip' => 'trip_switcher#index', as: :select_trip
+    patch 'switch_trip' => 'trip_switcher#update', as: :switch_trip
+    delete 'clear_trip_context' => 'trip_switcher#destroy', as: :clear_trip_context
+
+    # Feature-based navigation routes (auto-scoped to current trip)
+    get 'plans' => 'plans#index', as: :plans
+    get 'memories' => 'memories#index', as: :memories
+
     # Trip resources
     resources :trips do
     # Trip-specific phase routes (Hub pages)

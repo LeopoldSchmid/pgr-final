@@ -1,0 +1,131 @@
+<% content_for :title, "#{@trip.name} - Memories" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-text-primary mb-2">
+      <%= t('memories.title') %>
+    </h1>
+    <p class="text-text-secondary">
+      <%= t('memories.subtitle', trip: @trip.name) %>
+    </p>
+  </div>
+
+  <!-- Memories Overview Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-background-secondary rounded-lg p-4 shadow-sm">
+      <div class="text-2xl font-bold text-primary-accent"><%= @total_entries %></div>
+      <div class="text-sm text-text-secondary"><%= t('memories.stats.journal_entries') %></div>
+    </div>
+    <div class="bg-background-secondary rounded-lg p-4 shadow-sm">
+      <div class="text-2xl font-bold text-primary-accent"><%= @total_photos %></div>
+      <div class="text-sm text-text-secondary"><%= t('memories.stats.photos') %></div>
+    </div>
+    <div class="bg-background-secondary rounded-lg p-4 shadow-sm">
+      <div class="text-2xl font-bold text-primary-accent"><%= @favorite_moments %></div>
+      <div class="text-sm text-text-secondary"><%= t('memories.stats.favorites') %></div>
+    </div>
+    <div class="bg-background-secondary rounded-lg p-4 shadow-sm">
+      <div class="text-2xl font-bold text-primary-accent"><%= @locations_visited %></div>
+      <div class="text-sm text-text-secondary"><%= t('memories.stats.locations') %></div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex gap-3 mb-6">
+    <%= link_to new_trip_journal_entry_path(@trip), class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
+      <%= t('journal_entries.new') %>
+    <% end %>
+    <%= link_to capture_trip_path(@trip), class: "bg-background-secondary text-text-primary px-4 py-2 rounded-lg font-medium hover:bg-background-primary transition-colors border border-gray-300" do %>
+      <%= t('trip_attachments.new') %>
+    <% end %>
+  </div>
+
+  <!-- Memories Timeline -->
+  <div class="space-y-6">
+    <% if @memories.any? %>
+      <% @memories.each do |memory| %>
+        <% if memory.is_a?(JournalEntry) %>
+          <!-- Journal Entry Card -->
+          <div class="bg-background-secondary rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <%= user_avatar(memory.user, size: 8) %>
+                  <div>
+                    <div class="font-semibold text-text-primary"><%= memory.user.email_address %></div>
+                    <div class="text-sm text-text-secondary">
+                      <%= l(memory.entry_date, format: :long) %>
+                      <% if memory.location.present? %>
+                        • <span class="inline-flex items-center">📍 <%= memory.location %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                <% if memory.favorite %>
+                  <span class="text-yellow-500">⭐</span>
+                <% end %>
+              </div>
+
+              <div class="text-text-primary prose max-w-none">
+                <%= format_journal_content(memory.content) %>
+              </div>
+
+              <div class="mt-4 flex items-center space-x-4 text-sm text-text-secondary">
+                <%= link_to edit_trip_journal_entry_path(@trip, memory), class: "hover:text-primary-accent" do %>
+                  <%= t('common.edit') %>
+                <% end %>
+                <span>•</span>
+                <span><%= memory.comments.count %> <%= t('comments.title').downcase %></span>
+              </div>
+            </div>
+          </div>
+
+        <% elsif memory.is_a?(TripAttachment) %>
+          <!-- Photo/Attachment Card -->
+          <div class="bg-background-secondary rounded-lg shadow-sm overflow-hidden">
+            <% if memory.file.attached? %>
+              <%= image_tag memory.file, class: "w-full h-auto max-h-96 object-cover" %>
+            <% end %>
+
+            <div class="p-4">
+              <div class="flex items-start space-x-3 mb-3">
+                <%= user_avatar(memory.user, size: 6) %>
+                <div class="flex-1">
+                  <div class="font-semibold text-text-primary text-sm"><%= memory.user.email_address %></div>
+                  <div class="text-xs text-text-secondary">
+                    <%= compact_time_ago(memory.created_at) %>
+                  </div>
+                </div>
+              </div>
+
+              <% if memory.caption.present? %>
+                <p class="text-text-primary"><%= memory.caption %></p>
+              <% end %>
+
+              <div class="mt-3 flex items-center space-x-4 text-sm text-text-secondary">
+                <span><%= memory.trip_attachment_votes.count %> <%= t('votes.title').downcase %></span>
+                <span>•</span>
+                <span><%= memory.trip_attachment_comments.count %> <%= t('comments.title').downcase %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <!-- Empty State -->
+      <div class="bg-background-secondary rounded-lg p-12 text-center">
+        <div class="text-6xl mb-4">📸</div>
+        <h3 class="text-xl font-bold text-text-primary mb-2">
+          <%= t('memories.empty.title') %>
+        </h3>
+        <p class="text-text-secondary mb-6">
+          <%= t('memories.empty.description') %>
+        </p>
+        <%= link_to new_trip_journal_entry_path(@trip), class: "inline-block bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
+          <%= t('memories.empty.cta') %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

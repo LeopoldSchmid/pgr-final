@@ -1,0 +1,97 @@
+<% content_for :title, "Select Trip" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-text-primary mb-2">
+      <%= t('trip_switcher.title') %>
+    </h1>
+    <p class="text-text-secondary">
+      <%= t('trip_switcher.subtitle') %>
+    </p>
+  </div>
+
+  <!-- Current Trip Indicator -->
+  <% if @current_trip_id %>
+    <div class="mb-6 p-4 bg-primary-accent/10 border border-primary-accent/20 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="text-primary-accent font-medium">📍 <%= t('trip_switcher.current_trip') %>:</span>
+          <span class="font-semibold text-text-primary">
+            <%= @all_trips.find { |t| t.id == @current_trip_id }&.name || t('trip_switcher.unknown') %>
+          </span>
+        </div>
+        <%= button_to clear_trip_context_path, method: :delete,
+            class: "text-sm text-text-secondary hover:text-text-primary transition-colors",
+            data: { turbo_confirm: t('trip_switcher.clear_confirm') } do %>
+          <%= t('trip_switcher.clear_context') %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Active Trips -->
+  <% if @active_trips.any? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-text-primary mb-4">
+        <%= t('trip_switcher.active_trips') %>
+      </h2>
+      <div class="space-y-3">
+        <% @active_trips.each do |trip| %>
+          <%= render partial: 'trip_card', locals: { trip: trip, is_current: trip.id == @current_trip_id, return_to: @return_to } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Planning Trips -->
+  <% if @planning_trips.any? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-text-primary mb-4">
+        <%= t('trip_switcher.planning_trips') %>
+      </h2>
+      <div class="space-y-3">
+        <% @planning_trips.each do |trip| %>
+          <%= render partial: 'trip_card', locals: { trip: trip, is_current: trip.id == @current_trip_id, return_to: @return_to } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Completed Trips -->
+  <% if @completed_trips.any? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-text-primary mb-4">
+        <%= t('trip_switcher.completed_trips') %>
+      </h2>
+      <div class="space-y-3">
+        <% @completed_trips.each do |trip| %>
+          <%= render partial: 'trip_card', locals: { trip: trip, is_current: trip.id == @current_trip_id, return_to: @return_to } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Empty State -->
+  <% if @all_trips.empty? %>
+    <div class="bg-background-secondary rounded-lg p-12 text-center">
+      <div class="text-6xl mb-4">✈️</div>
+      <h3 class="text-xl font-bold text-text-primary mb-2">
+        <%= t('trip_switcher.no_trips.title') %>
+      </h3>
+      <p class="text-text-secondary mb-6">
+        <%= t('trip_switcher.no_trips.description') %>
+      </p>
+      <%= link_to new_trip_path, class: "inline-block bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
+        <%= t('trips.new') %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Back Button -->
+  <div class="mt-6">
+    <%= link_to root_path, class: "text-text-secondary hover:text-text-primary transition-colors" do %>
+      ← <%= t('common.back_to_home') %>
+    <% end %>
+  </div>
+</div>

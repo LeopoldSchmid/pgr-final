@@ -3,7 +3,9 @@
   <%= navigation_context_indicator.html_safe if navigation_context_indicator %>
   
   <!-- Trip Header -->
-  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6">
+  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6"
+       data-controller="animate-on-scroll"
+       data-animate-on-scroll-animation-class-value="animate-slide-down">
     <div class="mb-4">
       <%= link_to reminisce_path, class: "text-primary-accent hover:text-blue-400 font-medium flex items-center group mb-3" do %>
         <span class="transform group-hover:-translate-x-1 transition-transform mr-2">←</span> All Memories
@@ -33,7 +35,7 @@
     
     <!-- Photo Gallery -->
     <% images_count = @entries_with_images.sum { |e| e.images.count } %>
-    <%= link_to gallery_trip_path(@trip), class: "bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105" do %>
+    <%= link_to gallery_trip_path(@trip), class: "bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 100 } do %>
       <div class="flex items-center justify-between mb-4">
         <div class="text-3xl">📸</div>
         <div class="bg-white/20 rounded-full px-2 py-1 text-xs font-medium">
@@ -45,7 +47,7 @@
     <% end %>
 
     <!-- Trip Timeline -->
-    <%= link_to timeline_path, class: "bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105" do %>
+    <%= link_to timeline_path, class: "bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 150 } do %>
       <div class="flex items-center justify-between mb-4">
         <div class="text-3xl">⏰</div>
         <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +64,7 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
     
     <!-- View All Memories -->
-    <%= link_to journal_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to journal_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 200 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">📖</div>
         <div class="text-sm font-medium text-text-primary">All Memories</div>
@@ -72,7 +74,7 @@
 
     <!-- Memory Map -->
     <% if @entries_with_locations.any? %>
-      <%= link_to map_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+      <%= link_to map_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 250 } do %>
         <div class="text-center">
           <div class="text-2xl mb-2">🗺️</div>
           <div class="text-sm font-medium text-text-primary">Memory Map</div>
@@ -90,7 +92,7 @@
     <% end %>
 
     <!-- Discussions -->
-    <%= link_to trip_discussions_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to trip_discussions_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 300 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">💬</div>
         <div class="text-sm font-medium text-text-primary">Discussions</div>
@@ -101,7 +103,7 @@
     <!-- Favorite Moments -->
     <% favorites_count = @journal_entries.where(favorite: true).count %>
     <% if favorites_count > 0 %>
-      <%= link_to journal_trip_path(@trip, search: 'favorite:true'), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+      <%= link_to journal_trip_path(@trip, search: 'favorite:true'), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 350 } do %>
         <div class="text-center">
           <div class="text-2xl mb-2">⭐</div>
           <div class="text-sm font-medium text-text-primary">Favorites</div>
@@ -119,7 +121,7 @@
     <% end %>
 
     <!-- Trip Report -->
-    <%= link_to report_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" do %>
+    <%= link_to report_trip_path(@trip), class: "bg-background-secondary rounded-xl p-4 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1", data: { controller: "animate-on-scroll", animate_on_scroll_animation_class_value: "animate-scale-in", animate_on_scroll_delay_value: 400 } do %>
       <div class="text-center">
         <div class="text-2xl mb-2">📊</div>
         <div class="text-sm font-medium text-text-primary">Trip Report</div>
@@ -131,7 +133,9 @@
 
   <!-- Recent Memories Highlight -->
   <% if @journal_entries.recent.limit(3).any? %>
-    <div class="bg-background-secondary rounded-xl p-4 mb-6">
+    <div class="bg-background-secondary rounded-xl p-4 mb-6"
+         data-controller="animate-on-scroll"
+         data-animate-on-scroll-animation-class-value="animate-slide-up">
       <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -177,7 +181,9 @@
   <% end %>
 
   <!-- Trip Statistics -->
-  <div class="bg-background-secondary rounded-xl p-4 mb-6">
+  <div class="bg-background-secondary rounded-xl p-4 mb-6"
+       data-controller="animate-on-scroll"
+       data-animate-on-scroll-animation-class-value="animate-fade-in">
     <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
