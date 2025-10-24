@@ -43,12 +43,26 @@
       onclick: "showNewDiscussionModal()"
     }
   when /\/reminisce/
-    { 
-      path: "#", 
-      icon: "↗", 
+    {
+      path: "#",
+      icon: "↗",
       tooltip: "Share Memory",
       color: "bg-purple-600 hover:bg-purple-700",
       onclick: "showShareMemoryModal()"
+    }
+  when /\/memories/
+    {
+      path: current_trip ? capture_trip_path(current_trip) : "#",
+      icon: "+",
+      tooltip: "Capture Moment",
+      color: "bg-primary-accent hover:bg-primary-accent/80"
+    }
+  when /\/expenses/
+    {
+      path: new_expense_path,
+      icon: "+",
+      tooltip: "Add Expense",
+      color: "bg-primary-accent hover:bg-primary-accent/80"
     }
   else
     nil

@@ -16,6 +16,13 @@ export default class extends Controller {
     e.preventDefault();
     // Stash the event so it can be triggered later.
     this.deferredPrompt = e;
+
+    // Check if user previously dismissed the banner
+    if (localStorage.getItem('pwa_install_dismissed')) {
+      console.log("PWA install banner was previously dismissed, not showing");
+      return;
+    }
+
     // Update UI to notify the user they can add to home screen
     this.element.classList.remove('hidden');
   }

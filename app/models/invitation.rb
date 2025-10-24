@@ -13,6 +13,7 @@ class Invitation < ApplicationRecord
   
   scope :pending, -> { where(status: 'pending') }
   scope :accepted, -> { where(status: 'accepted') }
+  scope :declined, -> { where(status: 'declined') }
   scope :active, -> { where(status: 'pending').where('expires_at > ?', Time.current) }
   
   before_validation :generate_token, on: :create

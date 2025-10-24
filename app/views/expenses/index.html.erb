@@ -1,10 +1,4 @@
 <div class="container mx-auto px-4 py-6">
-  <!-- Header -->
-  <div class="bg-background-secondary rounded-2xl shadow-lg p-6 mb-6">
-    <h1 class="text-2xl font-bold text-text-primary">
-      💰 Trip Expenses
-    </h1>
-  </div>
 
   <!-- Compact Stats & Actions -->
   <div class="bg-background-secondary rounded-xl shadow-sm p-4 mb-4">
@@ -14,10 +8,6 @@
         <div>Balance: <span class="font-bold <%= @user_balance >= 0 ? 'text-green-600' : 'text-red-600' %>"><%= @user_balance >= 0 ? '+' : '' %><%= "%.2f" % @user_balance %> EUR</span></div>
         <div><%= @expenses.count %> expenses</div>
       </div>
-      <%= link_to new_expense_path, 
-          class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors" do %>
-        ➕ Add Expense
-      <% end %>
     </div>
     
     <% if @settlement_suggestions.any? %>
