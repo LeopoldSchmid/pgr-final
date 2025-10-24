@@ -51,6 +51,10 @@ class SearchController < ApplicationController
     date_proposals = search_date_proposals(query)
     results += date_proposals.map { |proposal| format_date_proposal_result(proposal) }
 
+    # Search actions/shortcuts
+    actions = search_actions(query)
+    results += actions
+
     # Limit to 50 results total
     results = results.take(50)
 
@@ -119,6 +123,140 @@ class SearchController < ApplicationController
                 .includes(:trip)
                 .order(created_at: :desc)
                 .limit(10)
+  end
+
+  def search_actions(query)
+    # Define all searchable actions/shortcuts
+    actions = [
+      {
+        title: "Create New Trip",
+        keywords: ["create trip", "new trip", "add trip", "start trip"],
+        description: "Plan a new adventure",
+        url: new_trip_path,
+        type: "action"
+      },
+      {
+        title: "View Timeline",
+        keywords: ["timeline", "history", "view timeline", "all entries"],
+        description: "See all journal entries chronologically",
+        url: timeline_path,
+        type: "action"
+      },
+      {
+        title: "Favorite Locations",
+        keywords: ["favorites", "favorite locations", "saved places", "bookmarks"],
+        description: "View your favorite places",
+        url: favorite_locations_path,
+        type: "action"
+      },
+      {
+        title: "Recipe Library",
+        keywords: ["recipes", "browse recipes", "recipe library", "cookbook", "all recipes"],
+        description: "Browse all available recipes",
+        url: recipe_library_path,
+        type: "action"
+      },
+      {
+        title: "My Profile",
+        keywords: ["profile", "settings", "account", "my profile"],
+        description: "View and edit your profile",
+        url: "/profile",
+        type: "action"
+      },
+      {
+        title: "View Invitations",
+        keywords: ["invitations", "invites", "view invitations", "pending invitations"],
+        description: "See your trip invitations",
+        url: user_invitations_path,
+        type: "action"
+      },
+      {
+        title: "Plan Phase",
+        keywords: ["plan", "planning", "plan phase", "plan trips"],
+        description: "View all trips in planning phase",
+        url: plan_path,
+        type: "action"
+      },
+      {
+        title: "Go Phase",
+        keywords: ["go", "active", "go phase", "active trips", "ongoing"],
+        description: "View all active trips",
+        url: go_path,
+        type: "action"
+      },
+      {
+        title: "Reminisce Phase",
+        keywords: ["reminisce", "memories", "past", "reminisce phase", "completed trips"],
+        description: "View completed trips and memories",
+        url: reminisce_path,
+        type: "action"
+      }
+    ]
+
+    # Add trip-specific actions for user's active trips
+    Current.user.trips.limit(5).each do |trip|
+      actions += [
+        {
+          title: "Add Journal Entry to #{trip.name}",
+          keywords: ["journal", "entry", "add entry", "create entry", "new entry", "journal entry", trip.name.downcase],
+          description: "Create a new journal entry for this trip",
+          url: new_trip_journal_entry_path(trip),
+          type: "action",
+          badge: trip.name
+        },
+        {
+          title: "Add Expense to #{trip.name}",
+          keywords: ["expense", "add expense", "create expense", "new expense", "cost", trip.name.downcase],
+          description: "Track expenses for this trip",
+          url: new_trip_expense_path(trip),
+          type: "action",
+          badge: trip.name
+        },
+        {
+          title: "Create Date Proposal for #{trip.name}",
+          keywords: ["date", "proposal", "date proposal", "create date", "suggest date", "schedule", trip.name.downcase],
+          description: "Propose dates for this trip",
+          url: trip_date_proposals_path(trip),
+          type: "action",
+          badge: trip.name
+        },
+        {
+          title: "Add Recipe to #{trip.name}",
+          keywords: ["recipe", "add recipe", "create recipe", "new recipe", trip.name.downcase],
+          description: "Add a recipe for this trip",
+          url: new_trip_recipe_path(trip),
+          type: "action",
+          badge: trip.name
+        },
+        {
+          title: "Start Discussion for #{trip.name}",
+          keywords: ["discussion", "discuss", "new discussion", "create discussion", "talk", trip.name.downcase],
+          description: "Start a new discussion thread",
+          url: new_trip_discussion_path(trip),
+          type: "action",
+          badge: trip.name
+        }
+      ]
+    end
+
+    # Filter actions based on query
+    query_lower = query.downcase
+    matching_actions = actions.select do |action|
+      action[:title].downcase.include?(query_lower) ||
+        action[:keywords].any? { |keyword| keyword.include?(query_lower) }
+    end
+
+    # Format and return
+    matching_actions.take(8).map do |action|
+      {
+        type: action[:type],
+        title: action[:title],
+        description: action[:description],
+        subtitle: "Quick Action",
+        badge: action[:badge],
+        url: action[:url]
+      }
+    end
   end
 
   def format_trip_result(trip)
