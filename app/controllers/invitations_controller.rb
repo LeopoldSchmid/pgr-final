@@ -5,6 +5,7 @@ class InvitationsController < ApplicationController
   before_action :set_invitation_by_token, only: [:show, :accept, :decline]
   before_action :set_invitation_by_id, only: [:destroy]
   before_action :authorize_trip_access, only: [:new, :create, :destroy], if: -> { @trip }
+  before_action :resume_session_if_present, only: [:show, :accept, :decline]
 
   def index
     if @trip
@@ -78,20 +79,36 @@ class InvitationsController < ApplicationController
   end
 
   def accept
-    if Current.user
-      # User is already signed in
-      if @invitation.accept!(Current.user)
-        redirect_to trip_path(@invitation.trip), 
-                    notice: "🎉 Welcome to #{@invitation.trip.name}!"
-      else
-        redirect_to invitation_path(@invitation.token), 
-                    alert: "Unable to accept invitation. It may have expired."
-      end
-    else
+    if !Current.user
       # User needs to sign in or register first
       session[:invitation_token] = @invitation.token
-      redirect_to new_registration_path, 
-                  notice: "Please create an account to join #{@invitation.trip.name}"
+
+      # Check if user exists
+      existing_user = User.find_by(email_address: @invitation.email)
+      if existing_user
+        redirect_to new_session_path,
+                    notice: "Please sign in with #{@invitation.email} to accept the invitation"
+      else
+        redirect_to new_registration_path(email: @invitation.email),
+                    notice: "Create your account to join #{@invitation.trip.name}!"
+      end
+      return
+    end
+
+    # Verify user email matches invitation
+    if Current.user.email_address != @invitation.email
+      redirect_to invitation_path(@invitation.token),
+                  alert: "This invitation is for #{@invitation.email}. Please sign in with that account."
+      return
+    end
+
+    # User is signed in with correct email - accept the invitation
+    if @invitation.accept!(Current.user)
+      redirect_to trip_path(@invitation.trip),
+                  notice: "🎉 Welcome to #{@invitation.trip.name}!"
+    else
+      redirect_to invitation_path(@invitation.token),
+                  alert: "Unable to accept invitation. It may have expired."
     end
   end
 
@@ -112,6 +129,12 @@ class InvitationsController < ApplicationController
   end
 
   private
+
+  def resume_session_if_present
+    # Try to resume session if user has a valid session cookie
+    # This allows us to check if user is logged in even though we allow unauthenticated access
+    resume_session if cookies.signed[:session_id]
+  end
 
   def set_trip
     @trip = Current.user.trips.find(params[:trip_id])

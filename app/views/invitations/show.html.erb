@@ -45,14 +45,14 @@
         
         <!-- Action Buttons -->
         <div class="space-y-3 pt-4">
-          <%= link_to accept_invitation_path(@invitation.token), 
-              method: :patch,
+          <%= link_to accept_invitation_path(@invitation.token),
+              data: { turbo_method: :patch },
               class: "w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg text-center block" do %>
             ✅ Accept Invitation
           <% end %>
-          
-          <%= link_to decline_invitation_path(@invitation.token), 
-              method: :patch,
+
+          <%= link_to decline_invitation_path(@invitation.token),
+              data: { turbo_method: :patch },
               class: "w-full bg-gray-500 text-white px-4 py-3 rounded-xl font-bold hover:bg-gray-600 transition-all duration-200 text-center block" do %>
             ❌ Decline
           <% end %>

@@ -40,12 +40,15 @@ module Authentication
         invitation_token = session[:invitation_token]
         invitation = Invitation.find_by(token: invitation_token)
         if invitation&.can_be_accepted?
-          return invitation_path(invitation_token)
+          # Clear the token from session before redirecting
+          session.delete(:invitation_token)
+          # Redirect to accept action to automatically accept the invitation
+          return accept_invitation_path(invitation_token)
         else
           session.delete(:invitation_token)
         end
       end
-      
+
       session.delete(:return_to_after_authenticating) || root_url
     end
 
