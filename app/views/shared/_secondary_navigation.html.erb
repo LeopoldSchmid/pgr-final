@@ -6,15 +6,21 @@
   <nav class="sticky top-16 z-30 bg-background-secondary shadow-sm safe-area-inset-top"
        data-controller="secondary-navigation">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex overflow-x-auto scrollbar-hide md:justify-start border-b border-white/10">
+      <div class="flex overflow-x-auto scrollbar-hide justify-around border-b border-white/10">
         <% secondary_nav_items(section).each do |item| %>
+          <% is_active = secondary_nav_active?(section, item[:key]) %>
           <%= link_to item[:path],
-              class: "secondary-nav-item flex-shrink-0 px-4 py-3 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-all duration-200 #{secondary_nav_active?(section, item[:key]) ? 'text-primary-accent border-primary-accent font-semibold' : 'text-text-primary/70 border-transparent hover:text-text-primary'}",
+              class: "secondary-nav-item flex-shrink-0 px-3 py-3 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center gap-2 #{is_active ? 'text-primary-accent border-primary-accent font-semibold' : 'text-text-primary/70 border-transparent hover:text-text-primary'}",
               data: {
                 secondary_navigation_target: "item",
                 turbo_action: "replace"
               } do %>
-            <%= item[:label] %>
+            <% if secondary_nav_icon_for(item[:key]) %>
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= secondary_nav_icon_for(item[:key]) %>"/>
+              </svg>
+            <% end %>
+            <span class="<%= is_active ? '' : 'hidden md:inline' %>"><%= item[:label] %></span>
           <% end %>
         <% end %>
       </div>

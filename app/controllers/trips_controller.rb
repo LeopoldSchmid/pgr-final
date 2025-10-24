@@ -1,6 +1,6 @@
 class TripsController < ApplicationController
   before_action :require_authentication
-  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery, :overview, :details, :participants]
+  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery, :overview, :dates, :details, :participants]
 
   def index
     # Include trips user owns + trips user is a member of
@@ -96,6 +96,12 @@ class TripsController < ApplicationController
     @recent_expenses = @trip.expenses.order(created_at: :desc).limit(5)
     @total_expenses = @trip.expenses.sum(:amount)
     @participants = @trip.trip_members.includes(:user)
+  end
+
+  # Trip Dates (manage date proposals and voting)
+  def dates
+    # View and vote on date proposals
+    @date_proposals = @trip.date_proposals.order(:start_date)
   end
 
   # Trip Details (edit dates, locations, settings)

@@ -1,68 +1,67 @@
 <div class="container mx-auto px-4 py-6">
   <!-- Header -->
-  <div class="mb-6">
-    <%= link_to @trip, class: "text-purple-700 hover:text-purple-900 font-medium flex items-center group mb-4" do %>
-      <span class="transform group-hover:-translate-x-1 transition-transform mr-2">👥</span> Back to <%= @trip.name %>
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4 mb-4">
+    <%= link_to trip_invitations_path(@trip), class: "text-primary-accent hover:text-blue-400 font-medium flex items-center" do %>
+      <span class="mr-2">←</span> Back to Invitations • <span class="ml-2">Invite Friend</span>
     <% end %>
-    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-800 to-pink-700 bg-clip-text text-transparent">
-      Invite Friends
-    </h1>
-    <p class="text-purple-700 mt-2">Send an invitation to join <%= @trip.name %></p>
   </div>
 
   <!-- Invitation Form -->
-  <div class="bg-gradient-to-r from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-8">
-    <%= form_with model: [@trip, @invitation], local: true, class: "space-y-6" do |form| %>
-      
-      <!-- Email -->
-      <div>
-        <%= form.label :email, class: "block text-purple-700 font-medium mb-2" do %>
-          📧 Email Address
-        <% end %>
-        <%= form.email_field :email, 
-            placeholder: "friend@example.com",
-            class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
+  <div class="bg-background-secondary rounded-xl shadow-sm p-4">
+    <%= form_with model: [@trip, @invitation], local: true, class: "space-y-4" do |form| %>
+
+      <!-- Email and Role - Inline Labels and Fields -->
+      <div class="grid grid-cols-1 gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+          <%= form.label :email, "Email Address", class: "text-text-primary font-medium text-sm sm:w-24 flex-shrink-0 mb-1 sm:mb-0" %>
+          <%= form.email_field :email,
+              placeholder: "friend@example.com",
+              class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
         <% if @invitation.errors[:email].any? %>
-          <p class="text-red-500 text-sm mt-1"><%= @invitation.errors[:email].first %></p>
+          <div>
+            <p class="text-red-500 text-sm"><%= @invitation.errors[:email].first %></p>
+          </div>
         <% end %>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+          <%= form.label :role, "Role", class: "text-text-primary font-medium text-sm sm:w-24 flex-shrink-0 mb-1 sm:mb-0" %>
+          <%= form.select :role,
+              options_for_select([
+                ['Guest - Can view trip details and journal entries', 'guest'],
+                ['Member - Can view and add expenses', 'member'],
+                ['Admin - Can manage expenses and invite others', 'admin']
+              ], @invitation.role),
+              {},
+              class: "flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background-primary text-text-primary text-sm" %>
+        </div>
       </div>
 
-      <!-- Role -->
-      <div>
-        <%= form.label :role, class: "block text-purple-700 font-medium mb-2" do %>
-          🔑 Role
-        <% end %>
-        <%= form.select :role, 
-            options_for_select([
-              ['👥 Guest - Can view trip details and journal entries', 'guest'],
-              ['👤 Member - Can view and add expenses', 'member'],
-              ['👑 Admin - Can manage expenses and invite others', 'admin']
-            ], @invitation.role),
-            {},
-            class: "w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
-        <p class="text-purple-600 text-sm mt-1">Guests can view the trip, members can participate in expenses, admins can manage everything</p>
+      <!-- Role Description -->
+      <div class="text-text-secondary text-sm bg-background-primary rounded-lg p-3 border border-gray-200">
+        Guests can view the trip, members can participate in expenses, admins can manage everything
       </div>
 
       <!-- Info Box -->
-      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <div class="flex items-start space-x-3">
-          <span class="text-blue-500 text-xl">💡</span>
-          <div class="text-blue-800">
-            <h4 class="font-semibold mb-2">How invitations work:</h4>
-            <ul class="text-sm space-y-1">
-              <li>• Your friend will receive an invitation link</li>
-              <li>• They can create an account or sign in with an existing account</li>
-              <li>• Once accepted, they'll be able to participate in expenses</li>
-              <li>• Invitations expire after 7 days</li>
-            </ul>
-          </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="text-blue-800">
+          <h4 class="font-semibold text-sm mb-1">How invitations work:</h4>
+          <ul class="text-xs space-y-1">
+            <li>• Your friend will receive an invitation link</li>
+            <li>• They can create an account or sign in with an existing account</li>
+            <li>• Once accepted, they'll be able to participate in the trip</li>
+            <li>• Invitations expire after 7 days</li>
+          </ul>
         </div>
       </div>
 
       <!-- Submit Button -->
-      <div class="text-center pt-4">
-        <%= form.submit "💌 Send Invitation", 
-            class: "bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg transform hover:scale-105 text-lg" %>
+      <div class="flex justify-end space-x-3">
+        <%= link_to trip_invitations_path(@trip), class: "px-4 py-2 text-text-secondary hover:text-text-primary" do %>
+          Cancel
+        <% end %>
+        <%= form.submit "Send Invitation",
+            class: "bg-primary-accent text-background-primary px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors" %>
       </div>
     <% end %>
   </div>

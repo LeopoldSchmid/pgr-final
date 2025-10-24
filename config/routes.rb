@@ -56,6 +56,7 @@ Rails.application.routes.draw do
 
     # Context-based trip hub pages (NEW structure)
     get 'trip' => 'trips#overview', as: :trip_overview
+    get 'trip/dates' => 'trips#dates', as: :trip_dates
     get 'trip/details' => 'trips#details', as: :trip_details
     get 'trip/participants' => 'trips#participants', as: :trip_participants
     get 'trip/discussions' => 'discussions#index', as: :trip_discussions

@@ -63,6 +63,7 @@ en:
 
       # Trip section
       overview: "Overview"
+      dates: "Dates"
       details: "Details"
       participants: "Participants"
       discussions: "Discussions"
