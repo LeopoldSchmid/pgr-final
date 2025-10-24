@@ -1,0 +1,30 @@
+<% content_for :title, "Expenses By Category - #{@trip.name}" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Expenses By Category</h1>
+    <%= link_to "+ Add Expense", new_expense_path, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <% if @expenses_by_category.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @expenses_by_category.each do |category, amount| %>
+        <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-text-primary capitalize"><%= category || "Uncategorized" %></h3>
+            </div>
+            <p class="text-2xl font-bold text-primary-accent">
+              <%= number_to_currency(amount, precision: 2) %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <p class="text-text-secondary mb-4">No expenses yet</p>
+      <%= link_to "Add First Expense", new_expense_path, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+    </div>
+  <% end %>
+</div>

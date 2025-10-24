@@ -53,11 +53,34 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should redirect to trip selection when no trip context" do
+  test "should show global feed when no trip context" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
     get memories_url
-    assert_redirected_to select_trip_url
+    assert_response :success
+  end
+
+  test "should get albums page" do
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    session[:current_trip_id] = @trip.id
+
+    get memories_albums_url
+    assert_response :success
+  end
+
+  test "should get map page" do
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    session[:current_trip_id] = @trip.id
+
+    get memories_map_url
+    assert_response :success
+  end
+
+  test "should get favorites page" do
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+
+    get memories_favorites_url
+    assert_response :success
   end
 
   test "should require authentication" do
@@ -85,12 +108,12 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should not allow access to unauthorized trip" do
+  test "albums should not allow access to unauthorized trip" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
     session[:current_trip_id] = @unauthorized_trip.id
 
-    get memories_url
+    get memories_albums_url
     assert_redirected_to select_trip_url
   end
 

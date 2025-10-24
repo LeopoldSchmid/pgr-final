@@ -1,0 +1,57 @@
+<% content_for :title, "Upcoming Trips" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Upcoming Trips</h1>
+    <%= link_to "+ New Trip", new_trip_path, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <% if @upcoming_trips.any? %>
+    <div class="space-y-4">
+      <% @upcoming_trips.each do |trip| %>
+        <%= link_to trip_overview_path, onclick: "window.location='#{switch_trip_path(trip_id: trip.id, return_to: trip_overview_path)}'; return false;", class: "block" do %>
+          <div class="bg-background-secondary rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="text-xl font-semibold text-text-primary mb-1"><%= trip.name %></h3>
+                <% if trip.description.present? %>
+                  <p class="text-sm text-text-secondary mb-2"><%= trip.description.truncate(100) %></p>
+                <% end %>
+              </div>
+              <span class="text-xs bg-primary-accent/20 text-primary-accent px-3 py-1 rounded-full whitespace-nowrap ml-4">
+                <%= distance_of_time_in_words_to_now(trip.start_date) %> away
+              </span>
+            </div>
+
+            <div class="flex items-center space-x-4 text-sm text-text-secondary">
+              <div class="flex items-center space-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span><%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d, %Y") %></span>
+              </div>
+
+              <% if trip.trip_members.any? %>
+                <div class="flex items-center space-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span><%= trip.trip_members.count + 1 %> people</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-text-secondary mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+      </svg>
+      <h2 class="text-xl font-semibold text-text-primary mb-2">No Upcoming Trips</h2>
+      <p class="text-text-secondary mb-6">Start planning your next adventure!</p>
+      <%= link_to "Create Trip", new_trip_path, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+    </div>
+  <% end %>
+</div>

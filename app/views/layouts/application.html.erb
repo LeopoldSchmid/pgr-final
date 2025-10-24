@@ -40,6 +40,11 @@
       <!-- New Top Bar -->
       <%= render 'shared/top_bar' %>
 
+      <!-- Secondary Navigation -->
+      <% if current_navigation_section %>
+        <%= render 'shared/secondary_navigation', section: current_navigation_section %>
+      <% end %>
+
       <!-- Left Sidebar (Desktop) -->
       <%= render 'shared/left_sidebar' %>
 

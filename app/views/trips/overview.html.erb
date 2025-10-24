@@ -1,0 +1,193 @@
+<% content_for :title, @trip.name %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Trip Header -->
+  <div class="bg-background-secondary rounded-2xl shadow-lg overflow-hidden mb-6 animate-fade-in">
+    <!-- Hero Section -->
+    <div class="relative h-48 bg-gradient-to-br from-primary-accent/20 to-primary-accent/5">
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-text-primary mb-2"><%= @trip.name %></h1>
+          <% if @trip.start_date && @trip.end_date %>
+            <p class="text-text-secondary text-lg">
+              <%= @trip.start_date.strftime("%b %d") %> - <%= @trip.end_date.strftime("%b %d, %Y") %>
+            </p>
+          <% else %>
+            <p class="text-text-secondary text-lg">Dates TBD</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-3 gap-4 p-6 border-t border-white/10">
+      <!-- Days Until/Remaining -->
+      <div class="text-center">
+        <% if @trip.start_date %>
+          <% days_diff = (@trip.start_date - Date.today).to_i %>
+          <% if days_diff > 0 %>
+            <div class="text-2xl font-bold text-primary-accent"><%= days_diff %></div>
+            <div class="text-xs text-text-secondary">Days Until</div>
+          <% elsif days_diff < 0 %>
+            <div class="text-2xl font-bold text-primary-accent">Past</div>
+            <div class="text-xs text-text-secondary">Trip</div>
+          <% else %>
+            <div class="text-2xl font-bold text-primary-accent">Today!</div>
+            <div class="text-xs text-text-secondary">Starting</div>
+          <% end %>
+        <% else %>
+          <div class="text-2xl font-bold text-text-secondary">—</div>
+          <div class="text-xs text-text-secondary">No Date</div>
+        <% end %>
+      </div>
+
+      <!-- Budget -->
+      <div class="text-center border-l border-r border-white/10">
+        <div class="text-2xl font-bold text-primary-accent">
+          <%= number_to_currency(@total_expenses, precision: 0) %>
+        </div>
+        <div class="text-xs text-text-secondary">Spent</div>
+      </div>
+
+      <!-- Memories -->
+      <div class="text-center">
+        <div class="text-2xl font-bold text-primary-accent">
+          <%= @journal_entries.count %>
+        </div>
+        <div class="text-xs text-text-secondary">Memories</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Planning Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Dates Card -->
+    <%= link_to trip_details_path, class: "bg-background-secondary rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow animate-fade-in" do %>
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-primary-accent/20 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text-primary">Dates</h3>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      <% if @trip.start_date && @trip.end_date %>
+        <p class="text-text-primary font-medium"><%= @trip.start_date.strftime("%B %d") %> - <%= @trip.end_date.strftime("%B %d, %Y") %></p>
+        <p class="text-text-secondary text-sm mt-1">
+          <%= (@trip.end_date - @trip.start_date).to_i + 1 %> days
+        </p>
+      <% else %>
+        <p class="text-text-secondary">Dates to be determined</p>
+        <% if @date_proposals.any? %>
+          <p class="text-sm text-primary-accent mt-1"><%= @date_proposals.count %> proposals pending</p>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <!-- Participants Card -->
+    <%= link_to trip_participants_path, class: "bg-background-secondary rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow animate-fade-in" do %>
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-primary-accent/20 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text-primary">Participants</h3>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      <p class="text-text-primary font-medium"><%= @participants.count + 1 %> people</p>
+      <p class="text-text-secondary text-sm mt-1">Including you</p>
+    <% end %>
+
+    <!-- Plans Card -->
+    <%= link_to plans_path, class: "bg-background-secondary rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow animate-fade-in" do %>
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-primary-accent/20 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text-primary">Plans</h3>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      <p class="text-text-secondary">Meals, shopping, packing</p>
+    <% end %>
+
+    <!-- Budget Card -->
+    <%= link_to expenses_path, class: "bg-background-secondary rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow animate-fade-in" do %>
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-primary-accent/20 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-text-primary">Budget</h3>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      <p class="text-text-primary font-medium"><%= number_to_currency(@total_expenses) %></p>
+      <% if @recent_expenses.any? %>
+        <p class="text-text-secondary text-sm mt-1"><%= @recent_expenses.count %> recent expenses</p>
+      <% else %>
+        <p class="text-text-secondary text-sm mt-1">No expenses yet</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Recent Activity -->
+  <% if @journal_entries.any? || @recent_expenses.any? %>
+    <div class="bg-background-secondary rounded-2xl shadow-lg p-6 animate-fade-in">
+      <h2 class="text-xl font-bold text-text-primary mb-4">Recent Activity</h2>
+      <div class="space-y-3">
+        <% if @journal_entries.any? %>
+          <% @journal_entries.first(3).each do |entry| %>
+            <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-background-primary/50 transition-colors">
+              <div class="w-8 h-8 rounded-full bg-primary-accent/20 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-text-primary truncate"><%= entry.content.truncate(50) %></p>
+                <p class="text-xs text-text-secondary"><%= time_ago_in_words(entry.created_at) %> ago</p>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+        <% if @recent_expenses.any? %>
+          <% @recent_expenses.first(2).each do |expense| %>
+            <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-background-primary/50 transition-colors">
+              <div class="w-8 h-8 rounded-full bg-primary-accent/20 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-text-primary"><%= expense.description %></p>
+                <p class="text-xs text-text-secondary">
+                  <%= number_to_currency(expense.amount) %> • <%= time_ago_in_words(expense.created_at) %> ago
+                </p>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

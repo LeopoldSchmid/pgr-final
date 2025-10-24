@@ -1,0 +1,50 @@
+<% content_for :title, "Calendar" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Trip Calendar</h1>
+    <%= link_to "+ New Trip", new_trip_path, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+    <% if @calendar_events.any? %>
+      <!-- Calendar placeholder - would integrate with FullCalendar.js -->
+      <div id="trip-calendar" class="min-h-96" data-controller="calendar" data-calendar-events-value="<%= @calendar_events.to_json %>">
+        <!-- Calendar will be rendered here by JavaScript -->
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-text-secondary mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h2 class="text-xl font-semibold text-text-primary mb-2">No Trips Scheduled</h2>
+        <p class="text-text-secondary mb-6">Create your first trip to see it on the calendar</p>
+        <%= link_to "Create Trip", new_trip_path, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Upcoming Events List -->
+  <% if @calendar_events.any? %>
+    <div class="mt-6 bg-background-secondary rounded-xl p-6 shadow-lg">
+      <h2 class="text-lg font-semibold text-text-primary mb-4">Upcoming Trips</h2>
+      <div class="space-y-3">
+        <% @all_trips.select { |t| t.start_date && t.start_date >= Date.today }.sort_by(&:start_date).first(5).each do |trip| %>
+          <%= link_to trip_overview_path, onclick: "window.location='#{switch_trip_path(trip_id: trip.id, return_to: trip_overview_path)}'; return false;", class: "block p-4 bg-background-primary/50 rounded-lg hover:bg-background-primary transition-colors" do %>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-text-primary"><%= trip.name %></p>
+                <p class="text-sm text-text-secondary">
+                  <%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d, %Y") %>
+                </p>
+              </div>
+              <p class="text-sm text-primary-accent">
+                <%= distance_of_time_in_words_to_now(trip.start_date) %> away
+              </p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

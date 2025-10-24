@@ -16,6 +16,29 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @expense.description
   end
 
+  test "should get by_person page" do
+    session[:current_trip_id] = @trip.id
+    get expenses_by_person_url
+    assert_response :success
+  end
+
+  test "should get by_category page" do
+    session[:current_trip_id] = @trip.id
+    get expenses_by_category_url
+    assert_response :success
+  end
+
+  test "should get settle page" do
+    session[:current_trip_id] = @trip.id
+    get expenses_settle_url
+    assert_response :success
+  end
+
+  test "should get summary page" do
+    get expenses_summary_url
+    assert_response :success
+  end
+
   test "should get new" do
     get new_trip_expense_path(@trip)
     assert_response :success

@@ -1,0 +1,38 @@
+<% content_for :title, "Shopping - #{@trip.name}" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Shopping Lists</h1>
+    <%= link_to "New List", trip_shopping_lists_path(@trip), method: :post, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <% if @shopping_lists.any? %>
+    <div class="space-y-4">
+      <% @shopping_lists.each do |list| %>
+        <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-text-primary">
+              Shopping List <%= list.created_at.strftime("%b %d") %>
+            </h3>
+            <%= link_to "View", trip_shopping_list_path(@trip, list), class: "text-primary-accent hover:text-blue-400 text-sm transition-colors" %>
+          </div>
+          <% if list.shopping_items.any? %>
+            <p class="text-sm text-text-secondary">
+              <%= list.shopping_items.count %> items
+              <% purchased_count = list.shopping_items.where(purchased: true).count %>
+              <% if purchased_count > 0 %>
+                • <%= purchased_count %> purchased
+              <% end %>
+            </p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <p class="text-text-secondary mb-4">No shopping lists yet</p>
+      <p class="text-sm text-text-secondary mb-6">Create a shopping list from your selected recipes</p>
+      <%= link_to "Create Shopping List", trip_shopping_lists_path(@trip), method: :post, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+    </div>
+  <% end %>
+</div>

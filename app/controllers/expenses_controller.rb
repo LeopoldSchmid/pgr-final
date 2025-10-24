@@ -13,6 +13,39 @@ class ExpensesController < ApplicationController
     @settlement_suggestions = @trip.settlement_suggestions
   end
 
+  # Secondary nav: By Person
+  def by_person
+    @expenses = @trip.expenses.includes(:payer, :participants).recent
+    @expenses_by_person = @expenses.group_by(&:payer)
+    @total_by_person = @expenses_by_person.transform_values { |exps| exps.sum(&:amount) }
+  end
+
+  # Secondary nav: By Category
+  def by_category
+    @expenses = @trip.expenses.includes(:payer, :participants).recent
+    @expenses_by_category = @trip.expenses_by_category
+  end
+
+  # Secondary nav: Settle Up
+  def settle
+    @user_balance = @trip.user_balance(Current.user)
+    @settlement_suggestions = @trip.settlement_suggestions
+    @all_balances = @trip.all_user_balances
+  end
+
+  # Global context: Summary across trips
+  def summary
+    # Show expense summary across all user trips
+    user_trip_ids = (Current.user.trips.pluck(:id) +
+                    Trip.joins(:trip_members).where(trip_members: { user: Current.user }).pluck(:id)).uniq
+
+    @total_spent = Expense.where(trip_id: user_trip_ids).sum(:amount)
+    @expenses_by_trip = Expense.where(trip_id: user_trip_ids)
+                               .joins(:trip)
+                               .group('trips.name')
+                               .sum(:amount)
+  end
+
   def new
     @expense = @trip.expenses.build(
       payer: Current.user,

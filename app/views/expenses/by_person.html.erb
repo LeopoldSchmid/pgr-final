@@ -1,0 +1,52 @@
+<% content_for :title, "Expenses By Person - #{@trip.name}" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Expenses By Person</h1>
+    <%= link_to "+ Add Expense", new_expense_path, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <% if @expenses_by_person.any? %>
+    <div class="space-y-4">
+      <% @expenses_by_person.each do |person, person_expenses| %>
+        <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <%= user_avatar(person, size: 10) %>
+              <div>
+                <h3 class="text-lg font-semibold text-text-primary"><%= person.email_address %></h3>
+                <p class="text-sm text-text-secondary"><%= person_expenses.count %> expenses</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold text-primary-accent">
+                <%= number_to_currency(@total_by_person[person], precision: 2) %>
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <% person_expenses.first(3).each do |expense| %>
+              <div class="flex items-center justify-between py-2 border-t border-white/10">
+                <div>
+                  <p class="text-sm font-medium text-text-primary"><%= expense.description %></p>
+                  <p class="text-xs text-text-secondary"><%= expense.expense_date.strftime("%b %d, %Y") %></p>
+                </div>
+                <p class="text-sm text-text-primary"><%= number_to_currency(expense.amount) %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <% if person_expenses.count > 3 %>
+            <p class="text-xs text-text-secondary mt-3">+ <%= person_expenses.count - 3 %> more</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <p class="text-text-secondary mb-4">No expenses yet</p>
+      <%= link_to "Add First Expense", new_expense_path, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+    </div>
+  <% end %>
+</div>

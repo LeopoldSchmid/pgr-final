@@ -1,21 +1,47 @@
 class PlansController < ApplicationController
   before_action :require_authentication
-  before_action :ensure_trip_context
+  before_action :ensure_trip_context, except: [:templates]
 
   def index
+    # Smart redirect based on context
+    if current_trip
+      redirect_to plans_meals_path
+    else
+      redirect_to recipe_library_path
+    end
+  end
+
+  # Trip context: Meals planning
+  def meals
     @trip = current_trip
+    @recipes = @trip.recipes.order(created_at: :desc)
+    @selected_recipes = @trip.recipes.where(selected_for_shopping: true)
+  end
 
-    # Load planning-related resources for the current trip
-    @date_proposals = @trip.date_proposals.includes(:proposed_by, :user_availabilities).order(created_at: :desc)
-    @discussions = @trip.discussion_posts.includes(:user).order(created_at: :desc).limit(10)
-    @shopping_lists = @trip.shopping_lists.order(created_at: :desc)
-    @recipes = @trip.recipes.where(selected_for_shopping: true).order(created_at: :desc)
+  # Trip context: Shopping lists
+  def shopping
+    @trip = current_trip
+    @shopping_lists = @trip.shopping_lists.includes(:shopping_items).order(created_at: :desc)
+  end
 
-    # Count stats for overview
-    @total_proposals = @date_proposals.count
-    @total_discussions = @trip.discussion_posts.count
-    @total_shopping_items = @trip.shopping_lists.joins(:shopping_items).count
-    @selected_recipes_count = @recipes.count
+  # Trip context: Packing list
+  def packing
+    @trip = current_trip
+    # Packing list functionality to be implemented
+    @packing_items = [] # Placeholder
+  end
+
+  # Trip context: Itinerary
+  def itinerary
+    @trip = current_trip
+    # Itinerary functionality to be implemented
+    @itinerary_items = [] # Placeholder
+  end
+
+  # Global context: Templates
+  def templates
+    # Template functionality to be implemented
+    @templates = [] # Placeholder
   end
 
   private

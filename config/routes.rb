@@ -23,8 +23,23 @@ Rails.application.routes.draw do
     delete 'clear_trip_context' => 'trip_switcher#destroy', as: :clear_trip_context
 
     # Feature-based navigation routes (auto-scoped to current trip)
+    # Plans section
     get 'plans' => 'plans#index', as: :plans
+    get 'plans/meals' => 'plans#meals', as: :plans_meals
+    get 'plans/shopping' => 'plans#shopping', as: :plans_shopping
+    get 'plans/packing' => 'plans#packing', as: :plans_packing
+    get 'plans/itinerary' => 'plans#itinerary', as: :plans_itinerary
+    get 'plans/templates' => 'plans#templates', as: :plans_templates
+
+    # Memories section
     get 'memories' => 'memories#index', as: :memories
+    get 'memories/albums' => 'memories#albums', as: :memories_albums
+    get 'memories/map' => 'memories#map', as: :memories_map
+    get 'memories/favorites' => 'memories#favorites', as: :memories_favorites
+
+    # Home section
+    get 'home/calendar' => 'home#calendar', as: :home_calendar
+    get 'home/upcoming' => 'home#upcoming', as: :home_upcoming
 
     # Context-based expenses routes
     resources :expenses, only: [:index, :new, :create, :edit, :update, :destroy] do
@@ -33,8 +48,19 @@ Rails.application.routes.draw do
         get :duplicate
       end
     end
+    # Expenses secondary navigation
+    get 'expenses/by-person' => 'expenses#by_person', as: :expenses_by_person
+    get 'expenses/by-category' => 'expenses#by_category', as: :expenses_by_category
+    get 'expenses/settle' => 'expenses#settle', as: :expenses_settle
+    get 'expenses/summary' => 'expenses#summary', as: :expenses_summary
 
-    # Context-based trip hub pages (alternative to /trips/:id/plan, etc.)
+    # Context-based trip hub pages (NEW structure)
+    get 'trip' => 'trips#overview', as: :trip_overview
+    get 'trip/details' => 'trips#details', as: :trip_details
+    get 'trip/participants' => 'trips#participants', as: :trip_participants
+    get 'trip/discussions' => 'discussions#index', as: :trip_discussions
+
+    # Legacy context-based routes (redirect to new structure)
     get 'trip/plan' => 'trips#plan', as: :trip_plan_context
     get 'trip/go' => 'trips#go', as: :trip_go_context
     get 'trip/reminisce' => 'trips#reminisce', as: :trip_reminisce_context

@@ -1,0 +1,23 @@
+<%# Secondary Navigation Component
+    Twitter-style horizontal tabs that appear below the header
+    Shows sub-features for each main section %>
+
+<% if show_secondary_navigation?(section) %>
+  <nav class="sticky top-16 z-30 bg-background-secondary shadow-sm safe-area-inset-top"
+       data-controller="secondary-navigation">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex overflow-x-auto scrollbar-hide md:justify-start border-b border-white/10">
+        <% secondary_nav_items(section).each do |item| %>
+          <%= link_to item[:path],
+              class: "secondary-nav-item flex-shrink-0 px-4 py-3 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-all duration-200 #{secondary_nav_active?(section, item[:key]) ? 'text-primary-accent border-primary-accent font-semibold' : 'text-text-primary/70 border-transparent hover:text-text-primary'}",
+              data: {
+                secondary_navigation_target: "item",
+                turbo_action: "replace"
+              } do %>
+            <%= item[:label] %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+<% end %>

@@ -1,0 +1,32 @@
+<% content_for :title, "Meals - #{@trip.name}" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Meal Planning</h1>
+    <%= link_to "Browse Recipes", recipe_library_path, class: "bg-primary-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors text-sm" %>
+  </div>
+
+  <% if @recipes.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @recipes.each do |recipe| %>
+        <div class="bg-background-secondary rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+          <h3 class="text-lg font-semibold text-text-primary mb-2"><%= recipe.name %></h3>
+          <% if recipe.description.present? %>
+            <p class="text-sm text-text-secondary mb-4"><%= recipe.description.truncate(100) %></p>
+          <% end %>
+          <div class="flex items-center justify-between">
+            <%= link_to "View", trip_recipe_path(@trip, recipe), class: "text-primary-accent hover:text-blue-400 text-sm transition-colors" %>
+            <% if recipe.selected_for_shopping? %>
+              <span class="text-xs bg-primary-accent/20 text-primary-accent px-2 py-1 rounded">Selected</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <p class="text-text-secondary mb-4">No recipes added yet</p>
+      <%= link_to "Browse Recipe Library", recipe_library_path, class: "inline-block bg-primary-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-accent/90 transition-colors" %>
+    </div>
+  <% end %>
+</div>

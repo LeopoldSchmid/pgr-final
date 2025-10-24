@@ -1,6 +1,6 @@
 class TripsController < ApplicationController
   before_action :require_authentication
-  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery]
+  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery, :overview, :details, :participants]
 
   def index
     # Include trips user owns + trips user is a member of
@@ -87,11 +87,34 @@ class TripsController < ApplicationController
     redirect_to trips_path, notice: 'Trip deleted successfully!'
   end
 
-  # Trip-level phase views
-  def plan
-    # Trip planning view - dates, destinations, meals, etc.
+  # New Trip Overview (replaces /trip/plan as default)
+  def overview
+    # Trip overview/dashboard - the new landing page for a trip
     @related_trips = @trip.series_name.present? ? Trip.in_series(@trip.series_name).where.not(id: @trip.id) : []
     @date_proposals = @trip.date_proposals.order(:start_date)
+    @journal_entries = @trip.journal_entries.recent.limit(5)
+    @recent_expenses = @trip.expenses.order(created_at: :desc).limit(5)
+    @total_expenses = @trip.expenses.sum(:amount)
+    @participants = @trip.trip_members.includes(:user)
+  end
+
+  # Trip Details (edit dates, locations, settings)
+  def details
+    # Edit trip details - dates, locations, settings
+    @date_proposals = @trip.date_proposals.order(:start_date)
+  end
+
+  # Trip Participants (manage who's on the trip)
+  def participants
+    # Manage trip participants and invitations
+    @participants = @trip.trip_members.includes(:user)
+    @pending_invitations = @trip.invitations.pending
+  end
+
+  # Trip-level phase views (keeping for backwards compatibility)
+  def plan
+    # Redirect to new overview page
+    redirect_to trip_overview_path(@trip)
   end
 
   def go

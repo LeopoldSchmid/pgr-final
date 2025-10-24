@@ -48,6 +48,45 @@ en:
     logout: "Sign out"
     current_trip: "Current Trip"
     calendar: "Calendar"
+
+    # Secondary navigation items
+    secondary:
+      # Plans section
+      meals: "Meals"
+      shopping: "Shopping"
+      packing: "Packing"
+      itinerary: "Itinerary"
+      todo: "To-Do"
+      recipes: "Recipes"
+      templates: "Templates"
+      resources: "Resources"
+
+      # Trip section
+      overview: "Overview"
+      details: "Details"
+      participants: "Participants"
+      discussions: "Discussions"
+
+      # Memories section
+      feed: "Feed"
+      albums: "Albums"
+      map: "Map"
+      timeline: "Timeline"
+      favorites: "Favorites"
+      recent: "Recent"
+
+      # Expenses section
+      all: "All"
+      by_person: "By Person"
+      by_category: "By Category"
+      settle: "Settle Up"
+      all_trips: "All Trips"
+      by_trip: "By Trip"
+      summary: "Summary"
+
+      # Home section
+      upcoming: "Upcoming"
+      past: "Past"
   
   # Common actions and buttons
   actions:

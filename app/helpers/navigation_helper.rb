@@ -35,17 +35,8 @@ module NavigationHelper
       root_path
     when :trip
       if current_trip
-        # Use context-based trip hub page based on current phase
-        case current_trip.current_phase
-        when 'plan'
-          trip_plan_context_path
-        when 'go'
-          trip_go_context_path
-        when 'reminisce'
-          trip_reminisce_context_path
-        else
-          trip_plan_context_path
-        end
+        # Use new trip overview page
+        trip_overview_path
       elsif current_trip_or_next
         trip_path(current_trip_or_next)
       else
@@ -107,5 +98,127 @@ module NavigationHelper
   def pending_invitations_count
     return 0 unless authenticated?
     Invitation.where(email: Current.user.email_address).pending.count
+  end
+
+  # ============================================================
+  # Secondary Navigation Methods
+  # ============================================================
+
+  # Determine if secondary nav should be shown for this section
+  def show_secondary_navigation?(section)
+    return false unless section.present?
+
+    case section.to_sym
+    when :plans, :memories, :expenses, :trip, :home
+      true
+    else
+      false
+    end
+  end
+
+  # Get secondary nav items for a section
+  def secondary_nav_items(section)
+    return [] unless section.present?
+
+    case section.to_sym
+    when :plans
+      if current_trip
+        [
+          { key: :meals, label: t('navigation.secondary.meals'), path: plans_meals_path },
+          { key: :shopping, label: t('navigation.secondary.shopping'), path: plans_shopping_path },
+          { key: :packing, label: t('navigation.secondary.packing'), path: plans_packing_path },
+          { key: :itinerary, label: t('navigation.secondary.itinerary'), path: plans_itinerary_path }
+        ]
+      else
+        [
+          { key: :recipes, label: t('navigation.secondary.recipes'), path: recipe_library_path },
+          { key: :templates, label: t('navigation.secondary.templates'), path: plans_templates_path }
+        ]
+      end
+    when :trip
+      return [] unless current_trip
+      [
+        { key: :overview, label: t('navigation.secondary.overview'), path: trip_overview_path },
+        { key: :details, label: t('navigation.secondary.details'), path: trip_details_path },
+        { key: :participants, label: t('navigation.secondary.participants'), path: trip_participants_path },
+        { key: :discussions, label: t('navigation.secondary.discussions'), path: trip_discussions_path }
+      ]
+    when :memories
+      if current_trip
+        [
+          { key: :feed, label: t('navigation.secondary.feed'), path: memories_path },
+          { key: :albums, label: t('navigation.secondary.albums'), path: memories_albums_path },
+          { key: :map, label: t('navigation.secondary.map'), path: memories_map_path }
+        ]
+      else
+        [
+          { key: :feed, label: t('navigation.secondary.feed'), path: memories_path },
+          { key: :favorites, label: t('navigation.secondary.favorites'), path: memories_favorites_path }
+        ]
+      end
+    when :expenses
+      if current_trip
+        [
+          { key: :all, label: t('navigation.secondary.all'), path: expenses_path },
+          { key: :by_person, label: t('navigation.secondary.by_person'), path: expenses_by_person_path },
+          { key: :by_category, label: t('navigation.secondary.by_category'), path: expenses_by_category_path },
+          { key: :settle, label: t('navigation.secondary.settle'), path: expenses_settle_path }
+        ]
+      else
+        [
+          { key: :all_trips, label: t('navigation.secondary.all_trips'), path: expenses_path },
+          { key: :summary, label: t('navigation.secondary.summary'), path: expenses_summary_path }
+        ]
+      end
+    when :home
+      [
+        { key: :overview, label: t('navigation.secondary.overview'), path: root_path },
+        { key: :calendar, label: t('navigation.secondary.calendar'), path: home_calendar_path },
+        { key: :upcoming, label: t('navigation.secondary.upcoming'), path: home_upcoming_path }
+      ]
+    else
+      []
+    end
+  end
+
+  # Check if a secondary nav item is active
+  def secondary_nav_active?(section, item_key)
+    return false unless section.present? && item_key.present?
+
+    case section.to_sym
+    when :plans
+      controller_name == 'plans' && action_name == item_key.to_s ||
+      controller_name == 'recipe_library' && item_key == :recipes
+    when :trip
+      (controller_name == 'trips' && action_name == item_key.to_s) ||
+      (controller_name == 'discussions' && item_key == :discussions)
+    when :memories
+      controller_name == 'memories' && (action_name == item_key.to_s || (item_key == :feed && action_name == 'index'))
+    when :expenses
+      controller_name == 'expenses' && (action_name == item_key.to_s || (item_key == :all && action_name == 'index'))
+    when :home
+      (controller_name == 'home' && action_name == item_key.to_s) ||
+      (item_key == :overview && current_page?(root_path))
+    else
+      false
+    end
+  end
+
+  # Determine which section we're currently in (for rendering secondary nav)
+  def current_navigation_section
+    case controller_name
+    when 'plans', 'recipe_library', 'shopping_lists', 'recipes'
+      :plans
+    when 'trips'
+      :trip
+    when 'memories'
+      :memories
+    when 'expenses'
+      :expenses
+    when 'home'
+      :home
+    else
+      nil
+    end
   end
 end

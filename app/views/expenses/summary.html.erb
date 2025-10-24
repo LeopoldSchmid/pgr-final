@@ -1,0 +1,37 @@
+<% content_for :title, "Expense Summary" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Expense Summary</h1>
+  </div>
+
+  <!-- Total Spent Across All Trips -->
+  <div class="bg-background-secondary rounded-xl p-6 shadow-lg mb-6">
+    <h2 class="text-sm font-medium text-text-secondary mb-2">Total Spent Across All Trips</h2>
+    <p class="text-3xl font-bold text-primary-accent">
+      <%= number_to_currency(@total_spent, precision: 2) %>
+    </p>
+  </div>
+
+  <!-- By Trip Breakdown -->
+  <% if @expenses_by_trip.any? %>
+    <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+      <h2 class="text-lg font-semibold text-text-primary mb-4">By Trip</h2>
+      <div class="space-y-3">
+        <% @expenses_by_trip.each do |trip_name, amount| %>
+          <div class="flex items-center justify-between p-4 bg-background-primary/50 rounded-lg">
+            <p class="text-sm font-medium text-text-primary"><%= trip_name %></p>
+            <p class="text-lg font-bold text-primary-accent">
+              <%= number_to_currency(amount, precision: 2) %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <p class="text-text-secondary mb-4">No expenses tracked yet</p>
+      <p class="text-sm text-text-secondary">Start a trip to track expenses</p>
+    </div>
+  <% end %>
+</div>

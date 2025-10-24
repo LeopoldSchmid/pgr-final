@@ -1,0 +1,36 @@
+<% content_for :title, "Map - #{@trip.name}" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-text-primary">Memory Map</h1>
+  </div>
+
+  <% if @journal_entries.any? %>
+    <div class="bg-background-secondary rounded-xl p-6 shadow-lg">
+      <div id="memories-map" class="w-full h-96 rounded-lg" data-controller="map"></div>
+    </div>
+
+    <!-- List of memories with locations -->
+    <div class="mt-6 space-y-4">
+      <% @journal_entries.each do |entry| %>
+        <div class="bg-background-secondary rounded-xl p-4 shadow-sm">
+          <% if entry.location.present? %>
+            <p class="text-sm font-medium text-primary-accent mb-1"><%= entry.location %></p>
+          <% end %>
+          <p class="text-text-primary"><%= entry.content.truncate(100) %></p>
+          <p class="text-xs text-text-secondary mt-2">
+            <%= entry.entry_date&.strftime("%b %d, %Y") || "No date" %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-background-secondary rounded-xl p-12 text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-text-secondary mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+      </svg>
+      <h2 class="text-xl font-semibold text-text-primary mb-2">No Locations Yet</h2>
+      <p class="text-text-secondary mb-6">Add location data to your memories to see them on the map</p>
+    </div>
+  <% end %>
+</div>
