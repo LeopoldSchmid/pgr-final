@@ -1,33 +1,35 @@
 <%# Secondary Navigation Component
-    Twitter-style horizontal tabs that appear below the header
+    Modern floating pill navigation that appears below the header
     Shows sub-features for each main section %>
 
 <% if show_secondary_navigation?(section) %>
-  <nav class="sticky top-16 z-30 bg-white border-b border-gray-100 safe-area-inset-top"
-       data-controller="secondary-navigation">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex overflow-x-auto scrollbar-hide justify-around">
-        <% secondary_nav_items(section).each_with_index do |item, index| %>
-          <% is_active = secondary_nav_active?(section, item[:key]) %>
-          <%= link_to item[:path],
-              class: "secondary-nav-item flex-shrink-0 px-3 py-3 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center gap-2 #{is_active ? 'text-primary-accent border-primary-accent font-semibold' : 'text-text-primary/70 border-transparent hover:text-text-primary'}",
-              data: {
-                controller: "directional-transition",
-                secondary_navigation_target: "item",
-                turbo_action: "replace",
-                nav_index: index,
-                action: "click->directional-transition#handleNavClick",
-                directional_transition_index_value: index
-              } do %>
-            <% if secondary_nav_icon_for(item[:key]) %>
-              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= secondary_nav_icon_for(item[:key]) %>"/>
-              </svg>
+  <div class="sticky top-16 z-30 safe-area-inset-top pb-4 mb-8" data-controller="secondary-navigation">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+      <!-- Floating pill container -->
+      <nav style="background-color: rgba(243, 244, 246, 0.95);" class="backdrop-blur-xl rounded-full shadow-[0_4px_20px_rgb(0,0,0,0.08)] px-4 py-3">
+        <div class="flex overflow-x-auto scrollbar-hide gap-1 items-center">
+          <% secondary_nav_items(section).each_with_index do |item, index| %>
+            <% is_active = secondary_nav_active?(section, item[:key]) %>
+            <%= link_to item[:path],
+                class: "inline-flex items-center justify-center gap-2 transition-all duration-300 h-10 #{is_active ? 'bg-primary-accent rounded-full shadow-lg px-4' : 'px-3'}",
+                data: {
+                  controller: "directional-transition",
+                  secondary_navigation_target: "item",
+                  turbo_action: "replace",
+                  nav_index: index,
+                  action: "click->directional-transition#handleNavClick",
+                  directional_transition_index_value: index
+                } do %>
+              <% if secondary_nav_icon_for(item[:key]) %>
+                <svg class="w-5 h-5 flex-shrink-0 <%= is_active ? 'text-white' : 'text-gray-600 hover:text-gray-800' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= secondary_nav_icon_for(item[:key]) %>"/>
+                </svg>
+              <% end %>
+              <span class="text-sm font-semibold whitespace-nowrap <%= is_active ? 'text-white' : 'text-gray-700 hidden sm:inline' %>"><%= item[:label] %></span>
             <% end %>
-            <span class="<%= is_active ? '' : 'hidden md:inline' %>"><%= item[:label] %></span>
           <% end %>
-        <% end %>
-      </div>
+        </div>
+      </nav>
     </div>
-  </nav>
+  </div>
 <% end %>
