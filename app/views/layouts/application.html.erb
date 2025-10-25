@@ -35,7 +35,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-gradient-primary text-text-primary font-sans overflow-x-hidden" data-controller="page-transition side-panel">
+  <body class="min-h-screen bg-white text-text-primary font-sans overflow-x-hidden" data-controller="page-transition side-panel">
     <% if authenticated? %>
       <!-- New Top Bar -->
       <%= render 'shared/top_bar' %>
@@ -87,8 +87,8 @@
       </div>
     <% end %>
 
-    <!-- Main content with padding for mobile navigation -->
-    <main class="pt-0 pb-20 md:pb-0">
+    <!-- Main content with padding for top bar, secondary nav, and mobile navigation -->
+    <main class="pt-28 pb-20 md:pb-0">
       <%= yield %>
     </main>
 

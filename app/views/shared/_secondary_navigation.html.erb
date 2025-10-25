@@ -3,17 +3,21 @@
     Shows sub-features for each main section %>
 
 <% if show_secondary_navigation?(section) %>
-  <nav class="sticky top-16 z-30 bg-background-secondary shadow-sm safe-area-inset-top"
+  <nav class="sticky top-16 z-30 bg-white border-b border-gray-100 safe-area-inset-top"
        data-controller="secondary-navigation">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex overflow-x-auto scrollbar-hide justify-around border-b border-white/10">
-        <% secondary_nav_items(section).each do |item| %>
+      <div class="flex overflow-x-auto scrollbar-hide justify-around">
+        <% secondary_nav_items(section).each_with_index do |item, index| %>
           <% is_active = secondary_nav_active?(section, item[:key]) %>
           <%= link_to item[:path],
               class: "secondary-nav-item flex-shrink-0 px-3 py-3 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-all duration-200 flex items-center gap-2 #{is_active ? 'text-primary-accent border-primary-accent font-semibold' : 'text-text-primary/70 border-transparent hover:text-text-primary'}",
               data: {
+                controller: "directional-transition",
                 secondary_navigation_target: "item",
-                turbo_action: "replace"
+                turbo_action: "replace",
+                nav_index: index,
+                action: "click->directional-transition#handleNavClick",
+                directional_transition_index_value: index
               } do %>
             <% if secondary_nav_icon_for(item[:key]) %>
               <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

@@ -18,43 +18,20 @@ export default class extends Controller {
     document.removeEventListener('turbo:before-render', this.beforeRender.bind(this))
   }
 
-  beforeVisit(event) {
-    // Optional: Add a fade-out effect before navigation
-    // Only if user doesn't prefer reduced motion
-    if (!this.prefersReducedMotion()) {
-      document.body.style.opacity = '1'
-    }
+  beforeVisit() {
+    // No body-level animations - directional transition controller handles content
   }
 
-  beforeRender(event) {
-    // Prepare the new content for animation
-    if (!this.prefersReducedMotion()) {
-      const newBody = event.detail.newBody
-      newBody.style.opacity = '0'
-    }
+  beforeRender() {
+    // No body-level animations - directional transition controller handles content
   }
 
-  pageLoaded(event) {
-    // Animate the page in after Turbo has loaded new content
-    this.animatePageIn()
+  pageLoaded() {
+    // No animations needed - directional transition controller handles content
   }
 
   animatePageIn() {
-    if (this.prefersReducedMotion()) {
-      return
-    }
-
-    // Fade in the page
-    requestAnimationFrame(() => {
-      document.body.style.transition = 'opacity 0.3s ease-out'
-      document.body.style.opacity = '1'
-    })
-
-    // Animate main content if it exists
-    const mainContent = document.querySelector('main')
-    if (mainContent) {
-      mainContent.style.animation = 'slideUp 0.4s ease-out'
-    }
+    // Disabled - directional transition controller handles all animations
   }
 
   prefersReducedMotion() {

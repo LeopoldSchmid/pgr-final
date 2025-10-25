@@ -4,6 +4,20 @@
 
 @import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 
+/* Prevent header flash during Turbo navigation */
+#app-header {
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Ensure permanent elements stay visible during Turbo transitions */
+[data-turbo-permanent] {
+  contain: layout style;
+}
+
 /* Custom Keyframes for Animations */
 @keyframes fadeIn {
   0% { opacity: 0; }
@@ -195,11 +209,26 @@
   }
 
   .sidebar-link-inactive {
-    @apply text-text-primary/70 hover:bg-background-primary hover:text-primary-accent;
+    @apply text-text-primary/70 hover:bg-gray-50 hover:text-primary-accent;
   }
 
   .top-bar-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-bottom: 1px solid rgb(0 0 0 / 0.06);
+  }
+
+  /* Modern card styling */
+  .card-modern {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  .card-modern-hover {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200;
+  }
+
+  /* Subtle dividers */
+  .divider-light {
+    @apply border-t border-gray-100;
   }
 
   .side-panel-backdrop {

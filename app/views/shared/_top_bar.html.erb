@@ -1,19 +1,10 @@
 <!-- Top Bar - Responsive design for mobile and desktop -->
-<div class="sticky top-0 bg-background-secondary z-40">
+<div id="app-header" class="fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-40" data-controller="permanent-header" data-turbo-permanent>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
-      <!-- Left Side: Back Button (mobile only) + Context -->
+      <!-- Left Side: Trip Context / App Name -->
       <div class="flex items-center space-x-3">
-        <!-- Back Button - only on mobile, not on home page -->
-        <% if show_back_button? %>
-          <%= link_to back_path, class: "md:hidden text-text-primary hover:text-primary-accent" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          <% end %>
-        <% end %>
-
-        <!-- Trip Context / App Name - clickable to switch trip -->
+        <!-- Trip Context / App Name -->
         <% if current_trip %>
           <%= link_to select_trip_path, class: "flex items-center space-x-2 hover:text-primary-accent transition-colors group" do %>
             <span class="text-lg font-bold text-text-primary group-hover:text-primary-accent">
@@ -41,19 +32,12 @@
           </svg>
         <% end %>
 
-        <!-- Avatar Button with notification badge -->
+        <!-- Avatar Button -->
         <button type="button"
                 data-action="click->side-panel#toggle"
                 data-side-panel-element="button"
                 class="relative flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary-accent rounded-full">
           <%= user_avatar(Current.user, size: 8) %>
-
-          <!-- Notification Badge -->
-          <% if pending_invitations_count > 0 %>
-            <span class="absolute -top-1 -right-1 bg-accent-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-              <%= pending_invitations_count %>
-            </span>
-          <% end %>
         </button>
       </div>
     </div>

@@ -1,10 +1,15 @@
 <!-- Left Sidebar - Desktop only (hidden on mobile) -->
-<nav class="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-64 md:bg-background-secondary md:border-r md:border-gray-200 md:pt-20 md:z-30">
+<nav class="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-64 md:bg-white md:border-r md:border-gray-200 md:pt-20 md:z-30">
   <div class="flex-1 flex flex-col overflow-y-auto">
     <div class="flex-1 px-4 py-6 space-y-2">
       <!-- Home -->
       <%= link_to root_path,
-          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:home)} hover:bg-background-primary hover:text-primary-accent group" do %>
+          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:home)} hover:bg-gray-50 hover:text-primary-accent group",
+          data: {
+            controller: "directional-transition",
+            nav_index: 0,
+            action: "click->directional-transition#handleNavClick"
+          } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:home) %>" />
         </svg>
@@ -13,7 +18,12 @@
 
       <!-- Trip -->
       <%= link_to scoped_feature_path(:trip),
-          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:trip)} hover:bg-background-primary hover:text-primary-accent group" do %>
+          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:trip)} hover:bg-gray-50 hover:text-primary-accent group",
+          data: {
+            controller: "directional-transition",
+            nav_index: 1,
+            action: "click->directional-transition#handleNavClick"
+          } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:trip) %>" />
         </svg>
@@ -22,7 +32,12 @@
 
       <!-- Plans -->
       <%= link_to scoped_feature_path(:plans),
-          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:plans)} hover:bg-background-primary hover:text-primary-accent group" do %>
+          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:plans)} hover:bg-gray-50 hover:text-primary-accent group",
+          data: {
+            controller: "directional-transition",
+            nav_index: 2,
+            action: "click->directional-transition#handleNavClick"
+          } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:plans) %>" />
         </svg>
@@ -31,7 +46,12 @@
 
       <!-- Memories -->
       <%= link_to scoped_feature_path(:memories),
-          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:memories)} hover:bg-background-primary hover:text-primary-accent group" do %>
+          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:memories)} hover:bg-gray-50 hover:text-primary-accent group",
+          data: {
+            controller: "directional-transition",
+            nav_index: 3,
+            action: "click->directional-transition#handleNavClick"
+          } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:memories) %>" />
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:memories_circle) %>" />
@@ -41,7 +61,12 @@
 
       <!-- Expenses -->
       <%= link_to scoped_feature_path(:expenses),
-          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:expenses)} hover:bg-background-primary hover:text-primary-accent group" do %>
+          class: "flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 #{active_nav_class(:expenses)} hover:bg-gray-50 hover:text-primary-accent group",
+          data: {
+            controller: "directional-transition",
+            nav_index: 4,
+            action: "click->directional-transition#handleNavClick"
+          } do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="<%= nav_icon_for(:expenses) %>" />
         </svg>
