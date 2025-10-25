@@ -23,8 +23,18 @@
         <% end %>
       </div>
 
-      <!-- Right Side: Help + Avatar -->
+      <!-- Right Side: Search + Help + Avatar -->
       <div class="flex items-center space-x-4">
+        <!-- Global Search Button -->
+        <button
+          data-action="click->global-search#open"
+          class="text-text-secondary hover:text-text-primary transition-colors hidden sm:block"
+          title="Search (⌘K)">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+
         <!-- Help Icon -->
         <%= link_to "#", class: "text-text-secondary hover:text-text-primary transition-colors hidden sm:block" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

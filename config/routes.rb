@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     get "timeline" => "timeline#index", as: :timeline
     get "favorite_locations" => "favorite_locations#index", as: :favorite_locations
     get "search" => "search#index", as: :search
+    get "search/global" => "search#global", as: :global_search
     
     # User's invitation inbox (specific route to avoid conflict)
     get 'invitations' => 'invitations#index', as: :user_invitations
