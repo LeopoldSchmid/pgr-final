@@ -35,7 +35,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-white text-text-primary font-sans overflow-x-hidden" data-controller="page-transition side-panel">
+  <body class="min-h-screen bg-white text-text-primary font-sans overflow-x-hidden" data-controller="page-transition side-panel global-search" data-global-search-url-value="<%= global_search_path %>">
     <% if authenticated? %>
       <!-- New Top Bar -->
       <%= render 'shared/top_bar' %>
@@ -52,7 +52,7 @@
       <%= render 'shared/avatar_side_panel' %>
 
       <!-- Global Search Modal -->
-      <div data-controller="global-search" data-global-search-url-value="<%= global_search_path %>">
+      <div>
         <!-- Search Modal Backdrop -->
         <div
           data-global-search-target="backdrop"

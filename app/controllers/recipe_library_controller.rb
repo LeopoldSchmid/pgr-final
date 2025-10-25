@@ -38,6 +38,25 @@ class RecipeLibraryController < ApplicationController
     end
   end
   
+  def show
+    @recipe = Recipe.find(params[:id])
+
+    # Verify user can access this recipe
+    unless can_access_recipe?(@recipe)
+      redirect_to recipe_library_path, alert: 'Recipe not found.'
+      return
+    end
+
+    # If it's a trip recipe, redirect to the trip recipe path
+    if @recipe.trip
+      redirect_to trip_recipe_path(@recipe.trip, @recipe)
+      return
+    end
+
+    # Otherwise render the recipe (public or personal)
+    render 'recipes/show'
+  end
+
   def index
     @query = params[:q]&.strip
     @source_filter = params[:source_type]

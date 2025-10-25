@@ -153,6 +153,7 @@ Rails.application.routes.draw do
     # Recipe library (browse all recipes)
     get 'recipes' => 'recipe_library#index', as: :recipe_library
     get 'recipes/search' => 'recipe_library#search_suggestions', as: :recipe_search_suggestions
+    get 'recipes/:id' => 'recipe_library#show', as: :recipe
     post 'recipes/:id/copy' => 'recipe_library#copy', as: :copy_recipe
     
     # Main application routes

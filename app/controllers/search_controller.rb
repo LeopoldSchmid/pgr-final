@@ -1,4 +1,6 @@
 class SearchController < ApplicationController
+  include Rails.application.routes.url_helpers
+
   before_action :require_authentication
 
   def index
@@ -30,10 +32,6 @@ class SearchController < ApplicationController
     # Search trips (user's trips and trips they're a member of)
     trips = search_trips(query)
     results += trips.map { |trip| format_trip_result(trip) }
-
-    # Search journal entries
-    journal_entries = search_journal_entries(query)
-    results += journal_entries.map { |entry| format_journal_entry_result(entry) }
 
     # Search recipes
     recipes = search_recipes(query)
@@ -71,17 +69,6 @@ class SearchController < ApplicationController
         .where("LOWER(name) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)", "%#{query}%", "%#{query}%")
         .order(updated_at: :desc)
         .limit(10)
-  end
-
-  def search_journal_entries(query)
-    trip_ids = Current.user.trips.pluck(:id) + Current.user.member_trips.pluck(:id)
-
-    JournalEntry.where(trip_id: trip_ids)
-                .where("LOWER(content) LIKE LOWER(?) OR LOWER(location) LIKE LOWER(?) OR LOWER(location_name) LIKE LOWER(?)",
-                       "%#{query}%", "%#{query}%", "%#{query}%")
-                .includes(:trip)
-                .order(entry_date: :desc)
-                .limit(10)
   end
 
   def search_recipes(query)
@@ -267,17 +254,6 @@ class SearchController < ApplicationController
       subtitle: "#{trip.status.titleize} • #{trip.start_date&.strftime('%b %d, %Y')}",
       badge: trip.status.titleize,
       url: trip_path(trip)
-    }
-  end
-
-  def format_journal_entry_result(entry)
-    {
-      type: 'journal_entry',
-      title: entry.location_name || entry.location || "Journal Entry",
-      description: entry.content&.truncate(100),
-      subtitle: "#{entry.trip.name} • #{entry.entry_date&.strftime('%b %d, %Y')}",
-      badge: entry.category&.titleize,
-      url: trip_journal_entry_path(entry.trip, entry)
     }
   end
 
