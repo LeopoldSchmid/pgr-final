@@ -7,7 +7,7 @@ module NavigationHelper
     when :home
       current_page?(root_path) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :trip
-      (controller_name == "trips" && action_name == "show") ? "text-primary-accent font-semibold" : "text-text-primary/70"
+      (controller_name == "trips" && %w[show overview details dates participants discussions].include?(action_name)) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :plans
       controller_name == "plans" ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :memories
