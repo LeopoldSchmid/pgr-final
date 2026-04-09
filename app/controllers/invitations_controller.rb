@@ -133,7 +133,7 @@ class InvitationsController < ApplicationController
   def resume_session_if_present
     # Try to resume session if user has a valid session cookie
     # This allows us to check if user is logged in even though we allow unauthenticated access
-    resume_session if cookies.signed[:session_id]
+    resume_session if session_id_from_signed_cookie
   end
 
   def set_trip

@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
   
   before_action :set_locale
+  rescue_from ActiveSupport::MessageEncryptor::InvalidMessage, ActiveSupport::MessageVerifier::InvalidSignature, with: :handle_invalid_encrypted_state
   
   private
   
@@ -50,5 +51,11 @@ class ApplicationController < ActionController::Base
   # Helper to generate locale-aware URLs
   def default_url_options
     { locale: I18n.locale }
+  end
+
+  def handle_invalid_encrypted_state
+    reset_session
+    cookies.delete(:session_id)
+    redirect_to request.path, status: :found
   end
 end
