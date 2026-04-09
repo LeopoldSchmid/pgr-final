@@ -1,5 +1,8 @@
 service: plangoreminisce-staging
 
+readiness_delay: 15
+deploy_timeout: 90
+
 proxy:
   ssl: true
   host: staging.plangoreminisce.duzend.net
