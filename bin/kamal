@@ -1,4 +1,11 @@
-#!/usr/bin/env -S mise exec -- ruby
+#!/usr/bin/env ruby
+unless ENV["PLANGOREMINISCE_RUBY_REEXEC"]
+  if system("command -v mise >/dev/null 2>&1", out: File::NULL, err: File::NULL)
+    ENV["PLANGOREMINISCE_RUBY_REEXEC"] = "1"
+    exec("mise", "exec", "--", "ruby", __FILE__, *ARGV)
+  end
+end
+
 # frozen_string_literal: true
 
 #
