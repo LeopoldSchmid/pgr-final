@@ -18,7 +18,7 @@
   </div>
 
   <div class="flex flex-col space-y-3">
-    <%= link_to "Sign out and try again", destroy_session_path, method: :delete,
+    <%= link_to "Sign out and try again", session_path(locale: I18n.locale), data: { turbo_method: :delete },
                 class: "w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors text-center" %>
     
     <%= link_to "Back to my trips", root_path,
