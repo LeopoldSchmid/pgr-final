@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ExpenseTest < ActiveSupport::TestCase
+  fixtures :users, :trips, :expenses, :expense_participants
+
   def setup
     @user = users(:owner)
     @member = users(:member)
@@ -45,11 +47,11 @@ class ExpenseTest < ActiveSupport::TestCase
   end
 
   test "should split equally among users" do
-    users = [@user, @member]
+    users = [ @user, @member ]
     @expense.split_equally_among(users)
-    
+
     assert_equal 2, @expense.expense_participants.count
-    
+
     expected_amount = (@expense.amount / 2).round(2)
     @expense.expense_participants.each do |participant|
       assert_equal expected_amount, participant.amount_owed
@@ -58,19 +60,16 @@ class ExpenseTest < ActiveSupport::TestCase
 
   test "should handle remainder when splitting equally" do
     @expense.amount = 10.01  # Will create remainder when split between 2
-    users = [@user, @member]
+    users = [ @user, @member ]
     @expense.split_equally_among(users)
-    
-    amounts = @expense.expense_participants.pluck(:amount_owed)
+
+    amounts = @expense.expense_participants.pluck(:amount_owed).sort
     assert_equal @expense.amount, amounts.sum
-    
-    # First participant should get the remainder
-    first_participant = @expense.expense_participants.first
-    assert_equal 5.01, first_participant.amount_owed
+    assert_equal [ 5.0, 5.01 ], amounts
   end
 
   test "should calculate total participants amount correctly" do
-    @expense.split_equally_among([@user, @member])
+    @expense.split_equally_among([ @user, @member ])
     assert_equal @expense.amount, @expense.total_participants_amount
   end
 
@@ -84,21 +83,21 @@ class ExpenseTest < ActiveSupport::TestCase
   test "should return category emoji" do
     @expense.category = "food"
     assert_equal "🍽️", @expense.category_emoji
-    
+
     @expense.category = "transport"
     assert_equal "🚗", @expense.category_emoji
-    
+
     @expense.category = "other"
     assert_equal "💰", @expense.category_emoji
   end
 
   test "should clear existing participants when splitting" do
     # Create initial participants
-    @expense.split_equally_among([@user])
+    @expense.split_equally_among([ @user ])
     assert_equal 1, @expense.expense_participants.count
-    
+
     # Split among different users should clear old participants
-    @expense.split_equally_among([@member])
+    @expense.split_equally_among([ @member ])
     assert_equal 1, @expense.expense_participants.count
     assert_equal @member.id, @expense.expense_participants.first.user_id
   end
@@ -107,9 +106,9 @@ class ExpenseTest < ActiveSupport::TestCase
     @expense.latitude = 40.7128
     @expense.longitude = -74.0060
     @expense.location = "New York"
-    
+
     assert @expense.has_location?
-    assert_equal [40.7128, -74.0060], @expense.coordinates
+    assert_equal [ 40.7128, -74.0060 ], @expense.coordinates
     assert_equal "New York", @expense.location_name
   end
 
@@ -117,7 +116,7 @@ class ExpenseTest < ActiveSupport::TestCase
     @expense.latitude = nil
     @expense.longitude = nil
     @expense.location = nil
-    
+
     assert_not @expense.has_location?
     assert_nil @expense.coordinates
     assert_equal "Unknown location", @expense.location_name

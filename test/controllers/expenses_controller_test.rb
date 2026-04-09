@@ -1,53 +1,91 @@
 require "test_helper"
 
 class ExpensesControllerTest < ActionDispatch::IntegrationTest
+  fixtures :users, :trips, :expenses, :expense_participants
+
   def setup
     @user = users(:owner)
     @member = users(:member)
     @trip = trips(:planning)
     @expense = expenses(:lunch)
-    sign_in_as(@user)
+    post session_url, params: { email_address: @user.email_address, password: "password" }
+  end
+
+  def select_trip_context
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: expenses_path }
+  end
+
+  def trip_expenses_index_path
+    trip_expenses_path(trip_id: @trip.id)
+  end
+
+  def trip_new_expense_path
+    new_trip_expense_path(trip_id: @trip.id)
+  end
+
+  def trip_edit_expense_path(expense = @expense)
+    edit_trip_expense_path(trip_id: @trip.id, id: expense.id)
+  end
+
+  def trip_expense_resource_path(expense = @expense)
+    trip_expense_path(trip_id: @trip.id, id: expense.id)
+  end
+
+  def trip_duplicate_expense_path(expense = @expense)
+    duplicate_trip_expense_path(trip_id: @trip.id, id: expense.id)
   end
 
   test "should get index" do
-    get trip_expenses_path(@trip)
+    select_trip_context
+    get trip_expenses_index_path
     assert_response :success
-    assert_includes response.body, "Trip Expenses"
+    assert_includes response.body, @trip.name
     assert_includes response.body, @expense.description
   end
 
   test "should get by_person page" do
-    session[:current_trip_id] = @trip.id
+    select_trip_context
     get expenses_by_person_url
     assert_response :success
+    assert_includes response.body, @expense.description
   end
 
   test "should get by_category page" do
-    session[:current_trip_id] = @trip.id
+    select_trip_context
     get expenses_by_category_url
     assert_response :success
+    assert_includes response.body, "food"
   end
 
   test "should get settle page" do
-    session[:current_trip_id] = @trip.id
+    select_trip_context
     get expenses_settle_url
     assert_response :success
+    assert_includes response.body, "Settle Up"
   end
 
   test "should get summary page" do
     get expenses_summary_url
     assert_response :success
+    assert_includes response.body, "Expense Summary"
+  end
+
+  test "should redirect context pages when no trip selected" do
+    get expenses_by_person_url
+    assert_redirected_to select_trip_url(return_to: expenses_path)
   end
 
   test "should get new" do
-    get new_trip_expense_path(@trip)
+    select_trip_context
+    get trip_new_expense_path
     assert_response :success
     assert_includes response.body, "Add New Expense"
   end
 
   test "should create expense with equal split" do
-    assert_difference('Expense.count') do
-      post trip_expenses_path(@trip), params: {
+    select_trip_context
+    assert_difference("Expense.count") do
+      post trip_expenses_index_path, params: {
         expense: {
           amount: 50.0,
           description: "Test dinner",
@@ -55,7 +93,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
           expense_date: Date.current,
           currency: "EUR",
           payer_id: @user.id,
-          participant_ids: [@user.id, @member.id]
+          participant_ids: [ @user.id, @member.id ]
         }
       }
     end
@@ -67,14 +105,15 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, expense.expense_participants.count
     assert_equal 25.0, expense.expense_participants.first.amount_owed
 
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
     follow_redirect!
     assert_includes response.body, "Expense added successfully"
   end
 
   test "should create expense with custom split" do
-    assert_difference('Expense.count') do
-      post trip_expenses_path(@trip), params: {
+    select_trip_context
+    assert_difference("Expense.count") do
+      post trip_expenses_index_path, params: {
         expense: {
           amount: 100.0,
           description: "Custom split dinner",
@@ -96,42 +135,45 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     user_participant = expense.expense_participants.find_by(user: @user)
     member_participant = expense.expense_participants.find_by(user: @member)
-    
+
     assert_equal 60.0, user_participant.amount_owed
     assert_equal 40.0, member_participant.amount_owed
 
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
   end
 
   test "should allow different payer than current user" do
-    assert_difference('Expense.count') do
-      post trip_expenses_path(@trip), params: {
+    select_trip_context
+    assert_difference("Expense.count") do
+      post trip_expenses_index_path, params: {
         expense: {
           amount: 30.0,
           description: "Member paid",
-          category: "food", 
+          category: "food",
           expense_date: Date.current,
           currency: "EUR",
           payer_id: @member.id,
-          participant_ids: [@user.id, @member.id]
+          participant_ids: [ @user.id, @member.id ]
         }
       }
     end
 
     expense = Expense.last
     assert_equal @member, expense.payer
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
   end
 
   test "should get edit" do
-    get edit_trip_expense_path(@trip, @expense)
+    select_trip_context
+    get trip_edit_expense_path
     assert_response :success
     assert_includes response.body, "Edit Expense"
     assert_includes response.body, @expense.description
   end
 
   test "should update expense" do
-    patch trip_expense_path(@trip, @expense), params: {
+    select_trip_context
+    patch trip_expense_resource_path, params: {
       expense: {
         amount: 75.0,
         description: "Updated dinner",
@@ -139,26 +181,27 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
         expense_date: Date.current,
         currency: "EUR",
         payer_id: @user.id,
-        participant_ids: [@user.id, @member.id]
+        participant_ids: [ @user.id, @member.id ]
       }
     }
 
     @expense.reload
     assert_equal 75.0, @expense.amount
     assert_equal "Updated dinner", @expense.description
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
     follow_redirect!
     assert_includes response.body, "Expense updated successfully"
   end
 
   test "should update expense with custom split" do
-    patch trip_expense_path(@trip, @expense), params: {
+    select_trip_context
+    patch trip_expense_resource_path, params: {
       expense: {
         amount: 90.0,
         description: "Updated with custom split",
         category: "food",
         expense_date: Date.current,
-        currency: "EUR", 
+        currency: "EUR",
         payer_id: @user.id,
         custom_amounts: {
           @user.id.to_s => "30.0",
@@ -169,28 +212,30 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     @expense.reload
     assert_equal 90.0, @expense.amount
-    
+
     user_participant = @expense.expense_participants.find_by(user: @user)
     member_participant = @expense.expense_participants.find_by(user: @member)
-    
+
     assert_equal 30.0, user_participant.amount_owed
     assert_equal 60.0, member_participant.amount_owed
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
   end
 
   test "should delete expense" do
-    assert_difference('Expense.count', -1) do
-      delete trip_expense_path(@trip, @expense)
+    select_trip_context
+    assert_difference("Expense.count", -1) do
+      delete trip_expense_resource_path
     end
 
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
     follow_redirect!
     assert_includes response.body, "Expense deleted successfully"
   end
 
   test "should duplicate expense" do
-    assert_difference('Expense.count', 1) do
-      get duplicate_trip_expense_path(@trip, @expense)
+    select_trip_context
+    assert_difference("Expense.count", 1) do
+      get trip_duplicate_expense_path
     end
 
     duplicated = Expense.last
@@ -199,13 +244,14 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @expense.category, duplicated.category
     assert_equal Date.current, duplicated.expense_date
 
-    assert_redirected_to trip_expenses_path(@trip)
+    assert_redirected_to expenses_path
     follow_redirect!
     assert_includes response.body, "Expense duplicated successfully"
   end
 
   test "should handle validation errors on create" do
-    post trip_expenses_path(@trip), params: {
+    select_trip_context
+    post trip_expenses_index_path, params: {
       expense: {
         amount: nil, # Invalid
         description: "",
@@ -220,7 +266,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle validation errors on update" do
-    patch trip_expense_path(@trip, @expense), params: {
+    select_trip_context
+    patch trip_expense_resource_path, params: {
       expense: {
         amount: -10.0, # Invalid
         description: @expense.description,

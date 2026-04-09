@@ -3,7 +3,7 @@ require "test_helper"
 class TripsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
-      email_address: "test@example.com",
+      email_address: "trips_test@example.com",
       password: "password123",
       locale: "en"
     )
@@ -16,26 +16,27 @@ class TripsControllerTest < ActionDispatch::IntegrationTest
       end_date: 1.month.from_now + 5.days
     )
 
-    sign_in_as(@user)
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: trip_overview_path }
   end
 
   test "should get overview" do
-    get trip_overview_url(trip_id: @trip.id), params: { locale: :en }
+    get trip_overview_url, params: { locale: :en }
     assert_response :success
   end
 
   test "should get details" do
-    get trip_details_url(trip_id: @trip.id), params: { locale: :en }
+    get trip_details_url, params: { locale: :en }
     assert_response :success
   end
 
   test "should get participants" do
-    get trip_participants_url(trip_id: @trip.id), params: { locale: :en }
+    get trip_participants_url, params: { locale: :en }
     assert_response :success
   end
 
   test "old plan route redirects to overview" do
-    get trip_plan_context_url(trip_id: @trip.id), params: { locale: :en }
+    get trip_plan_context_url, params: { locale: :en }
     assert_redirected_to trip_overview_url
   end
 

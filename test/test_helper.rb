@@ -8,7 +8,7 @@ module ActiveSupport
     parallelize(workers: ENV.fetch("PARALLEL_WORKERS", "1").to_i)
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    # fixtures :all
+    # Opt in per test file so fixture-heavy tests do not pollute record counts globally.
 
     # Add more helper methods to be used by all tests here...
   end

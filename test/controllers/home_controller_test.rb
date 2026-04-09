@@ -3,7 +3,7 @@ require "test_helper"
 class HomeControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
-      email_address: "test@example.com",
+      email_address: "home_test@example.com",
       password: "password123",
       locale: "en"
     )
@@ -16,7 +16,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       end_date: 1.month.from_now + 5.days
     )
 
-    sign_in_as(@user)
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
   end
 
   test "should get index" do
@@ -37,12 +37,12 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
   test "calendar should show trips with dates" do
     get home_calendar_url
     assert_response :success
-    # Calendar events should be loaded in @calendar_events
+    assert_includes response.body, @trip.name
   end
 
   test "upcoming should show future trips" do
     get home_upcoming_url
     assert_response :success
-    assert_not_nil assigns(:upcoming_trips)
+    assert_includes response.body, @trip.name
   end
 end

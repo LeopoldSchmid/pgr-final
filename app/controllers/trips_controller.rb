@@ -1,6 +1,6 @@
 class TripsController < ApplicationController
   before_action :require_authentication
-  before_action :set_trip, only: [:show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery, :overview, :dates, :details, :participants]
+  before_action :set_trip, only: [ :show, :edit, :update, :destroy, :plan, :go, :reminisce, :capture, :journal, :map, :gallery, :overview, :dates, :details, :participants ]
 
   def index
     # Include trips user owns + trips user is a member of
@@ -13,7 +13,7 @@ class TripsController < ApplicationController
     # Fetch global favorite locations for the current user
     user_favorite_locations = JournalEntry.where(user: Current.user, global_favorite: true, latitude: true, longitude: true)
                                           .pluck(:latitude, :longitude)
-                                          .map { |lat, lon| [lat.to_f, lon.to_f] }
+                                          .map { |lat, lon| [ lat.to_f, lon.to_f ] }
                                           .uniq
 
     @recommended_trips = []
@@ -23,7 +23,7 @@ class TripsController < ApplicationController
       Trip.where.not(id: all_user_trips.map(&:id)).each do |other_trip|
         other_trip_locations = other_trip.journal_entries.where(latitude: true, longitude: true)
                                          .pluck(:latitude, :longitude)
-                                         .map { |lat, lon| [lat.to_f, lon.to_f] }
+                                         .map { |lat, lon| [ lat.to_f, lon.to_f ] }
                                          .uniq
 
         # Check for any overlap in locations
@@ -53,7 +53,7 @@ class TripsController < ApplicationController
       @trip.description = template_trip.description unless @trip.description.present?
       @trip.series_name = template_trip.series_name unless @trip.series_name.present?
     end
-    
+
     if @trip.save
       if template_trip.present?
         # Copy recipes
@@ -64,7 +64,7 @@ class TripsController < ApplicationController
         end
         # TODO: Copy shopping lists, journal entries (content only), etc.
       end
-      redirect_to plan_trip_path(@trip), notice: 'Trip created successfully!'
+      redirect_to plan_trip_path(@trip), notice: "Trip created successfully!"
     else
       @user_trips = Current.user.trips.order(name: :asc) # Re-fetch for rendering new template
       render :new, status: :unprocessable_entity
@@ -76,7 +76,7 @@ class TripsController < ApplicationController
 
   def update
     if @trip.update(trip_params)
-      redirect_to @trip, notice: 'Trip updated successfully!'
+      redirect_to @trip, notice: "Trip updated successfully!"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -84,7 +84,7 @@ class TripsController < ApplicationController
 
   def destroy
     @trip.destroy
-    redirect_to trips_path, notice: 'Trip deleted successfully!'
+    redirect_to trips_path, notice: "Trip deleted successfully!"
   end
 
   # New Trip Overview (replaces /trip/plan as default)
@@ -121,7 +121,8 @@ class TripsController < ApplicationController
   # Trip-level phase views (keeping for backwards compatibility)
   def plan
     # Redirect to new overview page
-    redirect_to trip_overview_path(@trip)
+    set_current_trip(@trip)
+    redirect_to trip_overview_path
   end
 
   def go
@@ -204,8 +205,8 @@ class TripsController < ApplicationController
     end
 
     send_file zip_file_path,
-              type: 'application/zip',
-              disposition: 'attachment',
+              type: "application/zip",
+              disposition: "attachment",
               filename: File.basename(zip_file_path)
   ensure
     # Clean up the temporary zip file
@@ -222,7 +223,7 @@ class TripsController < ApplicationController
       member_trips = Trip.joins(:trip_members)
                         .where(trip_members: { user: Current.user }, id: params[:id])
 
-      trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
+      trip_relation = Trip.where(id: [ owned_trips.pluck(:id) + member_trips.pluck(:id) ].flatten)
       @trip = trip_relation.first
 
       set_current_trip(@trip) if @trip
@@ -232,7 +233,7 @@ class TripsController < ApplicationController
       # Context-based route - use current trip from session
       @trip = current_trip
       unless @trip
-        flash[:alert] = 'Please select a trip first.'
+        flash[:alert] = "Please select a trip first."
         redirect_to select_trip_path(return_to: request.path) and return
       end
     end

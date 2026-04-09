@@ -3,13 +3,13 @@ require "test_helper"
 class MemoriesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
-      email_address: "test@example.com",
+      email_address: "memories_test@example.com",
       password: "password123",
       locale: "en"
     )
 
     @other_user = User.create!(
-      email_address: "other@example.com",
+      email_address: "memories_other@example.com",
       password: "password123",
       locale: "en"
     )
