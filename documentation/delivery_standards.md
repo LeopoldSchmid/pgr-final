@@ -77,6 +77,7 @@ Regel:
    - `documentation/decision_log.md`
 2. Wenn eine Aenderung diese Realitaet beeinflusst, muessen die betroffenen Dokumente aktualisiert werden.
 3. Historische oder widerspruechliche Dokumente werden entfernt, nicht mitgeschleppt.
+4. Relevante Staging-Freigaben orientieren sich an `documentation/staging_smoke_checklist.md`.
 
 ## Entscheidungslog
 

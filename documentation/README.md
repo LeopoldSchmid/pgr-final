@@ -13,9 +13,11 @@ Stand: 2026-04-09
    - Konkrete `must / should / could`-Priorisierung und Arbeitsreihenfolge.
 4. [testing.md](./testing.md)
    - Lokale Test-Kommandos, Playwright-Setup und Rails-Testbasis.
-5. [delivery_standards.md](./delivery_standards.md)
+5. [staging_smoke_checklist.md](./staging_smoke_checklist.md)
+   - Operative Staging- und Beta-Smoke-Checkliste fuer Kernfluesse.
+6. [delivery_standards.md](./delivery_standards.md)
    - Verbindlicher Mindeststandard fuer Tests, Doku und Abschlusskriterien.
-6. [decision_log.md](./decision_log.md)
+7. [decision_log.md](./decision_log.md)
    - Kurze dokumentierte Architektur- und Produktentscheidungen.
 
 ## Weitere Dokumente

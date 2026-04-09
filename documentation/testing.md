@@ -72,3 +72,4 @@ npm run test:e2e:local:headed
 - Die bisherigen Selenium-Systemtests wurden ersetzt und sollen nicht wieder eingefuehrt werden.
 - Fuer neue UI-Tests stabile semantische Selektoren oder gezielte `data-testid`-Attribute bevorzugen.
 - Committe niemals `node_modules/`, `playwright-report/` oder `test-results/`.
+- Die operative manuelle Freigabe fuer Staging steht in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).

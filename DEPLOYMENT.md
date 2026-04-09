@@ -80,6 +80,7 @@ Notes:
 1. Staging is isolated from production at the container/service and storage-volume level.
 2. Production data is not touched by staging deploys.
 3. Mailer host/protocol in production now use `APP_HOST` and `APP_PROTOCOL`, so staging links can point to the staging domain cleanly.
+4. After each meaningful staging deploy, run the checklist in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).
 
 ## Useful Commands
 

@@ -160,6 +160,7 @@ Minimaler Smoke-Korridor:
 Done-Kriterien:
 1. Der minimale Smoke-Korridor ist automatisiert oder klar reproduzierbar dokumentiert.
 2. Ein Staging-Deploy erfolgt nicht mehr ohne diesen Korridor.
+3. Die operative Checkliste liegt in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).
 
 ### D. Dokumentation und Entscheidungslog
 
