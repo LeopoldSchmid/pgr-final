@@ -14,6 +14,23 @@ Ziel ist kein neues Feature-Push und kein UI-Redesign, sondern ein solider, nach
 3. Keine Datenmigration aus der alten Produktion, bevor Staging und der aktuelle Stand sauber verifiziert sind.
 4. Kein Rails-Major-/Minor-Upgrade. Das Projekt laeuft bereits auf Rails `8.1.x`.
 
+## Produktentscheidungen (Stand heute)
+
+1. Der erste Freundes-Test umfasst den gesamten Produktbereich:
+   - Planung
+   - Memories
+   - Expenses
+2. Mobile-first ist verbindlich.
+3. Kritische mobile Kernfluesse muessen real funktionieren, insbesondere:
+   - Upload von Fotos auf dem iPhone
+   - alltaegliche Nutzung zentraler Flows auf kleinen Screens
+4. Unfertige Bereiche duerfen vorerst sichtbar bleiben.
+5. Staging darf echte E-Mails versenden.
+6. Produktion bleibt vorerst unangetastet; aktive Arbeit erfolgt zuerst auf Staging.
+7. SQLite bleibt die Produktionsdatenbank fuer den aktuellen Stabilisierungspfad.
+8. Eine spaetere Migration bestehender Memories/Journals/Attachments ist gewuenscht, wenn sie vertretbar ist.
+9. Das Datenmodell darf bei Bedarf noch einmal grundsaetzlich ueberdacht werden; fruehere Entscheidungen gelten nicht als unverrueckbar.
+
 ## Definition eines soliden Ausgangsstands
 
 Ein belastbarer Ausgangsstand ist erreicht, wenn folgende Punkte gelten:
@@ -51,7 +68,7 @@ Folge:
 
 Folge:
 - Produktumfang wirkt weiter als er technisch abgesichert ist.
-- Vor einem externen Alltagstest muessen wir klar trennen zwischen tragfaehig und nur angedeutet.
+- Vor einem externen Alltagstest muessen wir klar trennen zwischen tragfaehig und nur angedeutet, auch wenn Bereiche vorerst sichtbar bleiben.
 
 ### 3. Testabdeckung ist fuer die Breite der App noch zu duenn
 
@@ -68,6 +85,7 @@ Nicht ausreichend abgesichert sind derzeit mindestens:
 - Diskussionen
 - Journal/Memories mit Trip-Kontext
 - Rezeptbibliothek vs. Trip-Rezepte
+- mobile Foto-Uploads und mobile Medienfluesse
 
 ### 4. Dokumentation war historisch ueberoptimistisch
 
@@ -96,6 +114,7 @@ Done-Kriterien:
 1. `bin/rails`, `bin/rake`, `bin/setup` funktionieren auf dem Entwicklerrechner verlässlich.
 2. `bin/kamal deploy -d staging` ist dokumentiert und praktisch durchfuehrbar.
 3. Staging ist klar von Produktion isoliert.
+4. Staging kann mit echtem Mailversand betrieben werden.
 
 ### B. Fachliche Konsolidierung von Trip-Kontext, Meal Plan und Shopping
 
@@ -107,6 +126,7 @@ Aufgaben:
 2. Alte Benennungen wie `generate_from_recipes` gegen fachlich passende Namen konsolidieren.
 3. Pruefen, welche Screens noch altes Wording oder alte Erwartungen tragen.
 4. Konsistente Regeln fuer `current_trip` und context-based routing festlegen.
+5. Pruefen, ob das Datenmodell fuer Planung insgesamt tragfaehig ist oder neu geschnitten werden sollte.
 
 Done-Kriterien:
 1. Meal Planning ist die eindeutige Quelle fuer geplante Mahlzeiten.
@@ -123,6 +143,7 @@ Aufgaben:
 2. Einen minimalen Smoke-Korridor definieren.
 3. Fuer kritische Flows gezielt Playwright-E2E oder Rails-Systemtests einsetzen.
 4. Festlegen, welche Tests vor jedem Staging-Deploy gruen sein muessen.
+5. Mobile Kernfluesse explizit pruefen, nicht nur Desktop-Browser.
 
 Minimaler Smoke-Korridor:
 1. Login
@@ -133,6 +154,7 @@ Minimaler Smoke-Korridor:
 6. Shopping List aus Meal Plan erzeugen
 7. Expense anlegen
 8. Einladung aufrufen und annehmen oder sauber abweisen
+9. Foto-Upload auf mobilem Safari bzw. iPhone-vergleichbarer Umgebung
 
 Done-Kriterien:
 1. Der minimale Smoke-Korridor ist automatisiert oder klar reproduzierbar dokumentiert.
@@ -162,6 +184,7 @@ Aufgaben:
 1. Bereich fuer Bereich in `must / should / could` einordnen.
 2. Platzhalter-Funktionen und halbfertige Pfade erfassen.
 3. Vor dem Testbetrieb klar definieren, was offiziell unterstuetzt ist.
+4. Innerhalb jedes Bereichs nur die Funktionen absichern, die fuer echte Trips relevant sind; nicht jeder Trip braucht jede Planungsfunktion.
 
 Done-Kriterien:
 1. Es gibt eine explizite Beta-Scope-Liste.
@@ -245,16 +268,17 @@ Diese Arbeit laesst sich spaeter sinnvoll in getrennte Pakete aufteilen:
 
 ## Offene Fragen
 
-Diese Fragen blockieren nicht sofort, sollten aber vor tieferer Umsetzung beantwortet werden:
+Diese Fragen blockieren nicht sofort, sollten aber vor tieferer Umsetzung beantwortet oder weiter geschaerft werden:
 
-1. Soll `selected_for_shopping` nur als Migrations-/Kompatibilitaetsfeld bleiben oder komplett verschwinden?
-2. Welche Bereiche sollen fuer den Freundes-Test offiziell im Scope sein:
-   - nur Planen
-   - Planen plus Memories
-   - Planen plus Expenses
-3. Sollen unvollstaendige Bereiche vor dem Testbetrieb funktional deaktiviert werden, oder reicht eine interne Scope-Disziplin?
-4. Soll Staging echte E-Mails versenden duerfen oder nur lokal/log-basiert arbeiten?
-5. Ist gewuenscht, dass die alte Produktion bis zur finalen Migration read-only behandelt wird?
+1. Was genau soll mit `selected_for_shopping` passieren?
+   Aktueller Stand:
+   - Das Feld stammt aus einem aelteren Ansatz, bei dem Rezepte direkt fuer Shopping markiert wurden.
+   - Der neue fachliche Kurs zeigt eher in Richtung Meal Plan als Quelle fuer Einkaufslisten.
+   Entscheidung noch offen:
+   - entfernen
+   - nur temporaer als Kompatibilitaetsfeld behalten
+2. Soll das Planungsmodell langfristig widget-/bausteinbasiert werden, sodass pro Trip nur relevante Planungsfunktionen aktiv sind?
+3. Welche Bereiche des heutigen Datenmodells gelten als stabil, und welche duerfen im Zuge der Konsolidierung noch neu gedacht werden?
 
 ## Arbeitsregel fuer die naechsten Schritte
 

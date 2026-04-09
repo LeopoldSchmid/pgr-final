@@ -15,6 +15,7 @@
 5. Recipe management and shopping lists exist.
 6. Meal planning is currently being reworked from recipe selection toward calendar-based meal plans.
 7. Attachments, journal/memories and discussions exist.
+8. The intended first real-world test scope includes all major areas, not just planning.
 
 ## Current engineering reality
 1. Local documentation is partly outdated and must not be treated as source of truth.
@@ -23,6 +24,7 @@
 4. Controller-level regression checks for trip switching and plans routing are passing again.
 5. Rails-Systemtests now run with Playwright instead of Selenium.
 6. The current verified smoke baseline is still small and not yet a reliable release gate.
+7. Mobile-first behavior must be treated as a release criterion, especially around media upload.
 
 ## Deployment baseline
 1. Current production host is `plangoreminisce.duzend.net`.
@@ -30,9 +32,11 @@
 3. A staging target is now scaffolded via `config/deploy.staging.yml`.
 4. Planned staging host is `staging.plangoreminisce.duzend.net`.
 5. Staging uses its own Kamal service name and its own persistent volume `plangoreminisce_staging_storage`.
+6. Near-term work should deploy to staging first; production remains unchanged until the staging version is trusted.
 
 ## Short-term priorities
 1. Introduce staging and deploy the current code there without touching the legacy MVP data.
 2. Back up the current production SQLite/Active Storage data before any migration work.
 3. Audit the old production schema/data and decide what can be migrated into the new app cleanly.
 4. Replace outdated docs with a compact status/testing/deploy baseline.
+5. Validate mobile-first core flows, with special attention to iPhone photo upload behavior.

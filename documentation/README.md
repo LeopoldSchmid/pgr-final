@@ -17,11 +17,7 @@ Stand: 2026-04-09
 1. [plangoreminisce-architecture.md](./plangoreminisce-architecture.md)
    - Groesseres Architektur-Dokument.
    - Inhaltlich nuetzlich, aber nicht in allen Teilen auf dem neuesten Stand.
-2. [trip-documents-feature-proposal.md](./trip-documents-feature-proposal.md)
-   - Aelteres Feature-Konzept fuer Attachments.
-3. [restructure.md](./restructure.md)
-4. [restructure_2.md](./restructure_2.md)
-   - Historische Umbau-Dokumente, nur noch als Kontext verwenden.
+2. Historische Planungsdokumente wurden bewusst entfernt, um widerspruechliche Quellen zu vermeiden.
 
 ## Regel
 
