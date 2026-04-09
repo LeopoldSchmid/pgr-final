@@ -61,6 +61,32 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Recipe", item.source_type
   end
 
+  test "generate_from_meal_plan includes every ingredient from a planned recipe" do
+    @recipe.ingredients.create!(
+      name: "Salt",
+      quantity: 1,
+      unit: "tsp",
+      category: "spices"
+    )
+
+    MealPlan.create!(
+      trip: @trip,
+      recipe: @recipe,
+      date: Date.current,
+      meal_type: "dinner"
+    )
+
+    post generate_from_meal_plan_trip_shopping_list_url(@trip, @shopping_list), params: { people_count: 2 }
+
+    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+
+    items = @shopping_list.reload.shopping_items.order(:name).pluck(:name, :quantity, :unit, :category)
+    assert_equal [
+      [ "Salt", 0.5, "tsp", "spices" ],
+      [ "Tomatoes", 2.0, "pieces", "produce" ]
+    ], items
+  end
+
   test "generate_from_meal_plan redirects back to meal planning when no meals exist" do
     post generate_from_meal_plan_trip_shopping_list_url(@trip, @shopping_list)
 
