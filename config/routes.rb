@@ -132,15 +132,12 @@ Rails.application.routes.draw do
 
     # Recipes nested under trips
     resources :recipes do
-      member do
-        patch :toggle_selected
-      end
     end
     
     # Shopping lists nested under trips
     resources :shopping_lists, only: [:index, :show, :create, :update] do
       member do
-        post :generate_from_recipes
+        post :generate_from_meal_plan
         post :add_manual_item
       end
       resources :shopping_items, only: [:create, :update, :destroy] do

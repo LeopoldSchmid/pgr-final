@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_19_100741) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_121657) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -216,7 +216,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_100741) do
     t.string "name"
     t.integer "parent_recipe_id"
     t.boolean "proposed_for_public", default: false
-    t.boolean "selected_for_shopping"
     t.integer "servings"
     t.string "source_type", default: "trip"
     t.integer "trip_id"

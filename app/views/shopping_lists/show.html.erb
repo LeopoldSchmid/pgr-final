@@ -8,7 +8,7 @@
       </p>
     </div>
     <div class="flex space-x-3">
-      <%= form_with url: generate_from_recipes_trip_shopping_list_path(@trip, @shopping_list), method: :post, local: true, class: "flex items-center space-x-2" do |form| %>
+      <%= form_with url: generate_from_meal_plan_trip_shopping_list_path(@trip, @shopping_list), method: :post, local: true, class: "flex items-center space-x-2" do |form| %>
         <div class="flex items-center border border-gray-300 rounded-lg px-2 bg-white h-8">
           <span class="text-gray-500 text-xs mr-1">For</span>
           <%= form.number_field :people_count, value: @trip.trip_members.count, min: 1, class: "w-8 py-0 border-none focus:ring-0 text-center text-gray-700 text-sm h-6 p-0" %>
@@ -16,8 +16,8 @@
         </div>
         <%= form.submit "↻ Regenerate", class: "text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-3 py-1 rounded-lg transition-colors" %>
       <% end %>
-      <%= link_to trip_recipes_path(@trip), class: "text-blue-600 hover:text-blue-800 font-medium" do %>
-        ← Back to Recipes
+      <%= link_to plans_meals_path, class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+        ← Back to Meal Plan
       <% end %>
     </div>
   </div>
@@ -118,11 +118,11 @@
     <div class="text-center py-12">
       <div class="text-6xl mb-4">🛒</div>
       <h2 class="text-xl font-semibold text-gray-800 mb-2">Shopping list is empty</h2>
-      <p class="text-gray-600 mb-6">Add items manually or generate from selected recipes!</p>
+      <p class="text-gray-600 mb-6">Add items manually or generate them from your current meal plan.</p>
       <%= link_to "Go to Meal Plan", plans_meals_path, class: "bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors" %>
       
       <div class="mt-4">
-        <%= form_with url: generate_from_recipes_trip_shopping_list_path(@trip, @shopping_list), method: :post, local: true, class: "flex items-center justify-center space-x-2" do |form| %>
+        <%= form_with url: generate_from_meal_plan_trip_shopping_list_path(@trip, @shopping_list), method: :post, local: true, class: "flex items-center justify-center space-x-2" do |form| %>
           <div class="flex items-center border border-gray-300 rounded-lg px-3 bg-white">
             <span class="text-gray-500 text-sm mr-2">For</span>
             <%= form.number_field :people_count, value: @trip.trip_members.count, min: 1, class: "w-12 py-2 border-none focus:ring-0 text-center text-gray-700" %>
