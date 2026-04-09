@@ -56,6 +56,31 @@ For updates after the initial setup:
 bin/kamal deploy
 ```
 
+## Staging
+
+This project now includes a separate Kamal staging target:
+- Host: `staging.plangoreminisce.duzend.net`
+- Config override: [config/deploy.staging.yml](/home/leo/dev/projects/plangoreminisce/config/deploy.staging.yml)
+- Separate persistent volume: `plangoreminisce_staging_storage`
+
+Recommended workflow:
+```bash
+cp .kamal/deploy.env.example .kamal/deploy.env
+set -a; source .kamal/deploy.env; set +a
+bin/kamal setup -d staging
+bin/kamal deploy -d staging
+```
+
+Before setup:
+1. Create DNS `A` record for `staging.plangoreminisce.duzend.net` to `157.180.19.232`.
+2. Ensure ports `80` and `443` are reachable.
+3. Export `KAMAL_REGISTRY_PASSWORD` and `RAILS_MASTER_KEY`.
+
+Notes:
+1. Staging is isolated from production at the container/service and storage-volume level.
+2. Production data is not touched by staging deploys.
+3. Mailer host/protocol in production now use `APP_HOST` and `APP_PROTOCOL`, so staging links can point to the staging domain cleanly.
+
 ## Useful Commands
 
 ```bash

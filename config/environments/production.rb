@@ -55,21 +55,28 @@ Rails.application.configure do
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  config.action_mailer.raise_delivery_errors = true # Change to true
+  config.action_mailer.raise_delivery_errors = true
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "your_domain.com" } # Change host
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  config.action_mailer.delivery_method = :smtp # Add this line
-  config.action_mailer.smtp_settings = {
-    user_name: ENV["SMTP_USERNAME"], # Use environment variables
-    password: ENV["SMTP_PASSWORD"],   # Use environment variables
-    address: "smtp.your_provider.com", # Placeholder
-    port: 587,
-    authentication: :plain,
-    enable_starttls_auto: true # Recommended for most SMTP servers
+  # Set host/protocol used by links generated in mailer templates.
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST", "plangoreminisce.duzend.net"),
+    protocol: ENV.fetch("APP_PROTOCOL", "https")
   }
+
+  smtp_username = ENV["SMTP_USERNAME"]
+  smtp_password = ENV["SMTP_PASSWORD"]
+
+  if smtp_username.present? && smtp_password.present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS", "smtp.resend.com"),
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: smtp_username,
+      password: smtp_password,
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -81,12 +88,13 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  configured_hosts = ENV.fetch("ALLOWED_HOSTS", "")
+    .split(",")
+    .map(&:strip)
+    .reject(&:blank?)
+
+  app_host = ENV.fetch("APP_HOST", "").strip
+  configured_hosts << app_host if app_host.present?
+
+  config.hosts = configured_hosts.uniq if configured_hosts.any?
 end

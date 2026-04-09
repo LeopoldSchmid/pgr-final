@@ -1,0 +1,13 @@
+service: plangoreminisce-staging
+
+proxy:
+  ssl: true
+  host: staging.plangoreminisce.duzend.net
+
+env:
+  clear:
+    APP_HOST: staging.plangoreminisce.duzend.net
+    APP_PROTOCOL: https
+
+volumes:
+  - "plangoreminisce_staging_storage:/rails/storage"
