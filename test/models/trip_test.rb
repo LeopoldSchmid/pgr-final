@@ -157,4 +157,31 @@ class TripTest < ActiveSupport::TestCase
     # Regular member permissions depend on trip_member role
     # This would need to be tested based on your trip_member model implementation
   end
+
+  test "status is derived from trip dates" do
+    planning_trip = Trip.create!(
+      user: @user,
+      name: "Planning Trip",
+      start_date: 1.month.from_now.to_date,
+      end_date: 1.month.from_now.to_date + 2.days
+    )
+
+    active_trip = Trip.create!(
+      user: @user,
+      name: "Active Trip",
+      start_date: Date.current - 1.day,
+      end_date: Date.current + 1.day
+    )
+
+    completed_trip = Trip.create!(
+      user: @user,
+      name: "Completed Trip",
+      start_date: 1.month.ago.to_date,
+      end_date: 3.weeks.ago.to_date
+    )
+
+    assert_equal "planning", planning_trip.status
+    assert_equal "active", active_trip.status
+    assert_equal "completed", completed_trip.status
+  end
 end

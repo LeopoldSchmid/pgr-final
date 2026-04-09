@@ -20,7 +20,6 @@ unless test_user.trips.exists?
   planning_trip = test_user.trips.create!(
     name: "Summer Cabin Retreat 2025",
     description: "Weekend getaway to the mountains with college friends. Planning to cook together, hike, and relax by the lake.",
-    status: "planning",
     start_date: 3.months.from_now.to_date,
     end_date: 3.months.from_now.to_date + 3.days
   )
@@ -29,7 +28,6 @@ unless test_user.trips.exists?
   weekend_trip = test_user.trips.create!(
     name: "Weekend Adventure",
     description: "Ready to explore and create memories! Perfect for testing the journal feature.",
-    status: "active",
     start_date: Date.current.next_occurring(:saturday),
     end_date: Date.current.next_occurring(:sunday)
   )
@@ -38,7 +36,6 @@ unless test_user.trips.exists?
   current_trip = test_user.trips.create!(
     name: "City Food Tour",
     description: "Exploring local restaurants and food markets downtown.",
-    status: "active",
     start_date: 1.day.ago.to_date,
     end_date: 2.days.from_now.to_date
   )
@@ -47,7 +44,6 @@ unless test_user.trips.exists?
   completed_trip = test_user.trips.create!(
     name: "Beach House Week",
     description: "Amazing week at the coast with family. Cooked fresh seafood every night!",
-    status: "completed",
     start_date: 2.months.ago.to_date,
     end_date: 2.months.ago.to_date + 6.days
   )
@@ -139,7 +135,7 @@ if weekend_trip
       expense_date: weekend_trip.start_date,
       currency: "EUR"
     )
-    dinner_expense.split_equally_among([test_user, alice, bob, charlie])
+    dinner_expense.split_equally_among([ test_user, alice, bob, charlie ])
 
     # Gas expense - only test_user and bob participated
     gas_expense = weekend_trip.expenses.create!(
@@ -150,7 +146,7 @@ if weekend_trip
       expense_date: weekend_trip.start_date,
       currency: "EUR"
     )
-    gas_expense.split_equally_among([test_user, bob])
+    gas_expense.split_equally_among([ test_user, bob ])
 
     # Hotel expense - alice paid for herself and charlie only
     hotel_expense = weekend_trip.expenses.create!(
@@ -161,7 +157,7 @@ if weekend_trip
       expense_date: weekend_trip.start_date,
       currency: "EUR"
     )
-    hotel_expense.split_equally_among([alice, charlie])
+    hotel_expense.split_equally_among([ alice, charlie ])
 
     # Activity expense - everyone except charlie
     activity_expense = weekend_trip.expenses.create!(
@@ -172,7 +168,7 @@ if weekend_trip
       expense_date: weekend_trip.start_date + 1.day,
       currency: "EUR"
     )
-    activity_expense.split_equally_among([test_user, alice, bob])
+    activity_expense.split_equally_among([ test_user, alice, bob ])
   end
 end
 
