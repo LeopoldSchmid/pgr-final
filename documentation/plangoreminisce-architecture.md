@@ -1,5 +1,12 @@
 # PlanGoReminisce - Architecture Documentation
 
+> Status note (2026-04-09):
+> This document remains useful as broad architectural context, but it is not the primary source of truth for current implementation status.
+> For active planning and current project reality, use:
+> - [stabilization_plan.md](./stabilization_plan.md)
+> - [status_quo.md](./status_quo.md)
+> - [testing.md](./testing.md)
+
 **About arc42**
 
 arc42, the template for documentation of software and system architecture.
@@ -75,7 +82,7 @@ This architecture documentation follows the arc42 template and serves as the com
 
 | Constraint | Description | Rationale |
 |------------|-------------|-----------|
-| **Rails 8.0+** | Must use Ruby on Rails 8.0 or later | Access to Solid adapters, built-in auth, modern features |
+| **Rails 8.1+** | Must use Ruby on Rails 8.1 or later | Access to current Solid adapters, built-in auth, modern features |
 | **Single Server** | Deploy to single Hetzner server initially | Cost optimization and simplicity |
 | **SQLite/PostgreSQL** | Database choice limited to these options | Rails 8 Solid adapters compatibility |
 | **No External Services** | Minimize dependencies on Redis, Sidekiq, etc. | Rails 8 "No PaaS Required" philosophy |
@@ -141,7 +148,7 @@ This architecture documentation follows the arc42 template and serves as the com
 
 ## Technology Decisions
 
-**Web Framework: Ruby on Rails 8.0+**
+**Web Framework: Ruby on Rails 8.1+**
 - **Rationale**: Rails 8's "No PaaS Required" philosophy aligns with self-hosting goals
 - **Benefits**: Built-in authentication, Solid adapters eliminate Redis dependency, Kamal 2 for deployment
 - **Trade-offs**: Ruby ecosystem vs. other modern stacks
@@ -501,7 +508,7 @@ Recipe System     Shopping System     Purchase Tracking
 
 **Context**: Previous attempts with Next.js were abandoned due to complexity and JavaScript ecosystem fatigue.
 
-**Decision**: Use Ruby on Rails 8.0+ as the primary framework.
+**Decision**: Use Ruby on Rails 8.1+ as the primary framework.
 
 **Consequences**:
 - ✅ Simplified development with Rails conventions
@@ -717,12 +724,16 @@ Quality
 
 # Implementation Status {#section-implementation-status}
 
-## Current Development Status (September 2025)
+## Current Development Status (2026-04-09)
 
-### ✅ **FULLY IMPLEMENTED FEATURES**
+This section is a condensed snapshot and should be read conservatively.
+Not every feature listed below is equally release-ready.
+The app contains real functionality across most domains, but some areas are still being consolidated or are only partially production-safe.
+
+### ✅ **Implemented Foundations**
 
 #### **🏗️ Core Infrastructure**
-- **Rails 8.0 Application**: Modern Rails setup with built-in authentication
+- **Rails 8.1 Application**: Modern Rails setup with built-in authentication
 - **Database Schema**: Complete with all relationships (Users, Trips, Journal Entries, Expenses, etc.)
 - **Active Storage**: Image upload capability for journal entries and recipes
 - **Hotwire/Stimulus**: Modern frontend with minimal JavaScript complexity
@@ -782,15 +793,15 @@ Quality
 - **Recipe Management**: Full CRUD operations for trip recipes
 - **Ingredient System**: Structured ingredients with quantities and units
 - **Shopping List Generation**: Automatic aggregation of recipe ingredients
-- **Meal Scheduling**: Plan meals for specific trip days
+- **Meal Scheduling**: Calendar-based meal planning exists, but is still being consolidated with shopping-list flows
 - **Recipe Library**: Searchable collection of recipes across trips
 - **Image Support**: Recipe photos with Active Storage integration
 
-#### **🛒 Shopping & Item Management**
-- **Aggregated Shopping Lists**: Combined ingredients from all trip recipes
+#### **🛒 Shopping**
+- **Aggregated Shopping Lists**: Shopping lists exist; generation logic is currently shifting from recipe-selection toward meal-plan-based generation
 - **Manual Items**: Add custom items beyond recipe ingredients
 - **Purchase Tracking**: Mark items as purchased during shopping
-- **Store Optimization**: Organized lists for efficient shopping
+- **Store Optimization**: Basic list organization exists
 - **Quantity Management**: Smart quantity calculations and unit conversions
 
 #### **💬 Discussion System**
@@ -815,11 +826,14 @@ Quality
 - **Professional Typography**: Instrument Sans font system
 - **Coral Accent Theme**: Soft coral (#7A83B3) primary with lavender backgrounds
 
-### 🔄 **PARTIALLY IMPLEMENTED**
+### 🔄 **Partially Implemented / Requires Validation**
 
 - **Offline Capability**: Basic functionality works offline but needs enhancement
 - **Data Export/Import**: Basic functionality present but needs comprehensive solution
 - **Mobile PWA Features**: Works as PWA but needs installation prompts and better offline
+- **Meal Planning Consistency**: Core flow exists, but older recipe-selection concepts are still present in parts of the codebase
+- **Plans Subsections**: `packing`, `itinerary`, and `templates` are not feature-complete
+- **Memories Albums**: Albums endpoint exists as placeholder, not a completed feature
 
 ### 📋 **PLANNED FEATURES**
 
@@ -836,13 +850,13 @@ Quality
 ### 🏗️ **Technical Architecture Summary**
 
 #### **Current Stack**
-- **Backend**: Ruby on Rails 8.0 with built-in authentication
+- **Backend**: Ruby on Rails 8.1 with built-in authentication
 - **Database**: SQLite (production-ready with Rails 8 Solid adapters)
 - **Frontend**: Hotwire (Turbo + Stimulus) + Tailwind CSS
 - **Mapping**: OpenStreetMap + Leaflet.js
 - **Geocoding**: Nominatim API (free OpenStreetMap service)
 - **Images**: Active Storage with local file storage
-- **Deployment**: Ready for Kamal 2 deployment to single server
+- **Deployment**: Kamal-based production deploy exists; staging baseline is now scaffolded separately
 
 #### **Key Architectural Decisions**
 - **Rails 8 "No PaaS Required"**: Eliminates Redis dependency with Solid adapters

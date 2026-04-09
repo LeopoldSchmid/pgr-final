@@ -44,7 +44,7 @@ Built with Ruby on Rails 8, embracing the "No PaaS Required" philosophy for simp
 ## 🛠️ Technology Stack
 
 **Modern Rails 8 Architecture**
-- **Framework**: Ruby on Rails 8.0+ with built-in authentication
+- **Framework**: Ruby on Rails 8.1+ with built-in authentication
 - **Frontend**: Hotwire (Turbo + Stimulus) with Tailwind CSS
 - **Database**: SQLite (development) → PostgreSQL (production scaling)
 - **Background Jobs**: Solid Queue (no Redis required)
@@ -57,7 +57,7 @@ Built with Ruby on Rails 8, embracing the "No PaaS Required" philosophy for simp
 
 ### Prerequisites
 - Ruby 3.2+ (3.4.5 recommended)
-- Rails 8.0+
+- Rails 8.1+
 - Node.js (for asset compilation)
 
 ### Installation
