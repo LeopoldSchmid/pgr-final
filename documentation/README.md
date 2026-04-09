@@ -23,6 +23,8 @@ Stand: 2026-04-09
    - Kurze dokumentierte Architektur- und Produktentscheidungen.
 9. [ui_review.md](./ui_review.md)
    - Review der aktuellen Informationsdichte, Navigationskonkurrenz und Mobile-Fitness.
+10. [staging_smoke_results_2026-04-09.md](./staging_smoke_results_2026-04-09.md)
+   - Erste dokumentierte Smoke-Ergebnisse auf dem laufenden Staging-System.
 
 ## Weitere Dokumente
 
