@@ -24,8 +24,10 @@
 3. The app boots locally when executed with the intended Ruby/Bundler toolchain.
 4. Controller-level regression checks for trip switching and plans routing are passing again.
 5. Rails-Systemtests now run with Playwright instead of Selenium.
-6. The current verified smoke baseline is still small and not yet a reliable release gate.
-7. Mobile-first behavior must be treated as a release criterion, especially around media upload.
+6. The verified automated regression baseline now covers plans, trip switching, shopping generation, memories, expenses, invitations, trip attachments, key trip pages, model logic and the current meal-planning system flow.
+7. The current broad verified corridor is `106 runs, 278 assertions, 0 failures, 0 errors, 0 skips`.
+8. Mobile-first behavior must be treated as a release criterion, especially around media upload.
+9. Remaining warning noise is narrowed down to a non-blocking local VIPS module warning and an upstream `marcel` warning under Ruby 3.4.
 
 ## Deployment baseline
 1. Current production host is `plangoreminisce.duzend.net`.

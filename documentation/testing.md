@@ -73,3 +73,6 @@ npm run test:e2e:local:headed
 - Fuer neue UI-Tests stabile semantische Selektoren oder gezielte `data-testid`-Attribute bevorzugen.
 - Committe niemals `node_modules/`, `playwright-report/` oder `test-results/`.
 - Die operative manuelle Freigabe fuer Staging steht in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).
+- `WickedPdf.config=` wurde auf `WickedPdf.configure` umgestellt; entsprechende Deprecation-Warnungen sollten nicht mehr auftreten.
+- Die verbleibende `VIPS`-Warnung verweist auf ein fehlendes optionales Systemmodul (`libopenslide`). Das ist aktuell kein funktionaler Blocker fuer die App.
+- Die verbleibende `marcel`-Warnung stammt aus der eingesetzten Gem-Version unter Ruby `3.4` und ist derzeit ein Upstream-/Dependency-Thema, kein bekannter App-Fehler.
