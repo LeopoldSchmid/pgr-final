@@ -54,3 +54,14 @@
 - Consequence:
   - Code, tests, routes, and wording around shopping generation need consolidation.
   - Meal planning becomes the intended source of truth for future shopping flows.
+
+## 2026-04-09 - Meal planning and shopping are separate but connected domains
+- Decision: Treat `Meal Planning` as coordination logic and `Shopping` as procurement logic.
+- Why:
+  - Real trips include needs that do not map cleanly to single meals, such as drinks, snacks, staples, and shared supplies.
+  - Shopping must work manually, from meal plans, or as a mixture of both.
+  - Cooperative shopping often needs partial completion, not only a boolean purchased state.
+- Consequence:
+  - Shopping must remain a first-class object, not only a derived report from meals.
+  - Manual shopping items remain a supported path.
+  - Partial purchase tracking becomes a valid target for future model evolution.

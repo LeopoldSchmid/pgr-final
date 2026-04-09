@@ -25,6 +25,8 @@ Stand: 2026-04-09
    - Review der aktuellen Informationsdichte, Navigationskonkurrenz und Mobile-Fitness.
 10. [staging_smoke_results_2026-04-09.md](./staging_smoke_results_2026-04-09.md)
    - Erste dokumentierte Smoke-Ergebnisse auf dem laufenden Staging-System.
+11. [meal_planning_and_shopping_target_model.md](./meal_planning_and_shopping_target_model.md)
+   - Fachliches Zielmodell fuer die weitere Entwicklung von `Meal Planning` und `Shopping`.
 
 ## Weitere Dokumente
 
