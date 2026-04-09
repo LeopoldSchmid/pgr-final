@@ -9,7 +9,9 @@ Stand: 2026-04-09
    - Definiert Nicht-Ziele, Arbeitsstraenge, offene Fragen und Reihenfolge.
 2. [status_quo.md](./status_quo.md)
    - Kompakter Ist-Zustand von Produkt, Technik und Deploy-Basis.
-3. [testing.md](./testing.md)
+3. [priorities.md](./priorities.md)
+   - Konkrete `must / should / could`-Priorisierung und Arbeitsreihenfolge.
+4. [testing.md](./testing.md)
    - Lokale Test-Kommandos, Playwright-Setup und Rails-Testbasis.
 
 ## Weitere Dokumente
