@@ -82,6 +82,7 @@ Notes:
 3. Mailer host/protocol in production now use `APP_HOST` and `APP_PROTOCOL`, so staging links can point to the staging domain cleanly.
 4. After each meaningful staging deploy, run the checklist in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).
 5. If the host logs show a `VIPS` warning about `libopenslide.so.1`, treat it as a host package issue first. It is currently non-blocking for the verified app flows.
+6. The practical first-deploy sequence lives in [staging_runbook.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_runbook.md).
 
 ## Useful Commands
 

@@ -15,9 +15,11 @@ Stand: 2026-04-09
    - Lokale Test-Kommandos, Playwright-Setup und Rails-Testbasis.
 5. [staging_smoke_checklist.md](./staging_smoke_checklist.md)
    - Operative Staging- und Beta-Smoke-Checkliste fuer Kernfluesse.
-6. [delivery_standards.md](./delivery_standards.md)
+6. [staging_runbook.md](./staging_runbook.md)
+   - Praktischer Ablauf fuer den ersten echten Staging-Deploy.
+7. [delivery_standards.md](./delivery_standards.md)
    - Verbindlicher Mindeststandard fuer Tests, Doku und Abschlusskriterien.
-7. [decision_log.md](./decision_log.md)
+8. [decision_log.md](./decision_log.md)
    - Kurze dokumentierte Architektur- und Produktentscheidungen.
 
 ## Weitere Dokumente
