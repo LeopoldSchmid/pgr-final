@@ -30,6 +30,7 @@ Ziel ist kein neues Feature-Push und kein UI-Redesign, sondern ein solider, nach
 7. SQLite bleibt die Produktionsdatenbank fuer den aktuellen Stabilisierungspfad.
 8. Eine spaetere Migration bestehender Memories/Journals/Attachments ist gewuenscht, wenn sie vertretbar ist.
 9. Das Datenmodell darf bei Bedarf noch einmal grundsaetzlich ueberdacht werden; fruehere Entscheidungen gelten nicht als unverrueckbar.
+10. Das Altfeld `selected_for_shopping` soll entfernt werden; Meal Planning ist die fachliche Richtung fuer kuenftige Shopping-Logik.
 
 ## Definition eines soliden Ausgangsstands
 
@@ -46,7 +47,7 @@ Ein belastbarer Ausgangsstand ist erreicht, wenn folgende Punkte gelten:
 ### 1. Fachliche Inkonsistenz zwischen altem und neuem Meal-Planning-Ansatz
 
 - Meal Plans sind inzwischen echte Datensaetze.
-- Gleichzeitig existiert noch alter Rezeptstatus ueber `selected_for_shopping`.
+- Gleichzeitig existiert noch alter Rezeptstatus ueber `selected_for_shopping`, obwohl diese Linie fachlich aufgegeben wurde.
 - Beispiele:
   - [recipes_controller.rb](/home/leo/dev/projects/plangoreminisce/app/controllers/recipes_controller.rb)
   - [recipe.rb](/home/leo/dev/projects/plangoreminisce/app/models/recipe.rb)
@@ -122,7 +123,7 @@ Ziel:
 - Ein eindeutiges fachliches Modell ohne parallele alte und neue Logikpfade.
 
 Aufgaben:
-1. Entscheiden, ob `selected_for_shopping` noch temporär benoetigt wird oder entfernt werden soll.
+1. `selected_for_shopping` aus Code, Routen, Views und Datenmodell entfernen.
 2. Alte Benennungen wie `generate_from_recipes` gegen fachlich passende Namen konsolidieren.
 3. Pruefen, welche Screens noch altes Wording oder alte Erwartungen tragen.
 4. Konsistente Regeln fuer `current_trip` und context-based routing festlegen.
@@ -270,15 +271,8 @@ Diese Arbeit laesst sich spaeter sinnvoll in getrennte Pakete aufteilen:
 
 Diese Fragen blockieren nicht sofort, sollten aber vor tieferer Umsetzung beantwortet oder weiter geschaerft werden:
 
-1. Was genau soll mit `selected_for_shopping` passieren?
-   Aktueller Stand:
-   - Das Feld stammt aus einem aelteren Ansatz, bei dem Rezepte direkt fuer Shopping markiert wurden.
-   - Der neue fachliche Kurs zeigt eher in Richtung Meal Plan als Quelle fuer Einkaufslisten.
-   Entscheidung noch offen:
-   - entfernen
-   - nur temporaer als Kompatibilitaetsfeld behalten
-2. Soll das Planungsmodell langfristig widget-/bausteinbasiert werden, sodass pro Trip nur relevante Planungsfunktionen aktiv sind?
-3. Welche Bereiche des heutigen Datenmodells gelten als stabil, und welche duerfen im Zuge der Konsolidierung noch neu gedacht werden?
+1. Soll das Planungsmodell langfristig widget-/bausteinbasiert werden, sodass pro Trip nur relevante Planungsfunktionen aktiv sind?
+2. Welche Bereiche des heutigen Datenmodells gelten als stabil, und welche duerfen im Zuge der Konsolidierung noch neu gedacht werden?
 
 ## Arbeitsregel fuer die naechsten Schritte
 

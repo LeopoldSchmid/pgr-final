@@ -16,6 +16,7 @@
 6. Meal planning is currently being reworked from recipe selection toward calendar-based meal plans.
 7. Attachments, journal/memories and discussions exist.
 8. The intended first real-world test scope includes all major areas, not just planning.
+9. The old `selected_for_shopping` recipe flag is considered legacy and should be removed during stabilization.
 
 ## Current engineering reality
 1. Local documentation is partly outdated and must not be treated as source of truth.
