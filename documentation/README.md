@@ -1,54 +1,32 @@
-# PlanGoReminisce Documentation
+# Documentation
 
-This directory contains the comprehensive documentation for the PlanGoReminisce collaborative trip planning application.
+Stand: 2026-04-09
 
-## 📚 Documentation Structure
+## Start Here
 
-### Core Documentation
+1. [stabilization_plan.md](./stabilization_plan.md)
+   - Operatives Referenzdokument fuer die naechsten Schritte.
+   - Definiert Nicht-Ziele, Arbeitsstraenge, offene Fragen und Reihenfolge.
+2. [status_quo.md](./status_quo.md)
+   - Kompakter Ist-Zustand von Produkt, Technik und Deploy-Basis.
+3. [testing.md](./testing.md)
+   - Lokale Test-Kommandos, Playwright-Setup und Rails-Testbasis.
 
-- **[`plangoreminisce-architecture.md`](./plangoreminisce-architecture.md)** - 🏗️ **Main Architecture Document**
-  - Complete system architecture following arc42 template
-  - Implementation status and current feature set
-  - Technical decisions and quality requirements
-  - Development roadmap and milestones
+## Weitere Dokumente
 
-### Feature Proposals
+1. [plangoreminisce-architecture.md](./plangoreminisce-architecture.md)
+   - Groesseres Architektur-Dokument.
+   - Inhaltlich nuetzlich, aber nicht in allen Teilen auf dem neuesten Stand.
+2. [trip-documents-feature-proposal.md](./trip-documents-feature-proposal.md)
+   - Aelteres Feature-Konzept fuer Attachments.
+3. [restructure.md](./restructure.md)
+4. [restructure_2.md](./restructure_2.md)
+   - Historische Umbau-Dokumente, nur noch als Kontext verwenden.
 
-- **[`trip-documents-feature-proposal.md`](./trip-documents-feature-proposal.md)** - 📎 **Trip Attachments Feature**
-  - Detailed proposal for file attachment functionality
-  - Implementation plan using Active Storage
-  - User flows and technical specifications
+## Regel
 
-## 🎯 Quick Reference
+Wenn Dokumente einander widersprechen, gelten zuerst:
 
-**Project Status**: Production-ready MVP with comprehensive feature set
-**Last Updated**: September 2025
-**Version**: Rails 8.0 application
-
-### Key Features Implemented
-- ✅ Travel journal with GPS and photos
-- ✅ Expense tracking and splitting
-- ✅ Recipe management and shopping lists
-- ✅ Reddit-style discussion system
-- ✅ Email-based invitation system
-- ✅ Modern PWA interface
-
-### Current Tech Stack
-- **Backend**: Ruby on Rails 8.0
-- **Database**: SQLite (production-ready)
-- **Frontend**: Hotwire + Tailwind CSS
-- **Maps**: OpenStreetMap + Leaflet.js
-- **Deployment**: Kamal 2 ready
-
-## 📋 For Developers
-
-Start with the [architecture document](./plangoreminisce-architecture.md) for complete system understanding. The document includes:
-- Business requirements and quality goals
-- Technical constraints and decisions
-- Detailed implementation status
-- Code structure and patterns
-- Quality scenarios and testing strategy
-
----
-
-*For the most up-to-date implementation details, refer to the main architecture document.*
+1. `stabilization_plan.md`
+2. `status_quo.md`
+3. der aktuelle Code
