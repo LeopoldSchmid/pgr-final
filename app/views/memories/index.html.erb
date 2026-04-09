@@ -1,4 +1,4 @@
-<% content_for :title, "#{@trip.name} - Memories" %>
+<% content_for :title, @global_view ? "Memories" : "#{@trip.name} - Memories" %>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -33,7 +33,7 @@
               </div>
 
               <div class="mt-4 flex items-center space-x-4 text-sm text-text-secondary">
-                <%= link_to edit_trip_journal_entry_path(@trip, memory), class: "hover:text-primary-accent" do %>
+                <%= link_to edit_trip_journal_entry_path(memory.trip, memory), class: "hover:text-primary-accent" do %>
                   <%= t('common.edit') %>
                 <% end %>
                 <span>•</span>
@@ -45,8 +45,8 @@
         <% elsif memory.is_a?(TripAttachment) %>
           <!-- Photo/Attachment Card -->
           <div class="bg-background-secondary rounded-lg shadow-sm overflow-hidden">
-            <% if memory.file.attached? %>
-              <%= image_tag memory.file, class: "w-full h-auto max-h-96 object-cover" %>
+            <% if memory.files.attached? %>
+              <%= image_tag memory.files.first, class: "w-full h-auto max-h-96 object-cover" %>
             <% end %>
 
             <div class="p-4">
@@ -60,12 +60,12 @@
                 </div>
               </div>
 
-              <% if memory.caption.present? %>
-                <p class="text-text-primary"><%= memory.caption %></p>
+              <% if memory.name.present? %>
+                <p class="text-text-primary"><%= memory.name %></p>
               <% end %>
 
               <div class="mt-3 flex items-center space-x-4 text-sm text-text-secondary">
-                <span><%= memory.trip_attachment_votes.count %> <%= t('votes.title').downcase %></span>
+                <span><%= memory.discussion_votes.count %> <%= t('votes.title').downcase %></span>
                 <span>•</span>
                 <span><%= memory.trip_attachment_comments.count %> <%= t('comments.title').downcase %></span>
               </div>
@@ -83,8 +83,14 @@
         <p class="text-text-secondary mb-6">
           <%= t('memories.empty.description') %>
         </p>
-        <%= link_to new_trip_journal_entry_path(@trip), class: "inline-block bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
-          <%= t('memories.empty.cta') %>
+        <% if @trip %>
+          <%= link_to new_trip_journal_entry_path(@trip), class: "inline-block bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
+            <%= t('memories.empty.cta') %>
+          <% end %>
+        <% else %>
+          <%= link_to select_trip_path(return_to: memories_path), class: "inline-block bg-primary-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-accent/80 transition-colors" do %>
+            Select a Trip
+          <% end %>
         <% end %>
       </div>
     <% end %>

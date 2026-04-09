@@ -38,10 +38,11 @@ class MemoriesController < ApplicationController
   # Global context: Favorites
   def favorites
     # Show favorite memories across all trips
-    @favorite_entries = JournalEntry.joins(:trip)
-                                    .where(trips: { user_id: Current.user.id })
-                                    .or(JournalEntry.joins(trip: :trip_members)
-                                                    .where(trip_members: { user_id: Current.user.id }))
+    user_trip_ids = (Current.user.trips.pluck(:id) +
+                    Trip.joins(:trip_members).where(trip_members: { user_id: Current.user.id }).pluck(:id)).uniq
+
+    @favorite_entries = JournalEntry.includes(:user, :trip)
+                                    .where(trip_id: user_trip_ids)
                                     .where(favorite: true)
                                     .order(created_at: :desc)
                                     .limit(50)
@@ -54,11 +55,11 @@ class MemoriesController < ApplicationController
 
     # Load memories (journal entries and attachments) for the current trip
     @journal_entries = @trip.journal_entries
-                            .includes(:user, :comments, :trip_attachment_votes)
+                            .includes(:user, :comments, :discussion_votes)
                             .order(entry_date: :desc, created_at: :desc)
 
     @trip_attachments = @trip.trip_attachments
-                             .includes(:user, :trip_attachment_comments, :trip_attachment_votes)
+                             .includes(:user, :trip_attachment_comments, :discussion_votes)
                              .order(created_at: :desc)
 
     # Merge and sort by date for unified timeline
@@ -72,7 +73,7 @@ class MemoriesController < ApplicationController
     @total_entries = @trip.journal_entries.count
     @total_photos = @trip.trip_attachments.count
     @favorite_moments = @trip.journal_entries.where(favorite: true).count
-    @locations_visited = @trip.journal_entries.where.not(location: [nil, '']).distinct.count(:location)
+    @locations_visited = @trip.journal_entries.where.not(location: [ nil, "" ]).distinct.count(:location)
   end
 
   def feed_global
@@ -87,7 +88,7 @@ class MemoriesController < ApplicationController
 
     @trip_attachments = TripAttachment.joins(:trip)
                                       .where(trip_id: user_trip_ids)
-                                      .includes(:user, :trip)
+                                      .includes(:user, :trip, :trip_attachment_comments, :discussion_votes)
                                       .order(created_at: :desc)
                                       .limit(50)
 
@@ -101,7 +102,7 @@ class MemoriesController < ApplicationController
 
   def ensure_trip_context
     unless current_trip
-      flash[:alert] = t('memories.errors.no_trip_selected')
+      flash[:alert] = t("memories.errors.no_trip_selected")
       redirect_to select_trip_path(return_to: memories_path)
     end
   end

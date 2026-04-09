@@ -36,21 +36,25 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
       location: "Paris"
     )
 
-    @trip_attachment = @trip.trip_attachments.create!(
+    @trip_attachment = @trip.trip_attachments.build(
       user: @user,
-      caption: "Beautiful sunset"
+      name: "Sunset photo"
     )
+    @trip_attachment.files.attach(
+      io: StringIO.new("fake image content"),
+      filename: "sunset.jpg",
+      content_type: "image/jpeg"
+    )
+    @trip_attachment.save!
   end
 
   test "should get index when authenticated and trip context set" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-
-    # Set trip context
-    get trip_url(@trip)
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_path }
 
     get memories_url
     assert_response :success
+    assert_includes response.body, "Amazing first day!"
   end
 
   test "should show global feed when no trip context" do
@@ -58,11 +62,12 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
 
     get memories_url
     assert_response :success
+    assert_includes response.body, "Amazing first day!"
   end
 
   test "should get albums page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_albums_path }
 
     get memories_albums_url
     assert_response :success
@@ -70,17 +75,21 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
 
   test "should get map page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    @journal_entry.update!(latitude: 48.8566, longitude: 2.3522)
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_map_path }
 
     get memories_map_url
     assert_response :success
+    assert_includes response.body, "memories-map"
   end
 
   test "should get favorites page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
+    @journal_entry.update!(favorite: true)
 
     get memories_favorites_url
     assert_response :success
+    assert_includes response.body, "Amazing first day!"
   end
 
   test "should require authentication" do
@@ -91,30 +100,36 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
   test "index should show journal entries for current trip only" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
-    get trip_url(@trip)
-    session[:current_trip_id] = @trip.id
+    other_entry = @unauthorized_trip.journal_entries.create!(
+      user: @other_user,
+      content: "Should stay hidden",
+      entry_date: Date.current
+    )
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_path }
 
     get memories_url
     assert_response :success
+    assert_includes response.body, @journal_entry.content
+    assert_not_includes response.body, other_entry.content
   end
 
   test "index should show trip attachments for current trip" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
-    get trip_url(@trip)
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_path }
 
     get memories_url
     assert_response :success
+    assert_includes response.body, @trip_attachment.name
   end
 
   test "albums should not allow access to unauthorized trip" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
-    session[:current_trip_id] = @unauthorized_trip.id
+    patch switch_trip_url, params: { trip_id: @unauthorized_trip.id, return_to: memories_albums_path }
 
     get memories_albums_url
-    assert_redirected_to select_trip_url
+    assert_redirected_to select_trip_url(return_to: memories_path)
   end
 
   test "index should order memories by date descending" do
@@ -127,10 +142,11 @@ class MemoriesControllerTest < ActionDispatch::IntegrationTest
       entry_date: Date.current - 1.day
     )
 
-    get trip_url(@trip)
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: memories_path }
 
     get memories_url
     assert_response :success
+    assert_includes response.body, @journal_entry.content
+    assert_includes response.body, earlier_entry.content
   end
 end
