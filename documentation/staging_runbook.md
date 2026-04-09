@@ -20,6 +20,10 @@ Es ist bewusst kurz und operativ.
    cp .kamal/deploy.env.example .kamal/deploy.env
    set -a; source .kamal/deploy.env; set +a
    ```
+   Alternativ wie in `zapfe-rails` direkt ueber den Projekt-Wrapper:
+   ```bash
+   bin/kamal_with_env config -d staging
+   ```
 3. Pflichtvariablen gesetzt pruefen:
    ```bash
    test -n "$KAMAL_REGISTRY_PASSWORD" && echo registry-ok
@@ -34,30 +38,30 @@ Es ist bewusst kurz und operativ.
 
 1. Zielkonfiguration ansehen:
    ```bash
-   bin/kamal config -d staging
+   bin/kamal_with_env config -d staging
    ```
 2. Wenn der Server noch nie fuer Staging eingerichtet wurde:
    ```bash
-   bin/kamal setup -d staging
+   bin/kamal_with_env setup -d staging
    ```
 3. Wenn Staging bereits existiert:
    ```bash
-   bin/kamal deploy -d staging
+   bin/kamal_with_env deploy -d staging
    ```
 
 ## Unmittelbar nach dem Deploy
 
 1. Status pruefen:
    ```bash
-   bin/kamal details -d staging
+   bin/kamal_with_env details -d staging
    ```
 2. Logs ansehen:
    ```bash
-   bin/kamal logs -d staging
+   bin/kamal_with_env logs -d staging
    ```
 3. Falls noetig Rails-Konsole:
    ```bash
-   bin/kamal console -d staging
+   bin/kamal_with_env console -d staging
    ```
 
 ## Pflichtverifikation
@@ -77,15 +81,15 @@ Nach jedem erfolgreichen Deploy:
 
 1. Erst Logs lesen:
    ```bash
-   bin/kamal logs -d staging
+   bin/kamal_with_env logs -d staging
    ```
 2. Danach Container-/Proxy-Status:
    ```bash
-   bin/kamal details -d staging
+   bin/kamal_with_env details -d staging
    ```
 3. Nur wenn der neue Stand klar schlechter ist und Ursache nicht schnell behebbar:
    ```bash
-   bin/kamal rollback -d staging
+   bin/kamal_with_env rollback -d staging
    ```
 
 ## Bekannte Hinweise
