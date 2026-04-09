@@ -63,3 +63,6 @@ group :development do
   gem "web-console"
   gem "letter_opener"
 end
+
+gem "capybara", "~> 3.40", group: :test
+gem "capybara-playwright-driver", "~> 0.5.4", group: :test

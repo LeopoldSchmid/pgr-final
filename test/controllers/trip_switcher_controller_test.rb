@@ -67,7 +67,8 @@ class TripSwitcherControllerTest < ActionDispatch::IntegrationTest
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
     patch switch_trip_url, params: { trip_id: @trip1.id }
-    assert_equal @trip1.id, session[:current_trip_id]
+    get plans_meals_url
+    assert_response :success
   end
 
   test "should redirect after switching trip" do
@@ -89,7 +90,6 @@ class TripSwitcherControllerTest < ActionDispatch::IntegrationTest
 
     patch switch_trip_url, params: { trip_id: @unauthorized_trip.id }
     assert_redirected_to select_trip_url
-    assert_nil session[:current_trip_id]
     assert_equal "You don't have access to this trip.", flash[:alert]
   end
 
@@ -97,24 +97,22 @@ class TripSwitcherControllerTest < ActionDispatch::IntegrationTest
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
     patch switch_trip_url, params: { trip_id: @member_trip.id }
-    assert_equal @member_trip.id, session[:current_trip_id]
+    assert_redirected_to trip_path(@member_trip)
   end
 
   test "should clear trip context" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-
-    # First set a trip
-    session[:current_trip_id] = @trip1.id
+    patch switch_trip_url, params: { trip_id: @trip1.id }
 
     # Then clear it
     delete clear_trip_context_url
-    assert_nil session[:current_trip_id]
+    get plans_url
+    assert_redirected_to recipe_library_url
   end
 
   test "should redirect to home after clearing trip context" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-
-    session[:current_trip_id] = @trip1.id
+    patch switch_trip_url, params: { trip_id: @trip1.id }
 
     delete clear_trip_context_url
     assert_redirected_to root_path

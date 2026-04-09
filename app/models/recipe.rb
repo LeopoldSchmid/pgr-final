@@ -1,4 +1,5 @@
 class Recipe < ApplicationRecord
+  has_many :meal_plans, dependent: :destroy
   belongs_to :trip, optional: true
   belongs_to :user # recipe creator/owner
   belongs_to :parent_recipe, class_name: 'Recipe', optional: true

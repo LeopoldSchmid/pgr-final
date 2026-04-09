@@ -24,6 +24,13 @@
       color: "bg-blue-600 hover:bg-blue-700",
       onclick: "showQuickAddModal()"
     }
+  when /\/plans\/meals/
+    {
+      path: recipe_library_path,
+      icon: "+",
+      tooltip: "Add Recipe",
+      color: "bg-emerald-600 hover:bg-emerald-700"
+    }
   # Trips/go pages now use their own modal FAB - skip this page
   # when /\/trips\/\d+\/go/
   when /\/plan/

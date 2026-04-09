@@ -90,6 +90,7 @@ class TripsController < ApplicationController
   # New Trip Overview (replaces /trip/plan as default)
   def overview
     # Trip overview/dashboard - the new landing page for a trip
+    set_current_trip(@trip)
     @related_trips = @trip.series_name.present? ? Trip.in_series(@trip.series_name).where.not(id: @trip.id) : []
     @date_proposals = @trip.date_proposals.order(:start_date)
     @journal_entries = @trip.journal_entries.recent.limit(5)
@@ -223,6 +224,8 @@ class TripsController < ApplicationController
 
       trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
       @trip = trip_relation.first
+
+      set_current_trip(@trip) if @trip
 
       raise ActiveRecord::RecordNotFound unless @trip
     else

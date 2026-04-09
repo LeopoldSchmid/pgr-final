@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_23_150848) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_19_100741) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -198,6 +198,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_23_150848) do
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
 
+  create_table "meal_plans", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.text "description"
+    t.string "meal_type"
+    t.integer "recipe_id", null: false
+    t.integer "trip_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipe_id"], name: "index_meal_plans_on_recipe_id"
+    t.index ["trip_id"], name: "index_meal_plans_on_trip_id"
+  end
+
   create_table "recipes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
@@ -340,6 +352,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_23_150848) do
   add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "journal_entries", "trips"
   add_foreign_key "journal_entries", "users"
+  add_foreign_key "meal_plans", "recipes"
+  add_foreign_key "meal_plans", "trips"
   add_foreign_key "recipes", "recipes", column: "parent_recipe_id"
   add_foreign_key "recipes", "trips"
   add_foreign_key "recipes", "users"

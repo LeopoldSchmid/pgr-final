@@ -34,18 +34,17 @@ class ShoppingListsController < ApplicationController
   end
   
   def generate_from_recipes
-    recipe_ids = params[:recipe_ids]&.split(',')&.map(&:to_i) || []
-    selected_recipes = @trip.recipes.where(id: recipe_ids)
+    meal_plans = @trip.meal_plans.includes(:recipe)
     
-    if selected_recipes.any?
+    if meal_plans.any?
       people_count = params[:people_count]&.to_i
-      @shopping_list.generate_from_recipes(selected_recipes, people_count)
+      @shopping_list.generate_from_meal_plan(meal_plans, people_count)
       @shopping_list.update!(status: 'active')
       
       redirect_to trip_shopping_list_path(@trip, @shopping_list), 
-        notice: "Generated shopping list from #{pluralize(selected_recipes.count, 'recipe')}!"
+        notice: "Generated shopping list from #{pluralize(meal_plans.count, 'planned meal')}!"
     else
-      redirect_to trip_recipes_path(@trip), alert: 'Please select some recipes first.'
+      redirect_to plans_meals_path, alert: 'Please plan some meals first.'
     end
   end
   

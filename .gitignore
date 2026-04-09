@@ -29,6 +29,9 @@
 !/tmp/storage/.keep
 
 /public/assets
+/node_modules
+/playwright-report
+/test-results
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key

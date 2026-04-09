@@ -1,6 +1,6 @@
 class PlansController < ApplicationController
   before_action :require_authentication
-  before_action :ensure_trip_context, except: [:templates]
+  before_action :ensure_trip_context, except: [:index, :templates]
 
   def index
     # Smart redirect based on context
@@ -14,8 +14,11 @@ class PlansController < ApplicationController
   # Trip context: Meals planning
   def meals
     @trip = current_trip
-    @recipes = @trip.recipes.order(created_at: :desc)
-    @selected_recipes = @trip.recipes.where(selected_for_shopping: true)
+    @recipes = @trip.recipes.order(:name)
+    @start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_week
+    @end_date = @start_date.end_of_week
+    @meal_plans = @trip.meal_plans.includes(:recipe).ordered
+    @planned_meals = @meal_plans.group_by(&:date).transform_values { |plans| plans.group_by(&:meal_type) }
   end
 
   # Trip context: Shopping lists

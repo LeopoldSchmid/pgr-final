@@ -54,13 +54,21 @@ class RecipesController < ApplicationController
   private
   
   def set_trip
-    # Find trips user owns OR is a member of
-    owned_trips = Current.user.trips.where(id: params[:trip_id])
-    member_trips = Trip.joins(:trip_members)
-                      .where(trip_members: { user: Current.user }, id: params[:trip_id])
-    
-    trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
-    @trip = trip_relation.first
+    if params[:trip_id]
+      # Find trips user owns OR is a member of
+      owned_trips = Current.user.trips.where(id: params[:trip_id])
+      member_trips = Trip.joins(:trip_members)
+                        .where(trip_members: { user: Current.user }, id: params[:trip_id])
+      
+      trip_relation = Trip.where(id: [owned_trips.pluck(:id) + member_trips.pluck(:id)].flatten)
+      @trip = trip_relation.first
+      
+      # Set context for views
+      set_current_trip(@trip) if @trip
+    else
+      # Context-based routing - use the session trip
+      @trip = current_trip
+    end
     
     raise ActiveRecord::RecordNotFound unless @trip
   end

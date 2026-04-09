@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env -S mise exec -- ruby
 require "fileutils"
 
 APP_ROOT = File.expand_path("..", __dir__)

@@ -2,6 +2,7 @@ class Trip < ApplicationRecord
   belongs_to :user # trip creator
   has_many :journal_entries, dependent: :destroy
   has_many :date_proposals, dependent: :destroy
+  has_many :meal_plans, dependent: :destroy
   has_many :trip_members, dependent: :destroy
   has_many :members, through: :trip_members, source: :user
   has_many :expenses, dependent: :destroy
@@ -17,6 +18,7 @@ class Trip < ApplicationRecord
   after_create :create_owner_membership
 
   scope :in_series, ->(series_name) { where(series_name: series_name) }
+
 
   def current_phase
     return 'reminisce' if completed?

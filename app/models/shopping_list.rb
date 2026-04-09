@@ -12,14 +12,15 @@ class ShoppingList < ApplicationRecord
     trip.shopping_lists.create!(name: "Trip Shopping List")
   end
   
-  def generate_from_recipes(selected_recipes, people_count = nil)
+  def generate_from_meal_plan(meal_plans, people_count = nil)
     # Clear existing recipe-generated items
     shopping_items.where(source_type: 'Recipe').destroy_all
     
     # Group ingredients by food item (with unit conversion) or by name if no food item
     ingredient_groups = {}
     
-    selected_recipes.each do |recipe|
+    meal_plans.each do |plan|
+      recipe = plan.recipe
       recipe.ingredients.each do |ingredient|
         # Scale quantity if people_count is provided
         quantity = if people_count

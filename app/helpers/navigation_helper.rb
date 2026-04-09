@@ -9,7 +9,7 @@ module NavigationHelper
     when :trip
       (controller_name == "trips" && %w[show overview details dates participants discussions].include?(action_name)) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :plans
-      controller_name == "plans" ? "text-primary-accent font-semibold" : "text-text-primary/70"
+      %w[plans meal_plans recipes shopping_lists recipe_library].include?(controller_name) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :memories
       controller_name == "memories" ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :expenses
@@ -44,7 +44,7 @@ module NavigationHelper
       end
     when :plans
       if current_trip
-        plans_path
+        plans_meals_path
       else
         select_trip_path(return_to: plans_path)
       end
@@ -249,7 +249,7 @@ module NavigationHelper
   # Determine which section we're currently in (for rendering secondary nav)
   def current_navigation_section
     case controller_name
-    when 'plans', 'recipe_library', 'shopping_lists', 'recipes'
+    when 'plans', 'recipe_library', 'shopping_lists', 'recipes', 'meal_plans'
       :plans
     when 'trips'
       :trip

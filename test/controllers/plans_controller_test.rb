@@ -48,10 +48,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should redirect index to meals when authenticated and trip context set" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-
-    # Set trip context
-    get trip_url(@trip)
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id, return_to: plans_path }
 
     get plans_url
     assert_redirected_to plans_meals_url
@@ -66,7 +63,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should get meals page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id }
 
     get plans_meals_url
     assert_response :success
@@ -74,7 +71,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should get shopping page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id }
 
     get plans_shopping_url
     assert_response :success
@@ -82,7 +79,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should get packing page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id }
 
     get plans_packing_url
     assert_response :success
@@ -90,7 +87,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should get itinerary page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    session[:current_trip_id] = @trip.id
+    patch switch_trip_url, params: { trip_id: @trip.id }
 
     get plans_itinerary_url
     assert_response :success
@@ -104,9 +101,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   test "should not allow access to unauthorized trip" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 
-    session[:current_trip_id] = @unauthorized_trip.id
-
     get plans_meals_url
-    assert_redirected_to select_trip_url
+    assert_redirected_to select_trip_url(return_to: plans_path)
   end
 end

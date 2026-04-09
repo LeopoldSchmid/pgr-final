@@ -32,6 +32,9 @@ Rails.application.routes.draw do
     get 'plans/itinerary' => 'plans#itinerary', as: :plans_itinerary
     get 'plans/templates' => 'plans#templates', as: :plans_templates
 
+    # Meal plans (context-based, no trip_id)
+    resources :meal_plans, only: [:create, :update, :destroy]
+
     # Memories section
     get 'memories' => 'memories#index', as: :memories
     get 'memories/albums' => 'memories#albums', as: :memories_albums
@@ -61,6 +64,9 @@ Rails.application.routes.draw do
     get 'trip/details' => 'trips#details', as: :trip_details
     get 'trip/participants' => 'trips#participants', as: :trip_participants
     get 'trip/discussions' => 'discussions#index', as: :trip_discussions
+    # Redirect old routes to new structure
+    get 'trip/meal_plans', to: redirect { |params, request| "/#{params[:locale]}/plans/meals" }
+    get 'trip/recipes' => 'recipes#index', as: :trip_recipes_context
 
     # Legacy context-based routes (redirect to new structure)
     get 'trip/plan' => 'trips#plan', as: :trip_plan_context
@@ -123,7 +129,7 @@ Rails.application.routes.draw do
         end
       end
     end
-    
+
     # Recipes nested under trips
     resources :recipes do
       member do

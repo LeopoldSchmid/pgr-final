@@ -96,6 +96,8 @@ Built with Ruby on Rails 8, embracing the "No PaaS Required" philosophy for simp
 
 ## 📖 Documentation
 
+- **[Status Quo](documentation/status_quo.md)** - Current implementation and deployment baseline
+- **[Testing](documentation/testing.md)** - Local test setup, Rails tests, Playwright
 - **[Architecture Documentation](plangoreminisce-architecture.md)** - Complete arc42 documentation
 - **[Deployment Guide](DEPLOYMENT.md)** - Production deployment with Kamal 2
 - **[API Documentation](docs/api.md)** - API endpoints (when implemented)
