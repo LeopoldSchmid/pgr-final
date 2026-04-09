@@ -261,6 +261,7 @@ Diese Arbeit laesst sich spaeter sinnvoll in getrennte Pakete aufteilen:
    - docs index
    - status updates
    - decision log
+   - delivery standards
 
 5. `migration-discovery`
    - production schema audit
@@ -282,3 +283,4 @@ Bis auf Weiteres gilt:
 2. Keine UI-/UX-Aenderungen ohne eigene Designrunde.
 3. Kleine thematische Commits statt Sammelcommits.
 4. Jede groessere Aenderung soll gegen dieses Dokument begruendet werden koennen.
+5. Relevante Verhaltensaenderungen brauchen Code, Tests und Doku-Update.
