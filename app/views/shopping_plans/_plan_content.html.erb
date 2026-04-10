@@ -1,0 +1,150 @@
+<div id="shopping_plan_content" class="mx-auto max-w-6xl px-4 py-2 sm:py-3" data-controller="shopping-plan">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-800">Shopping Plan</div>
+      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600"><%= @shopping_requirements.count %> items</span>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex rounded-xl bg-slate-100 p-1">
+        <%= link_to "By category", plans_shopping_path(trip_id: @trip.id, group: "category"), class: ["rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", (@grouping_mode == "category" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500")].join(" ") %>
+        <%= link_to "By source", plans_shopping_path(trip_id: @trip.id, group: "source"), class: ["rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", (@grouping_mode == "source" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500")].join(" ") %>
+      </div>
+
+      <button type="button" data-action="shopping-plan#toggleEditMode" data-shopping-plan-target="editToggle" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm">Edit</button>
+
+      <% if session[:last_bulk_assign_ids].present? %>
+        <%= button_to plans_shopping_undo_bulk_assign_path(trip_id: @trip.id), method: :post, class: "rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-200 active:scale-95 transition-all shadow-sm" do %>
+          Undo Assign All
+        <% end %>
+      <% end %>
+
+      <%= button_to plans_shopping_sync_path(trip_id: @trip.id), method: :post, title: "Sync from meals", class: "flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm active:scale-95" do %>
+        <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        Sync
+      <% end %>
+    </div>
+  </div>
+
+  <div data-shopping-plan-target="selectionToolbar" class="mb-4 hidden items-center justify-between gap-3 rounded-2xl border border-fuchsia-100 bg-fuchsia-50 px-4 py-3">
+    <div class="text-sm font-semibold text-fuchsia-900"><span data-shopping-plan-target="selectionCount">0</span> selected</div>
+    <div class="flex items-center gap-2">
+      <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm opacity-50">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16" /></svg>
+      </button>
+      <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm opacity-50">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m3 6V7m3 10v-4M4 19h16" /></svg>
+      </button>
+      <%= form_with url: plans_shopping_delete_selected_path(trip_id: @trip.id), method: :post, local: true, class: "contents" do |form| %>
+        <%= form.hidden_field :requirement_ids, value: "", data: { "shopping-plan-target": "selectionField" } %>
+        <%= form.button type: "submit", class: "flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm" do %>
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M10 8V6a2 2 0 114 0v2m-7 0l1 12h8l1-12" /></svg>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @shopping_requirements.empty? %>
+    <div class="mt-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-12 text-center animate-fade-in">
+      <p class="text-sm font-semibold text-slate-900">No requirements yet</p>
+    </div>
+  <% else %>
+    <% unassigned_count = @shopping_requirements.count { |r| r.unassigned_quantity.positive? } %>
+    <% if unassigned_count.positive? && @shopping_lists.any? %>
+      <div class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-blue-50 bg-blue-50/30 px-3 py-2 shadow-sm">
+        <div class="text-xs font-semibold text-blue-900"><%= unassigned_count %> unassigned:</div>
+        <div class="flex flex-1 flex-wrap items-center justify-end gap-2">
+          <%= form_with url: plans_shopping_bulk_assign_path(trip_id: @trip.id), method: :post, local: true, class: "flex flex-wrap gap-2" do |form| %>
+            <% @shopping_lists.each do |list| %>
+              <%= form.button type: "submit", name: "shopping_list_id", value: list.id, class: "rounded border border-blue-200 bg-white px-2.5 py-1 text-[0.7rem] font-bold uppercase tracking-wider text-blue-700 shadow-sm transition-all hover:bg-blue-50 active:scale-95 cursor-pointer" do %>
+                All to <%= list.name %>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="space-y-3">
+      <% @grouped_requirements.each do |group_label, requirements| %>
+        <details open class="overflow-hidden rounded-2xl border border-slate-200 bg-white [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex cursor-pointer items-center justify-between px-4 py-3 select-none">
+            <div class="flex items-center gap-3 min-w-0">
+              <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              <div class="truncate text-xs font-bold uppercase tracking-wider text-slate-700"><%= group_label %></div>
+            </div>
+            <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600"><%= requirements.count %></span>
+          </summary>
+
+          <div class="border-t border-slate-100 px-4 py-2">
+            <% requirements.each do |requirement| %>
+              <% source_value = requirement.source_label.presence || "-" %>
+              <% drift_detected = @outdated_requirement_ids.include?(requirement.id) %>
+              <div class="border-b border-slate-100 py-3 last:border-b-0">
+                <div class="flex items-start gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0 pr-2">
+                        <div class="truncate text-base font-semibold leading-5 text-slate-900"><%= requirement.name %></div>
+                        <div class="truncate pt-0.5 text-xs leading-4 text-slate-400"><%= source_value %></div>
+                      </div>
+
+                      <div class="flex items-center gap-2 shrink-0">
+                        <div class="text-right text-base font-semibold leading-5 text-slate-900 whitespace-nowrap"><%= requirement.quantity.to_s.sub(/\.0$/, "") %> <%= requirement.unit %></div>
+                        <% requirement.shopping_list_assignments.each do |assignment| %>
+                          <% initials = assignment.shopping_list.name.split.map { |part| part.first }.join.upcase.first(2) %>
+                          <span title="<%= assignment.shopping_list.name %>" class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-[0.55rem] font-bold text-blue-700 ring-1 ring-blue-100"><%= initials %></span>
+                        <% end %>
+                        <label class="relative flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center">
+                          <input
+                            type="checkbox"
+                            data-action="change->shopping-plan#toggleSelection"
+                            data-shopping-plan-target="selectionButton"
+                            data-requirement-id="<%= requirement.id %>"
+                            class="sr-only"
+                          >
+                          <span data-selection-visual class="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-slate-300 bg-white shadow-sm transition-all">
+                            <svg data-selection-icon class="h-3.5 w-3.5 text-primary-accent opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <% if requirement.shopping_list_assignments.any? || requirement.unassigned_quantity.positive? || drift_detected || requirement.manually_adjusted? %>
+                      <div class="mt-1.5 flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">
+                        <% if drift_detected || requirement.outdated? %>
+                          <span class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[0.55rem] text-amber-800">Outdated</span>
+                        <% elsif requirement.manually_adjusted? %>
+                          <span class="rounded-full bg-blue-100 px-1.5 py-0.5 text-[0.55rem] text-blue-800">Modified</span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <div class="mt-3 hidden space-y-3 rounded-2xl bg-slate-50 p-4" data-shopping-plan-target="editSection">
+                      <%= form_with url: plans_shopping_requirement_assignments_path(requirement_id: requirement.id, trip_id: @trip.id), method: :post, local: true, class: "space-y-3" do |form| %>
+                        <div class="flex gap-2">
+                          <%= number_field_tag :quantity, requirement.unassigned_quantity.positive? ? requirement.unassigned_quantity : nil, step: :any, min: 0, placeholder: "Qty", class: "w-24 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold focus:border-slate-800 focus:ring-1 focus:ring-slate-800" %>
+                          <%= text_field_tag :unit, requirement.unit, class: "w-24 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold focus:border-slate-800 focus:ring-1 focus:ring-slate-800" %>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                          <% @shopping_lists.each do |list| %>
+                            <%= form.button type: "submit", name: "shopping_list_id", value: list.id, class: "min-w-[120px] flex-1 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800 transition-colors" do %>
+                              <%= list.name %>
+                            <% end %>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
+</div>

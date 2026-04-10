@@ -86,3 +86,12 @@
 - Consequence:
   - Data model and screens may be redesigned fundamentally.
   - Reuse across trips and lessons learned become part of the intended long-term design.
+
+## 2026-04-10 - Plans navigation should preserve the last selected secondary tab
+- Decision: Treat the `Plans` area as a multi-step workspace and return users to the last selected plans tab when they come back from another primary section.
+- Why:
+  - Resetting to `Meal Plan` on every return breaks the actual workflow between `Meal Plan`, `Shopping Plan`, and `Shopping List`.
+  - Mobile usage depends on resuming the current sub-task with minimal friction.
+- Consequence:
+  - `Plans` entry points should read and write a lightweight last-tab state.
+  - Bottom navigation should not discard the active plans sub-context.

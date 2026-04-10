@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
+    "form",
     "name",
     "foodItemId",
     "unit",
@@ -39,7 +40,9 @@ export default class extends Controller {
     }
 
     if (query.length === 0) {
-      this.filteredItems = this.itemsValue.slice(0, 8)
+      this.filteredItems = []
+      this.closePanel()
+      return
     } else {
       this.filteredItems = this.itemsValue
         .filter((item) => this.matches(item, query))
@@ -54,10 +57,38 @@ export default class extends Controller {
     this.search()
   }
 
+  afterSubmit(event) {
+    if (event.detail.success) {
+      if (this.hasFormTarget) this.formTarget.reset()
+      this.resetForCustomValue(true)
+      this.closePanel()
+      // Shift focus gracefully back to name after the element morphs, protecting the keyboard state
+      setTimeout(() => {
+        this.nameTarget.focus()
+      }, 50)
+    }
+  }
+
   closeIfOutside(event) {
     if (!this.element.contains(event.target)) {
       this.closePanel()
     }
+  }
+
+  preventBlur(event) {
+    event.preventDefault()
+  }
+
+  submitFromQuantity(event) {
+    if (event.key !== "Enter") return
+
+    event.preventDefault()
+
+    if (this.isOpen && this.activeIndex >= 0) {
+      this.commitSelection(this.activeIndex, { focusQuantity: false })
+    }
+
+    this.submitForm()
   }
 
   handleKeydown(event) {
@@ -73,9 +104,16 @@ export default class extends Controller {
     } else if (event.key === "ArrowUp") {
       event.preventDefault()
       this.moveSelection(-1)
-    } else if (event.key === "Enter" && this.isOpen && this.activeIndex >= 0) {
+    } else if (event.key === "Enter") {
       event.preventDefault()
-      this.commitSelection(this.activeIndex)
+
+      if (this.isOpen && this.activeIndex >= 0) {
+        this.commitSelection(this.activeIndex, { focusQuantity: false })
+      } else if (this.nameTarget.value.trim().length > 0) {
+        this.selectCustom({ focusQuantity: false })
+      }
+
+      this.submitForm()
     } else if (event.key === "Escape") {
       this.closePanel()
     }
@@ -86,14 +124,16 @@ export default class extends Controller {
     this.commitSelection(index)
   }
 
-  selectCustom() {
+  selectCustom(options = {}) {
     const name = this.nameTarget.value.trim()
     this.resetForCustomValue(true)
     this.nameTarget.value = name
     this.closePanel()
+
+    if (options.focusQuantity !== false) this.focusQuantityInput()
   }
 
-  commitSelection(index) {
+  commitSelection(index, options = {}) {
     const item = this.filteredItems[index]
     if (!item) return
 
@@ -103,6 +143,8 @@ export default class extends Controller {
     this.replaceUnitOptions(item.unit_suggestions, item.standard_unit)
     this.summaryTarget.textContent = `${this.humanize(item.category)} · ${item.standard_unit}`
     this.closePanel()
+
+    if (options.focusQuantity !== false) this.focusQuantityInput()
   }
 
   moveSelection(direction) {
@@ -129,12 +171,9 @@ export default class extends Controller {
       button.innerHTML = `
         <span class="min-w-0">
           <span class="block truncate text-sm font-semibold">${item.name}</span>
-          <span class="mt-1 block text-xs ${index === this.activeIndex ? "text-slate-300" : "text-slate-500"}">
-            ${this.humanize(item.category)} · ${item.standard_unit}
-          </span>
         </span>
-        <span class="ml-3 rounded-full ${index === this.activeIndex ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"} px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
-          ${item.unit_type}
+        <span class="ml-3 inline-flex h-7 w-7 items-center justify-center rounded-full ${index === this.activeIndex ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"} text-xs font-semibold">
+          <span aria-hidden="true">${this.iconForUnitType(item.unit_type)}</span>
         </span>
       `
 
@@ -168,6 +207,22 @@ export default class extends Controller {
   closePanel() {
     this.isOpen = false
     this.panelTarget.classList.add("hidden")
+  }
+
+  submitForm() {
+    if (!this.hasFormTarget) return
+    this.formTarget.requestSubmit()
+  }
+
+  focusQuantityInput() {
+    const qtyInput = document.getElementById("manual_add_quantity_input")
+    if (!qtyInput) return
+
+    qtyInput.focus()
+    setTimeout(() => {
+      qtyInput.focus()
+      qtyInput.select()
+    }, 150)
   }
 
   resetForCustomValue(clearName) {
@@ -215,5 +270,18 @@ export default class extends Controller {
 
   humanize(value) {
     return value.replaceAll("_", " ").replace(/\b\w/g, (character) => character.toUpperCase())
+  }
+
+  iconForUnitType(unitType) {
+    switch (unitType) {
+      case "weight":
+        return "⚖"
+      case "volume":
+        return "◔"
+      case "count":
+        return "#"
+      default:
+        return "•"
+    }
   }
 }

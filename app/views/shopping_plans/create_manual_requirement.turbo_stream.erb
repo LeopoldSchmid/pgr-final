@@ -1,0 +1,17 @@
+<% if @error %>
+  <%= turbo_stream.replace "manual_requirement_error" do %>
+    <div id="manual_requirement_error" class="mb-2 rounded-xl bg-rose-50 p-2 text-xs font-bold text-rose-600 border border-rose-200">
+      <%= @error %>
+    </div>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace "manual_requirement_error" do %>
+    <div id="manual_requirement_error" class="mb-2 rounded-xl bg-emerald-50 p-2.5 text-xs font-bold text-emerald-700 border border-emerald-200">
+      <%= ActionController::Base.helpers.sanitize("#{@requirement.quantity.to_s.sub(/\.0$/, '')} #{@requirement.unit} <b>#{@requirement.name}</b> added successfully.") %>
+    </div>
+  <% end %>
+
+  <%= turbo_stream.replace "shopping_plan_content" do %>
+    <%= render "plan_content" %>
+  <% end %>
+<% end %>

@@ -28,6 +28,9 @@
 7. The current broad verified corridor is `106 runs, 278 assertions, 0 failures, 0 errors, 0 skips`.
 8. Mobile-first behavior must be treated as a release criterion, especially around media upload.
 9. Remaining warning noise is narrowed down to a non-blocking local VIPS module warning and an upstream `marcel` warning under Ruby 3.4.
+10. The shopping flow is currently being refactored toward a three-step process: `Meal Plan -> Shopping Plan -> Shopping List`.
+11. The latest uncommitted shopping work adds Turbo-updated shopping rows, a compact `Shopping Plan`, bulk assignment to lists, and a rapid-add footer that is still being tuned for mobile spacing.
+12. `Plans` navigation is intended to return users to the last selected secondary tab instead of always resetting to `Meal Plan`.
 
 ## Deployment baseline
 1. Current production host is `plangoreminisce.duzend.net`.

@@ -5,7 +5,7 @@ class MealPlansController < ApplicationController
 
   def index
     @meal_plans = @trip.meal_plans.includes(:recipe).ordered
-    @recipes = @trip.recipes.order(:name)
+    @recipes = accessible_recipes
     
     # Default to current week or trip start date
     @start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_week
@@ -77,5 +77,15 @@ class MealPlansController < ApplicationController
 
   def meal_plan_params
     params.require(:meal_plan).permit(:recipe_id, :date, :meal_type, :description)
+  end
+
+  def accessible_recipes
+    trip_ids = (Current.user.trips.pluck(:id) + Current.user.member_trips.pluck(:id)).uniq
+
+    Recipe.where(
+      "source_type = 'public' OR (source_type = 'personal' AND user_id = ?) OR (source_type = 'trip' AND trip_id IN (?))",
+      Current.user.id,
+      trip_ids.presence || [0]
+    ).order(:name)
   end
 end

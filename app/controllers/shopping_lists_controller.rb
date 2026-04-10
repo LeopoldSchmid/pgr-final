@@ -2,6 +2,7 @@ class ShoppingListsController < ApplicationController
   before_action :require_authentication
   before_action :set_trip
   before_action :set_shopping_list, only: [ :show, :update, :generate_from_meal_plan, :add_manual_item ]
+  before_action :store_last_plans_tab, only: [ :current, :show ]
 
   def index
     @shopping_lists = @trip.shopping_lists.order(created_at: :desc)
@@ -104,5 +105,9 @@ class ShoppingListsController < ApplicationController
 
   def shopping_list_params
     params.require(:shopping_list).permit(:name, :status, :description, :position)
+  end
+
+  def store_last_plans_tab
+    session[:last_plans_tab] = "shopping_list"
   end
 end

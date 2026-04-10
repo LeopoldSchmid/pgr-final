@@ -1,11 +1,12 @@
 class PlansController < ApplicationController
   before_action :require_authentication
   before_action :ensure_trip_context, except: [ :index, :templates ]
+  before_action :store_last_plans_tab, only: [ :meals, :packing, :itinerary ]
 
   def index
     # Smart redirect based on context
     if resolved_trip.present?
-      redirect_to plans_meals_path(trip_id: resolved_trip.id)
+      redirect_to last_plans_tab_path(resolved_trip)
     else
       redirect_to recipe_library_path
     end
@@ -14,7 +15,7 @@ class PlansController < ApplicationController
   # Trip context: Meals planning
   def meals
     @trip = resolved_trip
-    @recipes = @trip.recipes.order(:name)
+    @recipes = accessible_recipes
     @start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_week
     @end_date = @start_date.end_of_week
     @meal_plans = @trip.meal_plans.includes(:recipe).ordered
@@ -67,5 +68,34 @@ class PlansController < ApplicationController
     trip = user.trips.find_by(id: params[:trip_id])
     trip ||= Trip.joins(:trip_members).where(trip_members: { user: user }, id: params[:trip_id]).first
     trip
+  end
+
+  def store_last_plans_tab
+    session[:last_plans_tab] = action_name
+  end
+
+  def last_plans_tab_path(trip)
+    case session[:last_plans_tab]
+    when "shopping_plan"
+      plans_shopping_path(trip_id: trip.id)
+    when "shopping_list"
+      plans_shopping_list_path(trip_id: trip.id)
+    when "packing"
+      plans_packing_path(trip_id: trip.id)
+    when "itinerary"
+      plans_itinerary_path(trip_id: trip.id)
+    else
+      plans_meals_path(trip_id: trip.id)
+    end
+  end
+
+  def accessible_recipes
+    trip_ids = (Current.user.trips.pluck(:id) + Current.user.member_trips.pluck(:id)).uniq
+
+    Recipe.where(
+      "source_type = 'public' OR (source_type = 'personal' AND user_id = ?) OR (source_type = 'trip' AND trip_id IN (?))",
+      Current.user.id,
+      trip_ids.presence || [0]
+    ).order(:name)
   end
 end

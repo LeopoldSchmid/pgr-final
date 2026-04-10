@@ -53,6 +53,15 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to plans_meals_url(trip_id: @trip.id)
   end
 
+  test "should redirect index to last selected plans tab when present" do
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+
+    get plans_shopping_url, params: { trip_id: @trip.id }
+    get plans_url, params: { trip_id: @trip.id }
+
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
+  end
+
   test "should redirect to recipe library when no trip context" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
 

@@ -6,22 +6,40 @@ class ShoppingListAssignmentsController < ApplicationController
 
   def record_purchase
     @assignment.add_purchase!(params[:quantity])
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Purchase progress updated."
+    respond_with_turbo_update("Purchase progress updated.")
   rescue ArgumentError => e
     redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: e.message
   end
 
   def mark_complete
     @assignment.mark_complete!
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Item marked as purchased."
+    respond_with_turbo_update("Item marked as purchased.")
   end
 
   def clear_purchase
     @assignment.clear_purchase!
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Purchase progress cleared."
+    respond_with_turbo_update("Purchase progress cleared.")
   end
 
   private
+
+  def respond_with_turbo_update(notice_msg)
+    respond_to do |format|
+      format.turbo_stream do
+        aggregated_items = Shopping::AssignmentAggregator.new(@shopping_list).call
+        @item = aggregated_items.find { |i| i.assignments.map(&:id).include?(@assignment.id) }
+        
+        open_count = aggregated_items.count { |i| i.remaining_quantity.positive? }
+        done_count = aggregated_items.count { |i| i.remaining_quantity.zero? }
+        
+        render turbo_stream: [
+          turbo_stream.replace("item_#{@item.key.parameterize}", partial: "shopping_lists/item", locals: { item: @item, trip: @trip, shopping_list: @shopping_list }),
+          turbo_stream.replace("stats_bar", partial: "shopping_lists/stats", locals: { open_count: open_count, done_count: done_count, items_count: aggregated_items.count })
+        ]
+      end
+      format.html { redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: notice_msg }
+    end
+  end
 
   def set_trip
     user = Current.session&.user || Current.user

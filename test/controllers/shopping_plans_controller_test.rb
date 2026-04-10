@@ -20,13 +20,23 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "Shopping Plan", response.body
   end
+  test "shows shopping plan grouped by source" do
+    @trip.shopping_requirements.create!(name: "Eggs", quantity: 6, unit: "pieces", category: "other", source_type: "manual", sync_status: "manual", source_label: "Spaghetti Carbonara")
+
+    get plans_shopping_url, params: { trip_id: @trip.id, group: "source" }
+
+    assert_response :success
+    assert_match "By source", response.body
+    assert_match "Spaghetti Carbonara", response.body
+  end
+
 
   test "sync creates shopping requirements" do
     assert_difference("@trip.shopping_requirements.count", 1) do
       post plans_shopping_sync_url, params: { trip_id: @trip.id }
     end
 
-    assert_redirected_to plans_shopping_url
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
     assert_equal "meal_plan", @trip.shopping_requirements.last.source_type
   end
 
@@ -43,7 +53,7 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to plans_shopping_url
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
   end
 
   test "creates manual requirement from food item defaults" do
@@ -61,11 +71,31 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
     end
 
     requirement = @trip.shopping_requirements.order(:created_at).last
-    assert_redirected_to plans_shopping_url
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
     assert_equal "Beer", requirement.name
     assert_equal "l", requirement.unit
     assert_equal "other", requirement.category
     assert_equal @beer, requirement.food_item
+  end
+
+  test "rapidly creates manual requirement using defaults when quantity is omitted" do
+    assert_difference("@trip.shopping_requirements.manual_only.count", 1) do
+      post plans_shopping_manual_requirement_url, params: {
+        trip_id: @trip.id,
+        shopping_requirement: {
+          name: "Rapid Item",
+          quantity: "",
+          unit: "",
+          category: ""
+        }
+      }
+    end
+
+    requirement = @trip.shopping_requirements.order(:created_at).last
+    assert_equal "Rapid Item", requirement.name
+    assert_equal 1.0, requirement.quantity
+    assert_equal "pieces", requirement.unit
+    assert_equal "other", requirement.category
   end
 
   test "assigns requirement to shopping list" do
@@ -94,6 +124,17 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
         quantity: 1,
         unit: "kg"
       }
+    end
+
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
+  end
+
+  test "deletes selected requirements" do
+    manual_one = @trip.shopping_requirements.create!(name: "Beer", quantity: 2, unit: "l", category: "other", source_type: "manual", sync_status: "manual")
+    manual_two = @trip.shopping_requirements.create!(name: "Bread", quantity: 1, unit: "pieces", category: "pantry", source_type: "manual", sync_status: "manual")
+
+    assert_difference("@trip.shopping_requirements.count", -2) do
+      post plans_shopping_delete_selected_url, params: { trip_id: @trip.id, requirement_ids: [manual_one.id, manual_two.id] }
     end
 
     assert_redirected_to plans_shopping_url(trip_id: @trip.id)

@@ -1,8 +1,4 @@
 import { Controller } from "@hotwired/stimulus"
-import { Calendar } from "@fullcalendar/core"
-import dayGridPlugin from "@fullcalendar/daygrid"
-import timeGridPlugin from "@fullcalendar/timegrid"
-import interactionPlugin from "@fullcalendar/interaction"
 
 export default class extends Controller {
   static targets = [
@@ -31,9 +27,14 @@ export default class extends Controller {
 
   connect() {
     this.selectedDate = null
-    this.initializeCalendar()
     this.boundHandlePopState = this.handlePopState.bind(this)
     this.activeModal = null
+
+    if (!this.hasCalendarTarget) return
+
+    this.initializeCalendar().catch(error => {
+      console.error("Failed to initialize calendar", error)
+    })
   }
 
   disconnect() {
@@ -42,7 +43,19 @@ export default class extends Controller {
     }
   }
 
-  initializeCalendar() {
+  async initializeCalendar() {
+    const [
+      { Calendar },
+      { default: dayGridPlugin },
+      { default: timeGridPlugin },
+      { default: interactionPlugin }
+    ] = await Promise.all([
+      import("@fullcalendar/core"),
+      import("@fullcalendar/daygrid"),
+      import("@fullcalendar/timegrid"),
+      import("@fullcalendar/interaction")
+    ])
+
     const isMobile = window.innerWidth < 768
     
     this.calendar = new Calendar(this.calendarTarget, {

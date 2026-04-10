@@ -32,6 +32,9 @@ Rails.application.routes.draw do
     post 'plans/shopping/manual_requirement' => 'shopping_plans#create_manual_requirement', as: :plans_shopping_manual_requirement
     post 'plans/shopping/undo/:id' => 'shopping_plans#undo_sync', as: :plans_shopping_undo_sync
     post 'plans/shopping/requirements/:requirement_id/assignments' => 'shopping_plans#create_assignment', as: :plans_shopping_requirement_assignments
+    post 'plans/shopping/bulk_assign' => 'shopping_plans#bulk_assign', as: :plans_shopping_bulk_assign
+    post 'plans/shopping/undo_bulk_assign' => 'shopping_plans#undo_bulk_assign', as: :plans_shopping_undo_bulk_assign
+    post 'plans/shopping/delete_selected' => 'shopping_plans#delete_selected', as: :plans_shopping_delete_selected
     get 'plans/shopping-list' => 'shopping_lists#current', as: :plans_shopping_list
     get 'plans/packing' => 'plans#packing', as: :plans_packing
     get 'plans/itinerary' => 'plans#itinerary', as: :plans_itinerary

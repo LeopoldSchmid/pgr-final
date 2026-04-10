@@ -44,7 +44,18 @@ module NavigationHelper
       end
     when :plans
       if current_trip
-        plans_meals_path
+        case session[:last_plans_tab]
+        when "shopping_plan"
+          plans_shopping_path
+        when "shopping_list"
+          plans_shopping_list_path
+        when "packing"
+          plans_packing_path
+        when "itinerary"
+          plans_itinerary_path
+        else
+          plans_meals_path
+        end
       else
         select_trip_path(return_to: plans_path)
       end

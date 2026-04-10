@@ -20,6 +20,10 @@ class NavigationHelperTest < ActionView::TestCase
     sign_in_as(@user)
   end
 
+  def session
+    @session ||= {}
+  end
+
   test "active_nav_class returns active class for home when on root path" do
     def current_page?(path)
       path == root_path
@@ -82,6 +86,16 @@ class NavigationHelperTest < ActionView::TestCase
     end
 
     assert_equal plans_meals_path, scoped_feature_path(:plans)
+  end
+
+  test "scoped_feature_path for plans returns last selected plans tab when stored" do
+    def current_trip
+      @trip
+    end
+
+    session[:last_plans_tab] = "shopping_plan"
+
+    assert_equal plans_shopping_path, scoped_feature_path(:plans)
   end
 
   test "show_back_button? returns false on root path" do

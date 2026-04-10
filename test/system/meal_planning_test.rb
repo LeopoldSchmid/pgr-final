@@ -79,11 +79,11 @@ class MealPlanningTest < ApplicationSystemTestCase
       meal_type: "lunch"
     )
 
-    visit plans_shopping_path(locale: "en", trip_id: @trip.id)
+    select_trip_context(@trip, return_to: plans_shopping_path(locale: "en"))
 
-    click_on "Synchronize meals"
+    click_button "Sync"
 
-    assert_text "Requirement pool"
+    assert_text "Shopping Plan"
 
     if @recipe.ingredients.any?
       assert_text @recipe.ingredients.first.name
