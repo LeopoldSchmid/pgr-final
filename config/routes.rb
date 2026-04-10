@@ -27,7 +27,12 @@ Rails.application.routes.draw do
     # Plans section
     get 'plans' => 'plans#index', as: :plans
     get 'plans/meals' => 'plans#meals', as: :plans_meals
-    get 'plans/shopping' => 'plans#shopping', as: :plans_shopping
+    get 'plans/shopping' => 'shopping_plans#show', as: :plans_shopping
+    post 'plans/shopping/sync' => 'shopping_plans#sync', as: :plans_shopping_sync
+    post 'plans/shopping/manual_requirement' => 'shopping_plans#create_manual_requirement', as: :plans_shopping_manual_requirement
+    post 'plans/shopping/undo/:id' => 'shopping_plans#undo_sync', as: :plans_shopping_undo_sync
+    post 'plans/shopping/requirements/:requirement_id/assignments' => 'shopping_plans#create_assignment', as: :plans_shopping_requirement_assignments
+    get 'plans/shopping-list' => 'shopping_lists#current', as: :plans_shopping_list
     get 'plans/packing' => 'plans#packing', as: :plans_packing
     get 'plans/itinerary' => 'plans#itinerary', as: :plans_itinerary
     get 'plans/templates' => 'plans#templates', as: :plans_templates
@@ -140,9 +145,20 @@ Rails.application.routes.draw do
         post :generate_from_meal_plan
         post :add_manual_item
       end
+      collection do
+        get :current
+      end
       resources :shopping_items, only: [:create, :update, :destroy] do
         member do
           patch :toggle_purchased
+          patch :record_purchase
+        end
+      end
+      resources :shopping_list_assignments, only: [] do
+        member do
+          patch :record_purchase
+          patch :mark_complete
+          patch :clear_purchase
         end
       end
     end

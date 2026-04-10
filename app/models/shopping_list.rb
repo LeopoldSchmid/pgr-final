@@ -1,24 +1,26 @@
 class ShoppingList < ApplicationRecord
   belongs_to :trip
   has_many :shopping_items, dependent: :destroy
-  
+  has_many :shopping_list_assignments, dependent: :destroy
+  has_many :shopping_requirements, through: :shopping_list_assignments
+
   validates :name, presence: true, length: { maximum: 100 }
   validates :status, inclusion: { in: %w[draft active completed] }
-  
+
   before_validation :set_defaults, on: :create
-  
+
   def self.current_for_trip(trip)
     trip.shopping_lists.where(status: %w[draft active]).first ||
     trip.shopping_lists.create!(name: "Trip Shopping List")
   end
-  
+
   def generate_from_meal_plan(meal_plans, people_count = nil)
     # Clear existing recipe-generated items
-    shopping_items.where(source_type: 'Recipe').destroy_all
-    
+    shopping_items.where(source_type: "Recipe").destroy_all
+
     # Group ingredients by food item (with unit conversion) or by name if no food item
     ingredient_groups = {}
-    
+
     meal_plans.each do |plan|
       recipe = plan.recipe
       recipe.ingredients.each do |ingredient|
@@ -29,17 +31,17 @@ class ShoppingList < ApplicationRecord
         else
           ingredient.quantity
         end
-        
+
         food_item = ingredient.food_item
-        
+
         if food_item
           # Use food item for standardization - convert to standard unit
           standard_quantity = convert_to_standard_unit(
-            quantity, 
-            ingredient.unit, 
+            quantity,
+            ingredient.unit,
             food_item
           )
-          
+
           key = "food_item_#{food_item.id}"
           standard_unit = food_item.standard_unit
           display_name = food_item.name
@@ -52,7 +54,7 @@ class ShoppingList < ApplicationRecord
           display_name = ingredient.name
           category = ingredient.category
         end
-        
+
         if ingredient_groups[key]
           ingredient_groups[key][:quantity] += standard_quantity
         else
@@ -67,52 +69,69 @@ class ShoppingList < ApplicationRecord
         end
       end
     end
-    
+
     # Create shopping items from grouped ingredients
     ingredient_groups.values.each do |ingredient_data|
       shopping_items.create!(
         name: ingredient_data[:name],
         quantity: ingredient_data[:quantity].round(1), # Round to 1 decimal place
+        purchased_quantity: 0,
         unit: ingredient_data[:unit],
         category: ingredient_data[:category],
-        source_type: 'Recipe',
+        source_type: "Recipe",
         source_id: ingredient_data[:source_recipe].id,
         purchased: false
       )
     end
   end
-  
-  def add_manual_item(name, quantity = nil, unit = nil, category = 'other')
+
+  def add_manual_item(name, quantity = nil, unit = nil, category = "other")
     shopping_items.create!(
       name: name,
       quantity: quantity,
+      purchased_quantity: 0,
       unit: unit,
       category: category,
-      source_type: 'Manual',
+      source_type: "Manual",
       purchased: false
     )
   end
-  
+
   def items_by_category
     shopping_items.includes(:shopping_list).group_by(&:category)
   end
-  
+
+  def assignment_groups
+    shopping_list_assignments.includes(:shopping_requirement).group_by { |assignment| assignment.shopping_requirement.category }
+  end
+
+  def active?
+    archived_at.nil?
+  end
+
   def completion_percentage
     return 0 if shopping_items.count == 0
-    purchased_count = shopping_items.where(purchased: true).count
-    (purchased_count.to_f / shopping_items.count * 100).round
+
+    quantified_items = shopping_items.where.not(quantity: nil)
+    boolean_items = shopping_items.where(quantity: nil)
+
+    total_required = quantified_items.sum(:quantity).to_f + boolean_items.count
+    return 0 if total_required.zero?
+
+    total_purchased = quantified_items.sum(:purchased_quantity).to_f + boolean_items.purchased.count
+    ((total_purchased / total_required) * 100).round
   end
-  
+
   private
-  
+
   def convert_to_standard_unit(quantity, unit, food_item)
     # Use the FoodItem's conversion logic
     converted_quantity = FoodItem.convert_quantity(quantity, unit, food_item.standard_unit)
     converted_quantity || quantity # Fall back to original quantity if conversion fails
   end
-  
+
   def set_defaults
-    self.status ||= 'draft'
+    self.status ||= "draft"
     self.name ||= "Shopping List"
   end
 end

@@ -5,6 +5,7 @@ class Recipe < ApplicationRecord
   belongs_to :parent_recipe, class_name: "Recipe", optional: true
   has_many :child_recipes, class_name: "Recipe", foreign_key: "parent_recipe_id", dependent: :nullify
   has_many :ingredients, dependent: :destroy
+  has_many :shopping_requirements, dependent: :nullify
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :servings, presence: true, numericality: { greater_than: 0, only_integer: true }

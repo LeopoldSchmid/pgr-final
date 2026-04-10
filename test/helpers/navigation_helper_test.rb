@@ -49,7 +49,7 @@ class NavigationHelperTest < ActionView::TestCase
       nil
     end
 
-    assert_equal I18n.t('app_name'), trip_context_display
+    assert_equal I18n.t("app_name"), trip_context_display
   end
 
   test "scoped_feature_path for home returns root_path" do
@@ -76,12 +76,12 @@ class NavigationHelperTest < ActionView::TestCase
     assert_equal new_trip_path, scoped_feature_path(:trip)
   end
 
-  test "scoped_feature_path for plans returns plans_path when current_trip exists" do
+  test "scoped_feature_path for plans returns plans_meals_path when current_trip exists" do
     def current_trip
       @trip
     end
 
-    assert_equal plans_path, scoped_feature_path(:plans)
+    assert_equal plans_meals_path, scoped_feature_path(:plans)
   end
 
   test "show_back_button? returns false on root path" do
@@ -153,10 +153,9 @@ class NavigationHelperTest < ActionView::TestCase
       true
     end
 
-    # Mock the Current.user.email_address to match the invitation
-    def Current.user
-      @mock_user ||= Struct.new(:email_address).new("invite@example.com")
-    end
+    invited_user = Struct.new(:email_address, :avatar).new("invite@example.com", nil)
+    mock_session = Struct.new(:user).new(invited_user)
+    Current.session = mock_session
 
     # Since we changed the email, this should return 1
     assert_equal 1, pending_invitations_count
@@ -191,7 +190,8 @@ class NavigationHelperTest < ActionView::TestCase
 
     items = secondary_nav_items(:plans)
     assert items.any? { |i| i[:key] == :meals }
-    assert items.any? { |i| i[:key] == :shopping }
+    assert items.any? { |i| i[:key] == :shopping_plan }
+    assert items.any? { |i| i[:key] == :shopping_list }
     assert items.any? { |i| i[:key] == :packing }
   end
 
@@ -236,7 +236,7 @@ class NavigationHelperTest < ActionView::TestCase
     end
 
     assert secondary_nav_active?(:plans, :meals)
-    assert_not secondary_nav_active?(:plans, :shopping)
+    assert_not secondary_nav_active?(:plans, :shopping_plan)
   end
 
   test "current_navigation_section returns correct section for controller" do

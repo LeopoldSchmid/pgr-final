@@ -48,10 +48,9 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should redirect index to meals when authenticated and trip context set" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    patch switch_trip_url, params: { trip_id: @trip.id, return_to: plans_path }
 
-    get plans_url
-    assert_redirected_to plans_meals_url
+    get plans_url, params: { trip_id: @trip.id }
+    assert_redirected_to plans_meals_url(trip_id: @trip.id)
   end
 
   test "should redirect to recipe library when no trip context" do
@@ -63,33 +62,43 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "should get meals page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    patch switch_trip_url, params: { trip_id: @trip.id }
 
-    get plans_meals_url
+    get plans_meals_url, params: { trip_id: @trip.id }
     assert_response :success
   end
 
-  test "should get shopping page" do
+  test "should get shopping plan page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    patch switch_trip_url, params: { trip_id: @trip.id }
 
-    get plans_shopping_url
+    get plans_shopping_url, params: { trip_id: @trip.id }
     assert_response :success
+    assert_match "Shopping Plan", response.body
+  end
+
+  test "should create default shopping list when opening shopping list tab without lists" do
+    @shopping_list.destroy!
+
+    post session_url, params: { email_address: @user.email_address, password: "password123" }
+
+    assert_difference("@trip.shopping_lists.count", 1) do
+      get plans_shopping_list_url, params: { trip_id: @trip.id }
+    end
+
+    created_list = @trip.shopping_lists.order(:created_at).last
+    assert_redirected_to trip_shopping_list_url(@trip, created_list)
   end
 
   test "should get packing page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    patch switch_trip_url, params: { trip_id: @trip.id }
 
-    get plans_packing_url
+    get plans_packing_url, params: { trip_id: @trip.id }
     assert_response :success
   end
 
   test "should get itinerary page" do
     post session_url, params: { email_address: @user.email_address, password: "password123" }
-    patch switch_trip_url, params: { trip_id: @trip.id }
 
-    get plans_itinerary_url
+    get plans_itinerary_url, params: { trip_id: @trip.id }
     assert_response :success
   end
 

@@ -9,10 +9,23 @@ class ShoppingListsController < ApplicationController
     redirect_to trip_shopping_list_path(@trip, @current_list) if @current_list
   end
 
+  def current
+    @shopping_list = @trip.shopping_lists.where(archived_at: nil).order(:position, :created_at).first ||
+      @trip.shopping_lists.create!(name: "General", status: "draft")
+
+    redirect_to trip_shopping_list_path(@trip, @shopping_list)
+  end
+
   def show
+    @aggregated_assignments = Shopping::AssignmentAggregator.new(@shopping_list).call
+    @assignment_groups = @aggregated_assignments.group_by(&:category)
+    @open_assignment_count = @aggregated_assignments.count { |item| item.remaining_quantity.positive? }
+    @done_assignment_count = @aggregated_assignments.count { |item| item.remaining_quantity.zero? }
+
     @items_by_category = @shopping_list.items_by_category
     @remaining_items = @shopping_list.shopping_items.remaining
     @purchased_items = @shopping_list.shopping_items.purchased
+    @partial_items = @shopping_list.shopping_items.partial
   end
 
   def create
@@ -63,10 +76,19 @@ class ShoppingListsController < ApplicationController
   private
 
   def set_trip
+    if params[:trip_id].blank?
+      @trip = current_trip
+      raise ActiveRecord::RecordNotFound unless @trip
+      return
+    end
+
+    user = Current.session&.user || Current.user
+    raise ActiveRecord::RecordNotFound unless user
+
     # Find trips user owns OR is a member of
-    owned_trips = Current.user.trips.where(id: params[:trip_id])
+    owned_trips = user.trips.where(id: params[:trip_id])
     member_trips = Trip.joins(:trip_members)
-                      .where(trip_members: { user: Current.user }, id: params[:trip_id])
+                      .where(trip_members: { user: user }, id: params[:trip_id])
 
     trip_relation = Trip.where(id: [ owned_trips.pluck(:id) + member_trips.pluck(:id) ].flatten)
     @trip = trip_relation.first
@@ -81,6 +103,6 @@ class ShoppingListsController < ApplicationController
   end
 
   def shopping_list_params
-    params.require(:shopping_list).permit(:name, :status)
+    params.require(:shopping_list).permit(:name, :status, :description, :position)
   end
 end

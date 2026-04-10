@@ -22,6 +22,7 @@ module Authentication
     end
 
     def resume_session
+      Current.session = nil unless Current.session.is_a?(Session)
       Current.session ||= find_session_by_cookie
     end
 

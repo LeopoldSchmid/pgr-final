@@ -11,6 +11,8 @@ class User < ApplicationRecord
   has_many :user_availabilities, dependent: :destroy
   has_many :date_proposal_votes, dependent: :destroy
   has_many :trip_attachments, dependent: :destroy
+  has_many :shopping_sync_runs, dependent: :destroy
+  has_many :shopping_item_comments, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

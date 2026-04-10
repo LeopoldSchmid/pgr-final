@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_121657) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -235,11 +235,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_121657) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "shopping_item_comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "edited_at"
+    t.datetime "resolved_at"
+    t.integer "shopping_list_assignment_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["shopping_list_assignment_id"], name: "index_shopping_item_comments_on_shopping_list_assignment_id"
+    t.index ["user_id"], name: "index_shopping_item_comments_on_user_id"
+  end
+
   create_table "shopping_items", force: :cascade do |t|
     t.string "category"
     t.datetime "created_at", null: false
     t.string "name"
     t.boolean "purchased"
+    t.decimal "purchased_quantity", precision: 10, scale: 2, default: "0.0", null: false
     t.decimal "quantity"
     t.integer "shopping_list_id", null: false
     t.integer "source_id"
@@ -249,13 +262,73 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_121657) do
     t.index ["shopping_list_id"], name: "index_shopping_items_on_shopping_list_id"
   end
 
-  create_table "shopping_lists", force: :cascade do |t|
+  create_table "shopping_list_assignments", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.text "notes"
+    t.decimal "planned_quantity", precision: 10, scale: 2, null: false
+    t.integer "position"
+    t.decimal "purchased_quantity", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "shopping_list_id", null: false
+    t.integer "shopping_requirement_id", null: false
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shopping_list_id"], name: "index_shopping_list_assignments_on_shopping_list_id"
+    t.index ["shopping_requirement_id", "shopping_list_id"], name: "index_shopping_assignments_requirement_and_list"
+    t.index ["shopping_requirement_id"], name: "index_shopping_list_assignments_on_shopping_requirement_id"
+  end
+
+  create_table "shopping_lists", force: :cascade do |t|
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.text "description"
     t.string "name"
+    t.integer "position"
     t.string "status"
     t.integer "trip_id", null: false
     t.datetime "updated_at", null: false
     t.index ["trip_id"], name: "index_shopping_lists_on_trip_id"
+  end
+
+  create_table "shopping_requirements", force: :cascade do |t|
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.integer "food_item_id"
+    t.string "last_synced_signature"
+    t.integer "meal_plan_id"
+    t.string "name", null: false
+    t.text "notes"
+    t.decimal "quantity", precision: 10, scale: 2, null: false
+    t.integer "recipe_id"
+    t.string "source_label"
+    t.string "source_signature"
+    t.string "source_type", null: false
+    t.string "sync_status", null: false
+    t.datetime "synced_at"
+    t.integer "trip_id", null: false
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.index ["food_item_id"], name: "index_shopping_requirements_on_food_item_id"
+    t.index ["meal_plan_id"], name: "index_shopping_requirements_on_meal_plan_id"
+    t.index ["recipe_id"], name: "index_shopping_requirements_on_recipe_id"
+    t.index ["source_type"], name: "index_shopping_requirements_on_source_type"
+    t.index ["sync_status"], name: "index_shopping_requirements_on_sync_status"
+    t.index ["trip_id", "meal_plan_id"], name: "index_shopping_requirements_on_trip_id_and_meal_plan_id"
+    t.index ["trip_id"], name: "index_shopping_requirements_on_trip_id"
+  end
+
+  create_table "shopping_sync_runs", force: :cascade do |t|
+    t.text "change_summary"
+    t.datetime "created_at", null: false
+    t.datetime "finished_at"
+    t.json "snapshot_payload"
+    t.datetime "started_at", null: false
+    t.integer "trip_id", null: false
+    t.string "undo_token", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["trip_id"], name: "index_shopping_sync_runs_on_trip_id"
+    t.index ["undo_token"], name: "index_shopping_sync_runs_on_undo_token", unique: true
+    t.index ["user_id"], name: "index_shopping_sync_runs_on_user_id"
   end
 
   create_table "trip_attachment_comments", force: :cascade do |t|
@@ -357,8 +430,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_121657) do
   add_foreign_key "recipes", "trips"
   add_foreign_key "recipes", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "shopping_item_comments", "shopping_list_assignments"
+  add_foreign_key "shopping_item_comments", "users"
   add_foreign_key "shopping_items", "shopping_lists"
+  add_foreign_key "shopping_list_assignments", "shopping_lists"
+  add_foreign_key "shopping_list_assignments", "shopping_requirements"
   add_foreign_key "shopping_lists", "trips"
+  add_foreign_key "shopping_requirements", "food_items"
+  add_foreign_key "shopping_requirements", "meal_plans"
+  add_foreign_key "shopping_requirements", "recipes"
+  add_foreign_key "shopping_requirements", "trips"
+  add_foreign_key "shopping_sync_runs", "trips"
+  add_foreign_key "shopping_sync_runs", "users"
   add_foreign_key "trip_attachment_comments", "trip_attachments"
   add_foreign_key "trip_attachment_comments", "users"
   add_foreign_key "trip_attachments", "trips"

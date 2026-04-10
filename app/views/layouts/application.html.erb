@@ -138,19 +138,19 @@
 
     <!-- Flash messages -->
     <% if notice %>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mx-4 mt-4 animate-slide-down shadow-sm">
+      <div class="fixed left-4 right-4 top-28 z-50 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg animate-slide-down shadow-sm md:left-auto md:right-4 md:top-20 md:w-[28rem]">
         <%= notice %>
       </div>
     <% end %>
 
     <% if alert %>
-      <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mx-4 mt-4 animate-slide-down shadow-sm">
+      <div class="fixed left-4 right-4 top-28 z-50 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg animate-slide-down shadow-sm md:left-auto md:right-4 md:top-20 md:w-[28rem]">
         <%= alert %>
       </div>
     <% end %>
 
     <!-- Main content with padding for top bar, secondary nav, and mobile navigation -->
-    <main class="pt-28 pb-20 md:pb-0">
+    <main class="pt-16 pb-20 md:pb-0">
       <%= yield %>
     </main>
 

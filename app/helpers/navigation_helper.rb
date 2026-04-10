@@ -9,7 +9,7 @@ module NavigationHelper
     when :trip
       (controller_name == "trips" && %w[show overview details dates participants discussions].include?(action_name)) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :plans
-      %w[plans meal_plans recipes shopping_lists recipe_library].include?(controller_name) ? "text-primary-accent font-semibold" : "text-text-primary/70"
+      %w[plans meal_plans recipes shopping_plans shopping_lists shopping_list_assignments recipe_library].include?(controller_name) ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :memories
       controller_name == "memories" ? "text-primary-accent font-semibold" : "text-text-primary/70"
     when :expenses
@@ -24,7 +24,7 @@ module NavigationHelper
     if current_trip
       current_trip.name
     else
-      t('app_name')
+      t("app_name")
     end
   end
 
@@ -100,6 +100,8 @@ module NavigationHelper
       # Plans section
       meals: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7",
       shopping: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z",
+      shopping_plan: "M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h3m7-10l-3 3m0 0l-3-3m3 3V4m2 15h2a2 2 0 002-2V7a2 2 0 00-2-2h-2",
+      shopping_list: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13h10m-9 4a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2z",
       packing: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
       itinerary: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01",
       recipes: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
@@ -164,58 +166,59 @@ module NavigationHelper
     when :plans
       if current_trip
         [
-          { key: :meals, label: t('navigation.secondary.meals'), path: plans_meals_path },
-          { key: :shopping, label: t('navigation.secondary.shopping'), path: plans_shopping_path },
-          { key: :packing, label: t('navigation.secondary.packing'), path: plans_packing_path },
-          { key: :itinerary, label: t('navigation.secondary.itinerary'), path: plans_itinerary_path }
+          { key: :meals, label: t("navigation.secondary.meals"), path: plans_meals_path },
+          { key: :shopping_plan, label: "Shopping Plan", path: plans_shopping_path },
+          { key: :shopping_list, label: "Shopping List", path: plans_shopping_list_path },
+          { key: :packing, label: t("navigation.secondary.packing"), path: plans_packing_path },
+          { key: :itinerary, label: t("navigation.secondary.itinerary"), path: plans_itinerary_path }
         ]
       else
         [
-          { key: :recipes, label: t('navigation.secondary.recipes'), path: recipe_library_path },
-          { key: :templates, label: t('navigation.secondary.templates'), path: plans_templates_path }
+          { key: :recipes, label: t("navigation.secondary.recipes"), path: recipe_library_path },
+          { key: :templates, label: t("navigation.secondary.templates"), path: plans_templates_path }
         ]
       end
     when :trip
       return [] unless current_trip
       [
-        { key: :overview, label: t('navigation.secondary.overview'), path: trip_overview_path },
-        { key: :dates, label: t('navigation.secondary.dates'), path: trip_dates_path },
-        { key: :details, label: t('navigation.secondary.details'), path: trip_details_path },
-        { key: :participants, label: t('navigation.secondary.participants'), path: trip_participants_path },
-        { key: :discussions, label: t('navigation.secondary.discussions'), path: trip_discussions_path }
+        { key: :overview, label: t("navigation.secondary.overview"), path: trip_overview_path },
+        { key: :dates, label: t("navigation.secondary.dates"), path: trip_dates_path },
+        { key: :details, label: t("navigation.secondary.details"), path: trip_details_path },
+        { key: :participants, label: t("navigation.secondary.participants"), path: trip_participants_path },
+        { key: :discussions, label: t("navigation.secondary.discussions"), path: trip_discussions_path }
       ]
     when :memories
       if current_trip
         [
-          { key: :feed, label: t('navigation.secondary.feed'), path: memories_path },
-          { key: :albums, label: t('navigation.secondary.albums'), path: memories_albums_path },
-          { key: :map, label: t('navigation.secondary.map'), path: memories_map_path }
+          { key: :feed, label: t("navigation.secondary.feed"), path: memories_path },
+          { key: :albums, label: t("navigation.secondary.albums"), path: memories_albums_path },
+          { key: :map, label: t("navigation.secondary.map"), path: memories_map_path }
         ]
       else
         [
-          { key: :feed, label: t('navigation.secondary.feed'), path: memories_path },
-          { key: :favorites, label: t('navigation.secondary.favorites'), path: memories_favorites_path }
+          { key: :feed, label: t("navigation.secondary.feed"), path: memories_path },
+          { key: :favorites, label: t("navigation.secondary.favorites"), path: memories_favorites_path }
         ]
       end
     when :expenses
       if current_trip
         [
-          { key: :all, label: t('navigation.secondary.all'), path: expenses_path },
-          { key: :by_person, label: t('navigation.secondary.by_person'), path: expenses_by_person_path },
-          { key: :by_category, label: t('navigation.secondary.by_category'), path: expenses_by_category_path },
-          { key: :settle, label: t('navigation.secondary.settle'), path: expenses_settle_path }
+          { key: :all, label: t("navigation.secondary.all"), path: expenses_path },
+          { key: :by_person, label: t("navigation.secondary.by_person"), path: expenses_by_person_path },
+          { key: :by_category, label: t("navigation.secondary.by_category"), path: expenses_by_category_path },
+          { key: :settle, label: t("navigation.secondary.settle"), path: expenses_settle_path }
         ]
       else
         [
-          { key: :all_trips, label: t('navigation.secondary.all_trips'), path: expenses_path },
-          { key: :summary, label: t('navigation.secondary.summary'), path: expenses_summary_path }
+          { key: :all_trips, label: t("navigation.secondary.all_trips"), path: expenses_path },
+          { key: :summary, label: t("navigation.secondary.summary"), path: expenses_summary_path }
         ]
       end
     when :home
       [
-        { key: :overview, label: t('navigation.secondary.overview'), path: root_path },
-        { key: :calendar, label: t('navigation.secondary.calendar'), path: home_calendar_path },
-        { key: :upcoming, label: t('navigation.secondary.upcoming'), path: home_upcoming_path }
+        { key: :overview, label: t("navigation.secondary.overview"), path: root_path },
+        { key: :calendar, label: t("navigation.secondary.calendar"), path: home_calendar_path },
+        { key: :upcoming, label: t("navigation.secondary.upcoming"), path: home_upcoming_path }
       ]
     else
       []
@@ -228,18 +231,21 @@ module NavigationHelper
 
     case section.to_sym
     when :plans
-      controller_name == 'plans' && action_name == item_key.to_s ||
-      controller_name == 'recipe_library' && item_key == :recipes
+      (controller_name == "plans" && action_name == item_key.to_s) ||
+      (controller_name == "shopping_plans" && item_key == :shopping_plan) ||
+      (controller_name == "shopping_lists" && item_key == :shopping_list) ||
+      (controller_name == "shopping_list_assignments" && item_key == :shopping_list) ||
+      (controller_name == "recipe_library" && item_key == :recipes)
     when :trip
-      (controller_name == 'trips' && action_name == item_key.to_s) ||
-      (controller_name == 'discussions' && item_key == :discussions) ||
-      (controller_name == 'date_proposals' && item_key == :dates)
+      (controller_name == "trips" && action_name == item_key.to_s) ||
+      (controller_name == "discussions" && item_key == :discussions) ||
+      (controller_name == "date_proposals" && item_key == :dates)
     when :memories
-      controller_name == 'memories' && (action_name == item_key.to_s || (item_key == :feed && action_name == 'index'))
+      controller_name == "memories" && (action_name == item_key.to_s || (item_key == :feed && action_name == "index"))
     when :expenses
-      controller_name == 'expenses' && (action_name == item_key.to_s || (item_key == :all && action_name == 'index'))
+      controller_name == "expenses" && (action_name == item_key.to_s || (item_key == :all && action_name == "index"))
     when :home
-      (controller_name == 'home' && action_name == item_key.to_s) ||
+      (controller_name == "home" && action_name == item_key.to_s) ||
       (item_key == :overview && current_page?(root_path))
     else
       false
@@ -249,15 +255,15 @@ module NavigationHelper
   # Determine which section we're currently in (for rendering secondary nav)
   def current_navigation_section
     case controller_name
-    when 'plans', 'recipe_library', 'shopping_lists', 'recipes', 'meal_plans'
+    when "plans", "shopping_plans", "shopping_lists", "shopping_list_assignments", "recipe_library", "recipes", "meal_plans"
       :plans
-    when 'trips'
+    when "trips"
       :trip
-    when 'memories'
+    when "memories"
       :memories
-    when 'expenses'
+    when "expenses"
       :expenses
-    when 'home'
+    when "home"
       :home
     else
       nil

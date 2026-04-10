@@ -1,0 +1,189 @@
+<% content_for :title, "Shopping Plan - #{@trip.name}" %>
+
+<div class="mx-auto max-w-6xl px-4 py-2 sm:py-3">
+  <div class="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
+      <div>
+        <div class="text-xs uppercase tracking-[0.14em] text-slate-500">Requirements</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-950"><%= @shopping_requirements.count %></div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-[0.14em] text-slate-500">Lists</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-950"><%= @shopping_lists.count %></div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-[0.14em] text-slate-500">Need Sync</div>
+        <div class="mt-1 text-2xl font-semibold text-amber-600"><%= @outdated_requirement_ids.count %></div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-[0.14em] text-slate-500">Unassigned</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-950"><%= @shopping_requirements.count { |requirement| requirement.unassigned_quantity.positive? } %></div>
+      </div>
+  </div>
+
+  <div class="mt-3 grid gap-4 xl:grid-cols-[minmax(0,2.2fr)_minmax(320px,0.95fr)]">
+    <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div class="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-lg font-semibold text-slate-950">Requirement pool</div>
+        <div class="flex flex-wrap gap-2">
+          <%= button_to "Synchronize meals", plans_shopping_sync_path(trip_id: @trip.id), method: :post, class: "rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+          <% if @last_sync_run.present? %>
+            <%= button_to "Undo last sync", plans_shopping_undo_sync_path(@last_sync_run, trip_id: @trip.id), method: :post, class: "rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200" %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @shopping_requirements.empty? %>
+        <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-slate-600">
+          <p class="text-base font-semibold text-slate-900">No requirements yet</p>
+        </div>
+      <% else %>
+        <div class="mt-5 space-y-6">
+          <% @grouped_requirements.each do |category, requirements| %>
+            <section>
+              <div class="mb-3 flex items-center justify-between">
+                <h3 class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500"><%= category %></h3>
+                <span class="text-xs text-slate-400"><%= pluralize(requirements.count, "requirement") %></span>
+              </div>
+
+              <div class="space-y-3">
+                <% requirements.each do |requirement| %>
+                  <% drift_detected = @outdated_requirement_ids.include?(requirement.id) %>
+                  <article class="rounded-3xl border <%= drift_detected || requirement.outdated? ? 'border-amber-300 bg-amber-50/70' : 'border-slate-200 bg-white' %> p-4 shadow-sm">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h4 class="text-lg font-semibold text-slate-950"><%= requirement.name %></h4>
+                          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"><%= requirement.quantity %> <%= requirement.unit %></span>
+                          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"><%= requirement.source_type.humanize %></span>
+                          <% if requirement.source_label.present? %>
+                            <span class="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700"><%= requirement.source_label %></span>
+                          <% end %>
+                          <% if drift_detected || requirement.outdated? %>
+                            <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">Needs review</span>
+                          <% elsif requirement.manually_adjusted? %>
+                            <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">Manually adjusted</span>
+                          <% elsif requirement.detached? %>
+                            <span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">Detached</span>
+                          <% end %>
+                        </div>
+
+                        <div class="mt-3 flex flex-wrap gap-4 text-sm text-slate-600">
+                          <span><strong class="text-slate-900"><%= requirement.assigned_quantity %> <%= requirement.unit %></strong> assigned</span>
+                          <span><strong class="text-slate-900"><%= requirement.unassigned_quantity %> <%= requirement.unit %></strong> unassigned</span>
+                          <% if requirement.over_assigned_quantity.positive? %>
+                            <span class="text-red-600"><strong><%= requirement.over_assigned_quantity %> <%= requirement.unit %></strong> over-assigned</span>
+                          <% end %>
+                        </div>
+
+                        <% if requirement.shopping_list_assignments.any? %>
+                          <div class="mt-3 flex flex-wrap gap-2">
+                            <% requirement.shopping_list_assignments.each do |assignment| %>
+                              <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                                <%= assignment.shopping_list.name %>: <%= assignment.planned_quantity %> <%= assignment.unit %>
+                              </span>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+
+                      <div class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 lg:w-80">
+                        <%= form_with url: plans_shopping_requirement_assignments_path(requirement_id: requirement.id, trip_id: @trip.id), method: :post, local: true, class: "grid grid-cols-[minmax(0,1.2fr)_88px_88px] gap-2" do |form| %>
+                          <%= select_tag :shopping_list_id, options_from_collection_for_select(@shopping_lists, :id, :name, @shopping_lists.first&.id), class: "rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" %>
+                          <%= number_field_tag :quantity, requirement.unassigned_quantity.positive? ? requirement.unassigned_quantity : nil, step: :any, min: 0, placeholder: "Qty", class: "rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" %>
+                          <%= text_field_tag :unit, requirement.unit, class: "rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" %>
+                          <div class="col-span-3">
+                            <%= form.submit "Assign to list", class: "w-full rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </article>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <div class="space-y-4">
+      <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h2 class="text-lg font-semibold text-slate-950">Add manual requirement</h2>
+        <%= form_with scope: :shopping_requirement, url: plans_shopping_manual_requirement_path(trip_id: @trip.id), method: :post, local: true, class: "mt-3 space-y-4", data: { controller: "food-item-picker", food_item_picker_items_value: @food_item_picker_payload.to_json, action: "click@window->food-item-picker#closeIfOutside" } do |form| %>
+          <%= form.hidden_field :food_item_id, data: { food_item_picker_target: "foodItemId" } %>
+          <div class="rounded-[28px] border border-slate-200 bg-slate-50 p-3">
+            <div class="rounded-[24px] border border-slate-200 bg-white shadow-sm">
+              <label class="block border-b border-slate-100 px-4 pb-2 pt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Item
+              </label>
+              <div class="relative">
+                <%= form.text_field :name, placeholder: "Search food items or type a custom item", class: "w-full rounded-b-[24px] border-0 bg-transparent px-4 py-3 text-base text-slate-950 placeholder:text-slate-400 focus:ring-0", autocomplete: "off", data: { food_item_picker_target: "name", action: "focus->food-item-picker#focus input->food-item-picker#search keydown->food-item-picker#handleKeydown" } %>
+                <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.5 3a5.5 5.5 0 013.968 9.31l3.11 3.111a.75.75 0 11-1.06 1.06l-3.111-3.11A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 rounded-3xl bg-white px-4 py-3 shadow-sm">
+              <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Selection</div>
+              <div class="mt-1 text-sm font-medium text-slate-700" data-food-item-picker-target="summary">Custom item · choose unit and category</div>
+            </div>
+
+            <div class="mt-3 hidden rounded-[28px] border border-slate-200 bg-white p-3 shadow-[0_18px_50px_rgba(15,23,42,0.14)]" data-food-item-picker-target="panel">
+              <div class="max-h-72 space-y-2 overflow-y-auto pr-1" data-food-item-picker-target="results"></div>
+              <div class="hidden rounded-2xl bg-slate-50 px-4 py-5 text-center text-sm text-slate-500" data-food-item-picker-target="emptyState">
+                Start typing to search seeded items or create a custom item.
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[minmax(0,1fr)_120px] gap-3">
+            <div class="rounded-[26px] border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <label class="block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Quantity</label>
+              <%= form.number_field :quantity, step: :any, min: 0, placeholder: "12", class: "mt-1 w-full border-0 bg-transparent p-0 text-lg font-semibold text-slate-950 placeholder:text-slate-300 focus:ring-0" %>
+            </div>
+            <div class="rounded-[26px] border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <label class="block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Unit</label>
+              <%= form.select :unit, options_for_select([["kg", "kg"], ["l", "l"], ["pieces", "pieces"]], "kg"), {}, class: "mt-1 w-full border-0 bg-transparent p-0 text-lg font-semibold text-slate-950 focus:ring-0", data: { food_item_picker_target: "unit" } %>
+            </div>
+          </div>
+
+          <div class="rounded-[26px] border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <label class="block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Category</label>
+            <%= form.select :category, options_for_select(ShoppingRequirement::CATEGORIES.map { |value| [value.humanize, value] }, "other"), {}, class: "mt-1 w-full border-0 bg-transparent p-0 text-base font-semibold text-slate-950 focus:ring-0", data: { food_item_picker_target: "category" } %>
+          </div>
+
+          <%= form.text_area :notes, rows: 3, placeholder: "Optional context", class: "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900" %>
+          <%= form.submit "Add requirement", class: "w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700" %>
+        <% end %>
+      </section>
+
+      <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <h2 class="text-lg font-semibold text-slate-950">Shopping lists</h2>
+        <%= form_with model: [@trip, ShoppingList.new], local: true, class: "mt-3 space-y-3" do |form| %>
+          <%= form.text_field :name, placeholder: "Wochenmarkt", class: "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900" %>
+          <%= form.text_field :description, placeholder: "Optional description", class: "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900" %>
+          <%= form.submit "Create shopping list", class: "w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800" %>
+        <% end %>
+
+        <% if @shopping_lists.any? %>
+          <div class="mt-4 space-y-2">
+            <% @shopping_lists.each do |list| %>
+              <%= link_to trip_shopping_list_path(@trip, list), class: "flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 hover:border-slate-300 hover:bg-slate-50" do %>
+                <span>
+                  <span class="font-semibold"><%= list.name %></span>
+                  <% if list.description.present? %>
+                    <span class="ml-2 text-slate-500"><%= list.description %></span>
+                  <% end %>
+                </span>
+                <span class="text-slate-500"><%= pluralize(list.shopping_list_assignments.count, "assignment") %></span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </section>
+    </div>
+  </div>
+</div>

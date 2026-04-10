@@ -94,4 +94,24 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Please plan some meals first.", flash[:alert]
     assert_equal 0, @shopping_list.shopping_items.count
   end
+
+  test "add_manual_item creates a manual shopping item" do
+    assert_difference("@shopping_list.shopping_items.count", 1) do
+      post add_manual_item_trip_shopping_list_url(@trip, @shopping_list), params: {
+        shopping_item: {
+          name: "Beer",
+          quantity: 12,
+          unit: "bottles",
+          category: "other"
+        }
+      }
+    end
+
+    item = @shopping_list.shopping_items.order(:created_at).last
+    assert_equal "Beer", item.name
+    assert_equal 12, item.quantity
+    assert_equal "bottles", item.unit
+    assert_equal "Manual", item.source_type
+    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+  end
 end

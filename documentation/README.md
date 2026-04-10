@@ -27,6 +27,12 @@ Stand: 2026-04-09
    - Erste dokumentierte Smoke-Ergebnisse auf dem laufenden Staging-System.
 11. [meal_planning_and_shopping_target_model.md](./meal_planning_and_shopping_target_model.md)
    - Fachliches Zielmodell fuer die weitere Entwicklung von `Meal Planning` und `Shopping`.
+12. [shopping_workflow_concept.md](./shopping_workflow_concept.md)
+   - Praezisiert Multi-List-Shopping, Pflegeansicht vs. Einkaufsansicht und manuelle Synchronisierung mit dem Meal Plan.
+13. [shopping_technical_architecture.md](./shopping_technical_architecture.md)
+   - Technisches Zielmodell fuer Requirements, Listen, Assignments, Sync und die stufenweise Neuimplementierung.
+14. [shopping_ui_structure.md](./shopping_ui_structure.md)
+   - UI-Struktur fuer den finalen Flow `Meal Plan -> Shopping Plan -> Shopping List` auf Basis der aktuellen Mockups.
 
 ## Weitere Dokumente
 

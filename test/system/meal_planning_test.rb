@@ -31,7 +31,7 @@ class MealPlanningTest < ApplicationSystemTestCase
     )
 
     # UI Login
-    visit new_session_path(locale: 'en')
+    visit new_session_path(locale: "en")
     fill_in "Email", with: @user.email_address
     fill_in "Password", with: "password"
     click_on "Sign in"
@@ -70,7 +70,7 @@ class MealPlanningTest < ApplicationSystemTestCase
     assert_text @recipe.name
   end
 
-  test "generating shopping list from meal plan" do
+  test "synchronizing meal plans into the shopping plan" do
     # First add a meal
     MealPlan.create!(
       trip: @trip,
@@ -79,15 +79,12 @@ class MealPlanningTest < ApplicationSystemTestCase
       meal_type: "lunch"
     )
 
-    # Go directly to the shopping list show page since index might behave differently
-    visit trip_shopping_list_path(@trip, @shopping_list, locale: 'en')
+    visit plans_shopping_path(locale: "en", trip_id: @trip.id)
 
-    click_on "Generate from Meal Plan"
+    click_on "Synchronize meals"
 
-    # Should redirect to shopping list show page
-    assert_text "Groceries"
+    assert_text "Requirement pool"
 
-    # Check if ingredients are there (assuming recipe has ingredients)
     if @recipe.ingredients.any?
       assert_text @recipe.ingredients.first.name
     end

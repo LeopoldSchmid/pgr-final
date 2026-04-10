@@ -9,6 +9,8 @@ class Trip < ApplicationRecord
   has_many :invitations, dependent: :destroy
   has_many :recipes, dependent: :destroy
   has_many :shopping_lists, dependent: :destroy
+  has_many :shopping_requirements, dependent: :destroy
+  has_many :shopping_sync_runs, dependent: :destroy
   has_many :trip_attachments, dependent: :destroy
   has_many :discussion_posts, dependent: :destroy
 

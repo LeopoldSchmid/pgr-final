@@ -65,3 +65,24 @@
   - Shopping must remain a first-class object, not only a derived report from meals.
   - Manual shopping items remain a supported path.
   - Partial purchase tracking becomes a valid target for future model evolution.
+
+## 2026-04-10 - Shopping supports multiple lists and manual synchronization from meal planning
+- Decision: Model shopping around a shared requirement layer plus multiple concrete shopping lists, with a manual sync step from meal planning.
+- Why:
+  - Real trips often split purchases across stores such as `Aldi` and `Wochenmarkt`.
+  - A single derived shopping list is too rigid for actual trip logistics.
+  - Recipe and portion changes must not silently overwrite manually organized shopping work.
+- Consequence:
+  - Shopping needs a maintenance/planning view and a separate in-store execution view.
+  - Meal-plan-derived needs should become syncable requirements, not only final list rows.
+  - Drift between current meal-plan state and shopping state must become visible.
+
+## 2026-04-10 - The final shopping solution is UX-first and may replace the existing code entirely
+- Decision: Treat the current shopping implementation as replaceable and design the final solution around the real user workflow, not around preserving existing code paths.
+- Why:
+  - A technically partial but UX-poor solution will not be used in practice.
+  - The shopping domain now clearly requires multiple lists, synchronization, reuse, and later comments.
+  - There are no migration constraints on this part of the codebase.
+- Consequence:
+  - Data model and screens may be redesigned fundamentally.
+  - Reuse across trips and lessons learned become part of the intended long-term design.

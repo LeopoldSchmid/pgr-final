@@ -29,4 +29,22 @@ end
 
 class ActiveSupport::TestCase
   include TestAuthenticationHelpers
+
+  setup do
+    Current.reset
+  end
+
+  teardown do
+    Current.reset
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  setup do
+    Current.reset
+  end
+
+  teardown do
+    Current.reset
+  end
 end
