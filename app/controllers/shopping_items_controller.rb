@@ -8,56 +8,56 @@ class ShoppingItemsController < ApplicationController
     @shopping_item.source_type = "Manual"
 
     if @shopping_item.save
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Item added to shopping list!"
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Item added to shopping list!"
     else
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: "Could not add item to shopping list."
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: "Could not add item to shopping list."
     end
   end
 
   def update
     if @shopping_item.update(shopping_item_params)
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Item updated!"
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Item updated!"
     else
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: "Could not update item."
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: "Could not update item."
     end
   end
 
   def destroy
     @shopping_item.destroy
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Item removed from shopping list."
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Item removed from shopping list."
   end
 
   def toggle_purchased
     @shopping_item.toggle_purchased!
-    redirect_to trip_shopping_list_path(@trip, @shopping_list)
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id)
   end
 
   def record_purchase
     if params[:clear_purchase].present?
       @shopping_item.clear_purchase!
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Purchase progress cleared."
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Purchase progress cleared."
       return
     end
 
     if params[:mark_complete].present?
       @shopping_item.mark_complete!
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Item marked as fully purchased."
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Item marked as fully purchased."
       return
     end
 
     amount = params[:purchased_quantity]
 
     if amount.blank?
-      redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: "Enter how much was purchased."
+      redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: "Enter how much was purchased."
       return
     end
 
     @shopping_item.add_purchase!(amount)
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: "Purchase progress updated."
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: "Purchase progress updated."
   rescue ArgumentError => e
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: e.message
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: e.message
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: e.record.errors.full_messages.to_sentence
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: e.record.errors.full_messages.to_sentence
   end
 
   private

@@ -3,12 +3,6 @@
 <div class="mx-auto max-w-5xl px-4 py-2 sm:py-3">
   <%= render partial: "shopping_lists/stats", locals: { open_count: @open_assignment_count, done_count: @done_assignment_count, items_count: @aggregated_assignments.count } %>
 
-  <div class="mt-3 flex flex-wrap gap-2">
-    <%= link_to "Back to Shopping Plan", plans_shopping_path(trip_id: @trip.id), class: "rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200" %>
-    <% @trip.shopping_lists.where(archived_at: nil).order(:position, :created_at).each do |list| %>
-      <%= link_to list.name, trip_shopping_list_path(@trip, list), class: "rounded-full px-4 py-2 text-sm font-semibold #{list == @shopping_list ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300'}" %>
-    <% end %>
-  </div>
 
   <% if @aggregated_assignments.any? %>
     <div class="mt-4 space-y-6">

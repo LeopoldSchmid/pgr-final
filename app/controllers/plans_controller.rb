@@ -26,7 +26,7 @@ class PlansController < ApplicationController
   def shopping
     @trip = resolved_trip
     @shopping_list = ShoppingList.current_for_trip(@trip)
-    redirect_to trip_shopping_list_path(@trip, @shopping_list)
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id)
   end
 
   # Trip context: Packing list

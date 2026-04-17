@@ -21,14 +21,14 @@ class ShoppingListAssignmentsControllerTest < ActionDispatch::IntegrationTest
   test "records partial purchase" do
     patch record_purchase_trip_shopping_list_shopping_list_assignment_url(@trip, @list, @assignment), params: { quantity: 1 }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @list.id)
     assert_equal 1, @assignment.reload.purchased_quantity
   end
 
   test "marks assignment complete" do
     patch mark_complete_trip_shopping_list_shopping_list_assignment_url(@trip, @list, @assignment)
 
-    assert_redirected_to trip_shopping_list_url(@trip, @list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @list.id)
     assert_equal 2, @assignment.reload.purchased_quantity
   end
 
@@ -37,7 +37,7 @@ class ShoppingListAssignmentsControllerTest < ActionDispatch::IntegrationTest
 
     patch clear_purchase_trip_shopping_list_shopping_list_assignment_url(@trip, @list, @assignment)
 
-    assert_redirected_to trip_shopping_list_url(@trip, @list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @list.id)
     assert_equal 0, @assignment.reload.purchased_quantity
   end
 end

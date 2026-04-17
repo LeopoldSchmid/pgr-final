@@ -1,11 +1,33 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["editSection", "editToggle", "selectionButton", "selectionToolbar", "selectionCount", "selectionField"]
+  static targets = ["editSection", "editToggle", "selectionButton", "selectionToolbar", "selectionCount", "selectionField", "mainFab", "fabMenu"]
 
   connect() {
     this.editMode = false
+    this.fabOpen = false
+    this.loadSelectionFromSession()
     this.render()
+  }
+
+  loadSelectionFromSession() {
+    const saved = sessionStorage.getItem("shopping_plan_selected")
+    if (saved) {
+      const ids = saved.split(",").filter(Boolean)
+      this.selectionButtonTargets.forEach((button) => {
+        if (ids.includes(button.dataset.requirementId)) {
+          button.checked = true
+        }
+      })
+    }
+  }
+
+  saveSelectionToSession() {
+    const selectedIds = []
+    this.selectionButtonTargets.forEach((button) => {
+      if (button.checked) selectedIds.push(button.dataset.requirementId)
+    })
+    sessionStorage.setItem("shopping_plan_selected", selectedIds.join(","))
   }
 
   toggleEditMode(event) {
@@ -15,6 +37,14 @@ export default class extends Controller {
   }
 
   toggleSelection(event) {
+    this.saveSelectionToSession()
+    this.render()
+  }
+
+  toggleFabMenu(event) {
+    event?.preventDefault()
+    this.fabOpen = !this.fabOpen
+    this.saveSelectionToSession()
     this.render()
   }
 
@@ -33,8 +63,20 @@ export default class extends Controller {
       if (selected) selectedIds.push(button.dataset.requirementId)
     })
 
+    const hasSelection = selectedIds.length > 0
+
     if (this.hasSelectionToolbarTarget) {
-      this.selectionToolbarTarget.classList.toggle("hidden", selectedIds.length === 0)
+      this.selectionToolbarTarget.classList.toggle("hidden", !hasSelection)
+    }
+
+    if (this.hasMainFabTarget) {
+      this.mainFabTarget.classList.toggle("hidden", !hasSelection)
+      this.mainFabTarget.classList.toggle("flex", hasSelection)
+    }
+
+    if (this.hasFabMenuTarget) {
+      this.fabMenuTarget.classList.toggle("hidden", !hasSelection || !this.fabOpen)
+      this.fabMenuTarget.classList.toggle("flex", hasSelection && this.fabOpen)
     }
 
     if (this.hasSelectionCountTarget) {

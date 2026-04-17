@@ -95,3 +95,13 @@
 - Consequence:
   - `Plans` entry points should read and write a lightweight last-tab state.
   - Bottom navigation should not discard the active plans sub-context.
+
+## 2026-04-17 - Shopping List uses a canonical plans URL and remembers the last selected list
+- Decision: Route Shopping List navigation through `/plans/shopping-list` as canonical entry, with `list_id` selection and session-backed last-list memory.
+- Why:
+  - Mixed URLs (`/plans/...` vs `/trips/:id/shopping_lists/:id`) make the planning flow feel inconsistent.
+  - Returning from another primary section should restore both the `Shopping List` tab and the previously selected concrete list.
+- Consequence:
+  - Controllers now redirect nested shopping-list page requests to the canonical plans URL.
+  - `Shopping Plan` auto-creates a default list (`Trip Shopping List`) when none exists, so assignment flow never dead-ends.
+  - Redirect targets from shopping item and assignment actions stay within the plans URL structure.

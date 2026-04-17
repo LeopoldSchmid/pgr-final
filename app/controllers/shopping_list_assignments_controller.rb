@@ -8,7 +8,7 @@ class ShoppingListAssignmentsController < ApplicationController
     @assignment.add_purchase!(params[:quantity])
     respond_with_turbo_update("Purchase progress updated.")
   rescue ArgumentError => e
-    redirect_to trip_shopping_list_path(@trip, @shopping_list), alert: e.message
+    redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), alert: e.message
   end
 
   def mark_complete
@@ -37,7 +37,7 @@ class ShoppingListAssignmentsController < ApplicationController
           turbo_stream.replace("stats_bar", partial: "shopping_lists/stats", locals: { open_count: open_count, done_count: done_count, items_count: aggregated_items.count })
         ]
       end
-      format.html { redirect_to trip_shopping_list_path(@trip, @shopping_list), notice: notice_msg }
+      format.html { redirect_to plans_shopping_list_path(trip_id: @trip.id, list_id: @shopping_list.id), notice: notice_msg }
     end
   end
 

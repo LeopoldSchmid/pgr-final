@@ -48,7 +48,7 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
 
     post generate_from_meal_plan_trip_shopping_list_url(@trip, @shopping_list), params: { people_count: 2 }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
     assert_equal "Generated shopping list from 1 planned meal!", flash[:notice]
 
     @shopping_list.reload
@@ -59,6 +59,31 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Tomatoes", item.name
     assert_equal 2.0, item.quantity
     assert_equal "Recipe", item.source_type
+  end
+
+  test "plans shopping list route redirects to canonical list_id when missing" do
+    get plans_shopping_list_url, params: { trip_id: @trip.id }
+
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
+  end
+
+  test "plans shopping list route renders selected list from query param" do
+    second_list = @trip.shopping_lists.create!(name: "Market", status: "draft")
+
+    get plans_shopping_list_url, params: { trip_id: @trip.id, list_id: second_list.id }
+
+    assert_response :success
+    assert_match "Market", response.body
+  end
+
+  test "plans shopping list route remembers last selected list in session" do
+    second_list = @trip.shopping_lists.create!(name: "Market", status: "draft")
+
+    get plans_shopping_list_url, params: { trip_id: @trip.id, list_id: second_list.id }
+    assert_response :success
+
+    get plans_shopping_list_url, params: { trip_id: @trip.id }
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: second_list.id)
   end
 
   test "generate_from_meal_plan includes every ingredient from a planned recipe" do
@@ -78,7 +103,7 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
 
     post generate_from_meal_plan_trip_shopping_list_url(@trip, @shopping_list), params: { people_count: 2 }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
 
     items = @shopping_list.reload.shopping_items.order(:name).pluck(:name, :quantity, :unit, :category)
     assert_equal [
@@ -90,7 +115,7 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
   test "generate_from_meal_plan redirects back to meal planning when no meals exist" do
     post generate_from_meal_plan_trip_shopping_list_url(@trip, @shopping_list)
 
-    assert_redirected_to plans_meals_url
+    assert_redirected_to plans_meals_url(trip_id: @trip.id)
     assert_equal "Please plan some meals first.", flash[:alert]
     assert_equal 0, @shopping_list.shopping_items.count
   end
@@ -112,6 +137,6 @@ class ShoppingListsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 12, item.quantity
     assert_equal "bottles", item.unit
     assert_equal "Manual", item.source_type
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
   end
 end

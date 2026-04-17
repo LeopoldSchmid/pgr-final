@@ -14,7 +14,7 @@
             <h3 class="text-lg font-semibold text-text-primary">
               Shopping List <%= list.created_at.strftime("%b %d") %>
             </h3>
-            <%= link_to "View", trip_shopping_list_path(@trip, list), class: "text-primary-accent hover:text-blue-400 text-sm transition-colors" %>
+            <%= link_to "View", plans_shopping_list_path(trip_id: @trip.id, list_id: list.id), class: "text-primary-accent hover:text-blue-400 text-sm transition-colors" %>
           </div>
           <% if list.shopping_items.any? %>
             <p class="text-sm text-text-secondary">

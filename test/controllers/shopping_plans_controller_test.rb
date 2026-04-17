@@ -30,6 +30,17 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
     assert_match "Spaghetti Carbonara", response.body
   end
 
+  test "auto-creates default shopping list when opening shopping plan without lists" do
+    @trip.shopping_lists.destroy_all
+
+    assert_difference("@trip.shopping_lists.count", 1) do
+      get plans_shopping_url, params: { trip_id: @trip.id }
+    end
+
+    assert_response :success
+    assert_equal "Trip Shopping List", @trip.shopping_lists.order(:created_at).last.name
+  end
+
 
   test "sync creates shopping requirements" do
     assert_difference("@trip.shopping_requirements.count", 1) do

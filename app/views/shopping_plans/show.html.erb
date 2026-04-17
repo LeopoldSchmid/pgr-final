@@ -1,6 +1,6 @@
 <% content_for :title, "Shopping Plan - #{@trip.name}" %>
 
-<div id="shopping_plan_wrapper" class="pb-36 md:pb-24">
+<div id="shopping_plan_wrapper" class="pb-44 md:pb-28">
   <%= render "plan_content" %>
 </div>
 
@@ -33,8 +33,8 @@
 
         <%= form.hidden_field :category, value: "other", data: { "food-item-picker-target": "category" } %>
 
-        <%= form.button type: "submit", data: { action: "pointerdown->food-item-picker#preventBlur" }, class: "button-primary" do %>
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <%= form.button type: "submit", data: { action: "pointerdown->food-item-picker#preventBlur" }, class: "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-accent text-white shadow-lg hover:bg-accent-red-dark transition-all active:scale-95" do %>
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
           </svg>
         <% end %>

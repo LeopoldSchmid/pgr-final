@@ -94,7 +94,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     end
 
     created_list = @trip.shopping_lists.order(:created_at).last
-    assert_redirected_to trip_shopping_list_url(@trip, created_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: created_list.id)
   end
 
   test "should get packing page" do

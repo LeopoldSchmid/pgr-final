@@ -139,6 +139,10 @@ class ShoppingPlansController < ApplicationController
   end
 
   def active_shopping_lists
+    lists = @trip.shopping_lists.where(archived_at: nil).order(:position, :created_at)
+    return lists if lists.exists?
+
+    @trip.shopping_lists.create!(name: "Trip Shopping List", status: "draft")
     @trip.shopping_lists.where(archived_at: nil).order(:position, :created_at)
   end
 

@@ -47,7 +47,7 @@ class ShoppingItemsControllerTest < ActionDispatch::IntegrationTest
     created_item = ShoppingItem.order(:created_at).last
     assert_equal "Beer", created_item.name
     assert_equal "Manual", created_item.source_type
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
   end
 
   test "record_purchase adds partial progress" do
@@ -55,7 +55,7 @@ class ShoppingItemsControllerTest < ActionDispatch::IntegrationTest
       purchased_quantity: 1
     }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
     @item.reload
     assert_equal 1, @item.purchased_quantity
     assert_equal "partial", @item.purchase_status
@@ -66,7 +66,7 @@ class ShoppingItemsControllerTest < ActionDispatch::IntegrationTest
       mark_complete: true
     }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
     @item.reload
     assert_equal 2, @item.purchased_quantity
     assert @item.fully_purchased?
@@ -79,7 +79,7 @@ class ShoppingItemsControllerTest < ActionDispatch::IntegrationTest
       clear_purchase: true
     }
 
-    assert_redirected_to trip_shopping_list_url(@trip, @shopping_list)
+    assert_redirected_to plans_shopping_list_url(trip_id: @trip.id, list_id: @shopping_list.id)
     @item.reload
     assert_equal 0, @item.purchased_quantity
     assert_equal "open", @item.purchase_status
