@@ -38,7 +38,13 @@ Stand: 2026-04-17
 16. [date_planning_final_implementation_plan_2026-04-17.md](./date_planning_final_implementation_plan_2026-04-17.md)
    - Verbindlicher End-to-End-Umsetzungsplan fuer Date Planning inklusive finaler Abstimmung, Trip-Date-Migration, horizontalem Kalender und zentral/dezentraler Diskussion.
 17. [expense_system_v1_plan_2026-06-10.md](./expense_system_v1_plan_2026-06-10.md)
-   - Zielbild und Umsetzungsplan fuer das neue Expense-System mit Trip-Personen, flexiblen Splits, Offline-Erfassung und Sync-Vertrauen.
+   - Ueberblick und Sequenz fuer das neue Expense-System V1.
+18. [expense_goal_1_domain_ledger_sync_api_2026-06-10.md](./expense_goal_1_domain_ledger_sync_api_2026-06-10.md)
+   - Backend-Ziel fuer Trip-Personen, Ledger, Splits, Settlement, Audit und Sync-API.
+19. [expense_goal_2_frontend_offline_pwa_2026-06-10.md](./expense_goal_2_frontend_offline_pwa_2026-06-10.md)
+   - Frontend-Ziel fuer Expense-App-Island, Quick Capture, Split Editor, Offline Queue und PWA-Verhalten.
+20. [expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md](./expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md)
+   - Release-Readiness-Ziel fuer Reset, Deploy-Handoff, Smoke Tests, Offline-Walkthrough und operative Freigabe.
 
 ## Weitere Dokumente
 

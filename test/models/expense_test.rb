@@ -73,6 +73,33 @@ class ExpenseTest < ActiveSupport::TestCase
     assert_equal @expense.amount, @expense.total_participants_amount
   end
 
+  test "should reject applied splits that do not sum to amount" do
+    payer = @trip.trip_person_for(@user)
+    member = @trip.trip_person_for(@member)
+    @expense.payer_trip_person = payer
+
+    invalid_results = [
+      Expenses::SplitCalculator::Result.new(
+        trip_person: payer,
+        amount_owed: 10.to_d,
+        split_method: "exact",
+        split_value: 10.to_d,
+        split_metadata: {}
+      ),
+      Expenses::SplitCalculator::Result.new(
+        trip_person: member,
+        amount_owed: 10.to_d,
+        split_method: "exact",
+        split_value: 10.to_d,
+        split_metadata: {}
+      )
+    ]
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      @expense.apply_split!(invalid_results)
+    end
+  end
+
   test "should format amount correctly" do
     @expense.amount = 25.5
     @expense.currency = "EUR"

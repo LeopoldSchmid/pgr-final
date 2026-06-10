@@ -101,10 +101,10 @@ class TripTest < ActiveSupport::TestCase
     suggestions = @trip.settlement_suggestions
     assert_not_empty suggestions
 
-    # Member should owe user 50
+    # Member trip person should owe owner trip person 50
     suggestion = suggestions.first
-    assert_equal @member, suggestion[:from]
-    assert_equal @user, suggestion[:to]
+    assert_equal @trip.trip_person_for(@member), suggestion[:from]
+    assert_equal @trip.trip_person_for(@user), suggestion[:to]
     assert_equal 50.0, suggestion[:amount]
     assert_equal "EUR", suggestion[:currency]
   end
@@ -140,8 +140,8 @@ class TripTest < ActiveSupport::TestCase
     assert_equal 1, suggestions.length
 
     suggestion = suggestions.first
-    assert_equal @member, suggestion[:from]
-    assert_equal @user, suggestion[:to]
+    assert_equal @trip.trip_person_for(@member), suggestion[:from]
+    assert_equal @trip.trip_person_for(@user), suggestion[:to]
     assert_equal 10.0, suggestion[:amount]
   end
 

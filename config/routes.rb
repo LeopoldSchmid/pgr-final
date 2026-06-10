@@ -206,6 +206,22 @@ Rails.application.routes.draw do
   
   # API routes - keep outside locale scope
   namespace :api do
+    resources :trips, only: [] do
+      resource :expense_snapshot, only: :show
+      resources :expense_client_mutations, only: :create
+      resources :trip_people, only: [ :index, :create, :update ] do
+        member do
+          patch :link_user
+          post :merge
+        end
+      end
+      resources :split_groups, only: [ :index, :create, :update, :destroy ]
+      resource :retroactive_expense_inclusion, only: [] do
+        post :preview
+        post :apply
+      end
+    end
+
     resources :food_items, only: [] do
       collection do
         get :search

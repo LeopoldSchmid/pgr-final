@@ -1,0 +1,496 @@
+version: 2
+
+goal:
+  title: "Expense Goal 1: Domain, Ledger, and Sync API"
+  slug: "expense-domain-ledger-sync-api"
+  kind: existing_plan
+  tranche: "Implement the Goal 1 backend foundation end to end, from repo validation through verified domain, ledger, sync API, late-joiner, audit, and test coverage."
+  status: done
+  oracle:
+    signal: "The backend can represent and validate the new trip-person expense system, compute correct balances and settlements, handle late joiners, accept idempotent offline mutations, detect edit/void conflicts, and prove those behaviors through Rails tests."
+    cadence: "after each Worker package and at final audit"
+    final_proof: "Task receipts plus passing targeted Rails tests map to every backend acceptance criterion in documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md."
+  intake:
+    original_request: "$goalbuddy documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md"
+    interpreted_outcome: "Prepare and execute a GoalBuddy board for the Goal 1 backend expense system implementation plan."
+    input_shape: existing_plan
+    audience: "PlanGoReminisce implementation team and later Goal 2 frontend/offline work"
+    authority: requested
+    proof_type: test
+    completion_proof: "Rails model/service/request tests pass for the new backend domain, sync semantics, late-joiner behavior, settlement math, and authorization boundaries; final audit maps receipts to the Goal 1 handoff document."
+    likely_misfire: "Superficial CRUD or partial model work that preserves old user-bound expense assumptions and misses idempotent sync, stale revision conflicts, audit events, settlement correctness, or API contracts for Goal 2."
+    blind_spots_considered:
+      - "Existing app routes, auth, and current trip conventions must be discovered before writes."
+      - "The worktree is already dirty; unrelated user changes must not be reverted."
+      - "Goal 2 needs stable same-origin JSON API contracts."
+      - "Old production expense data is test-only, so reset/export is acceptable."
+      - "Money and sync behavior need stronger proof than normal CRUD."
+    existing_plan_facts:
+      - "Use TripPerson, Expense, ExpenseSplit, SplitGroup, ExpenseEvent, and ClientMutation unless a Rails naming conflict forces a small adjustment."
+      - "Expenses and splits reference trip people, not directly registered users."
+      - "TripPerson supports active, invited, placeholder, and archived states, plus optional linked user and email."
+      - "Expense supports draft, active, needs_split, and voided statuses."
+      - "Draft and needs_split expenses are excluded from settlement suggestions until completed."
+      - "Supported split methods are equal, exact amounts, shares/weights, and percentages."
+      - "Settlement suggestions minimize transfers while preserving correct net balances."
+      - "Client mutations must be idempotent for offline create, edit, and void."
+      - "Edit and void mutations include base server revision and must surface conflicts instead of silently overwriting."
+      - "Late-joiner flows include pending person, link on join, merge duplicates, and retroactive include preview/apply."
+      - "Expose same-origin Rails JSON APIs for Goal 2 snapshot, trip people, groups, expenses, sync, conflicts, and retroactive include."
+      - "Continue Rails test approach; no Selenium."
+      - "No careful production migration is required; old expense data may be backed up/exported then reset."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/expense-domain-ledger-sync-api/"
+    command: "npx goalbuddy board docs/goals/expense-domain-ledger-sync-api"
+
+active_task: null
+
+tasks:
+  - id: T001
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Validate the Goal 1 handoff against the current Rails app and choose the first largest safe backend implementation slice."
+    inputs:
+      - "documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md"
+      - "documentation/testing.md"
+      - "documentation/delivery_standards.md"
+      - "Current Rails app structure, routes, models, controllers, tests, and existing expense implementation."
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Preserve the existing plan facts unless current repo evidence proves a blocker or required adjustment."
+      - "Choose a Worker slice with explicit allowed_files, verify commands, and stop_if conditions."
+      - "Avoid tiny scaffolding-only work if a larger safe vertical backend slice is available."
+    expected_output:
+      - "Decision: approved | needs_adjustment | blocked."
+      - "Repo evidence that shapes the first backend slice."
+      - "Exact Worker objective."
+      - "allowed_files for the Worker."
+      - "verify commands for the Worker."
+      - "stop_if conditions for the Worker."
+      - "Any board task updates needed before implementation."
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      summary: "Repo validation confirms the current expense system is user-bound: Expense belongs_to payer User, ExpenseParticipant belongs_to User, and Trip owns balance/settlement math against ExpenseParticipant. The first safe slice should establish the new trip-person ledger foundation and canonical money services before changing the UI controller."
+      evidence:
+        - "app/models/expense.rb"
+        - "app/models/expense_participant.rb"
+        - "app/models/trip.rb"
+        - "app/models/trip_member.rb"
+        - "app/controllers/expenses_controller.rb"
+        - "test/models/expense_test.rb"
+        - "test/models/trip_test.rb"
+        - "db/schema.rb"
+      selected_worker: T002
+      worker_objective: "Create the new trip-person expense ledger domain foundation: migrations/models for TripPerson, ExpenseSplit, SplitGroup, SplitGroupMembership, ExpenseEvent, and ClientMutation; adapt Expense/Trip/User associations enough to support trip-person ledger calculations; implement canonical split, balance, and settlement services; add focused model/service tests."
+      allowed_files:
+        - "app/models/trip.rb"
+        - "app/models/user.rb"
+        - "app/models/expense.rb"
+        - "app/models/trip_person.rb"
+        - "app/models/expense_split.rb"
+        - "app/models/split_group.rb"
+        - "app/models/split_group_membership.rb"
+        - "app/models/expense_event.rb"
+        - "app/models/client_mutation.rb"
+        - "app/services/expenses/**"
+        - "db/migrate/*expense*"
+        - "db/migrate/*trip_person*"
+        - "db/migrate/*split_group*"
+        - "db/schema.rb"
+        - "test/models/expense_test.rb"
+        - "test/models/trip_test.rb"
+        - "test/models/trip_person_test.rb"
+        - "test/models/expense_split_test.rb"
+        - "test/models/split_group_test.rb"
+        - "test/models/client_mutation_test.rb"
+        - "test/services/expenses/**"
+        - "test/fixtures/trip_people.yml"
+        - "test/fixtures/expense_splits.yml"
+        - "test/fixtures/split_groups.yml"
+        - "test/fixtures/split_group_memberships.yml"
+        - "test/fixtures/expense_events.yml"
+        - "test/fixtures/client_mutations.yml"
+      verify:
+        - "bin/rails db:migrate"
+        - "bin/rails test test/models/expense_test.rb test/models/trip_test.rb test/models/trip_person_test.rb test/models/expense_split_test.rb test/models/split_group_test.rb test/models/client_mutation_test.rb test/services/expenses"
+      stop_if:
+        - "Existing implementation files contain unrelated changes that conflict with the slice."
+        - "A controller/API decision is required before domain/service tests can pass."
+        - "Migrations would need destructive data reset beyond additive/reversible schema changes."
+  - id: T002
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Create the new trip-person expense ledger domain foundation: migrations/models for TripPerson, ExpenseSplit, SplitGroup, SplitGroupMembership, ExpenseEvent, and ClientMutation; adapt Expense/Trip/User associations enough to support trip-person ledger calculations; implement canonical split, balance, and settlement services; add focused model/service tests."
+    allowed_files:
+      - "app/models/trip.rb"
+      - "app/models/user.rb"
+      - "app/models/expense.rb"
+      - "app/models/trip_person.rb"
+      - "app/models/expense.rb"
+      - "app/models/expense_split.rb"
+      - "app/models/split_group.rb"
+      - "app/models/split_group_membership.rb"
+      - "app/models/expense_event.rb"
+      - "app/models/client_mutation.rb"
+      - "app/services/expenses/**"
+      - "db/migrate/*expense*"
+      - "db/migrate/*trip_person*"
+      - "db/migrate/*split_group*"
+      - "db/schema.rb"
+      - "test/models/expense_test.rb"
+      - "test/models/trip_test.rb"
+      - "test/models/trip_person_test.rb"
+      - "test/models/expense_split_test.rb"
+      - "test/models/split_group_test.rb"
+      - "test/models/client_mutation_test.rb"
+      - "test/services/expenses/**"
+      - "test/fixtures/trip_people.yml"
+      - "test/fixtures/expense_splits.yml"
+      - "test/fixtures/split_groups.yml"
+      - "test/fixtures/split_group_memberships.yml"
+      - "test/fixtures/expense_events.yml"
+      - "test/fixtures/client_mutations.yml"
+    verify:
+      - "bin/rails db:migrate"
+      - "bin/rails test test/models/expense_test.rb test/models/trip_test.rb test/models/trip_person_test.rb test/models/expense_split_test.rb test/models/split_group_test.rb test/models/client_mutation_test.rb test/services/expenses"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "The selected domain/API behavior is ambiguous."
+      - "A migration/reset choice needs owner approval."
+      - "Verification fails twice for the same unexplained reason."
+      - "Existing user changes in touched files conflict with the selected implementation."
+    receipt:
+      result: done
+      changed_files:
+        - "db/migrate/20260610000100_create_expense_ledger_foundation.rb"
+        - "db/schema.rb"
+        - "app/models/trip.rb"
+        - "app/models/user.rb"
+        - "app/models/expense.rb"
+        - "app/models/trip_person.rb"
+        - "app/models/expense_split.rb"
+        - "app/models/split_group.rb"
+        - "app/models/split_group_membership.rb"
+        - "app/models/expense_event.rb"
+        - "app/models/client_mutation.rb"
+        - "app/services/expenses/split_calculator.rb"
+        - "app/services/expenses/ledger.rb"
+        - "test/models/trip_test.rb"
+        - "test/models/trip_person_test.rb"
+        - "test/models/expense_split_test.rb"
+        - "test/models/split_group_test.rb"
+        - "test/models/client_mutation_test.rb"
+        - "test/services/expenses/split_calculator_test.rb"
+        - "test/services/expenses/ledger_test.rb"
+      commands:
+        - cmd: "bin/rails db:migrate"
+          status: pass
+        - cmd: "bin/rails test test/models/expense_test.rb test/models/trip_test.rb test/models/trip_person_test.rb test/models/expense_split_test.rb test/models/split_group_test.rb test/models/client_mutation_test.rb test/services/expenses"
+          status: pass
+        - cmd: "bin/rails test test/models"
+          status: pass
+      summary: "Added additive ledger schema and domain models for trip people, expense splits, split groups, audit events, and client mutations. Wired Expense/Trip/User enough for new trip-person ledger calculations while dual-writing legacy equal splits into ExpenseSplit. Added canonical split calculator and ledger services with tests for equal/exact/share/percentage splits, placeholder people, draft exclusion, settlement suggestions, trip-person linking, and client mutation idempotency primitives."
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: blocked
+    reasoning_hint: medium
+    objective: "Implement the next coherent backend slice after T002, likely split math, balances, settlement, sync, late-joiner, or API coverage depending on completed receipts."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Task should be re-scoped based on T002 receipt."
+      - "Verification fails twice for the same unexplained reason."
+    receipt:
+      result: blocked
+      summary: "Placeholder Worker task is no longer required. The remaining implementation work was superseded by concrete T005 and T006 slices, and T999 final audit verified the full Goal 1 outcome."
+  - id: T004
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Review completed backend slices at the first risk boundary and choose the next largest safe slice toward the full Goal 1 oracle."
+    inputs:
+      - "Completed Worker receipts."
+      - "Current diff."
+      - "Last verification."
+      - "Goal 1 acceptance criteria."
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Reject partial completion if sync, settlement, late-joiner, audit, or authorization coverage is still missing."
+    expected_output:
+      - "Decision."
+      - "Remaining acceptance criteria."
+      - "Next Worker objective with allowed_files, verify, and stop_if."
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      summary: "T002 established the additive trip-person ledger domain and verified core money services. Remaining Goal 1 gaps are same-origin JSON API contracts, idempotent offline mutation processing, stale revision conflict behavior at API/service level, late-joiner API flows, and broader request coverage. The next largest safe slice is the sync/API foundation: routes/controllers plus a ClientMutationProcessor for expense create/update/void."
+      remaining_acceptance_criteria:
+        - "Expose same-origin JSON APIs for Goal 2 snapshot and sync."
+        - "Request/service tests for idempotent offline create/edit/void."
+        - "Stale base revision conflicts through the sync API."
+        - "Expense events for accepted sync mutations."
+        - "Trip-person invite/link/merge and retroactive include API flows."
+      selected_worker: T005
+      worker_objective: "Implement the JSON sync/API foundation for Goal 2: API routes/controllers for expense snapshots and client mutation submission; a ClientMutationProcessor service for idempotent expense_create, expense_update, and expense_void; event recording for accepted mutations; request/service tests for duplicate protection and stale revision conflicts."
+      allowed_files:
+        - "config/routes.rb"
+        - "db/migrate/*expense*"
+        - "db/schema.rb"
+        - "app/controllers/api/expense_snapshots_controller.rb"
+        - "app/controllers/api/expense_client_mutations_controller.rb"
+        - "app/controllers/api/base_controller.rb"
+        - "app/models/expense.rb"
+        - "app/models/client_mutation.rb"
+        - "app/models/expense_event.rb"
+        - "app/services/expenses/client_mutation_processor.rb"
+        - "test/controllers/api/expense_snapshots_controller_test.rb"
+        - "test/controllers/api/expense_client_mutations_controller_test.rb"
+        - "test/services/expenses/client_mutation_processor_test.rb"
+        - "test/fixtures/client_mutations.yml"
+        - "test/fixtures/expense_events.yml"
+      verify:
+        - "bin/rails test test/services/expenses/client_mutation_processor_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/models/client_mutation_test.rb test/models/expense_test.rb"
+      stop_if:
+        - "Need to redesign authentication/session handling beyond API controller scope."
+        - "Need frontend-specific payload decisions not specified by Goal 1."
+        - "Need files outside allowed_files."
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Implement the JSON sync/API foundation for Goal 2: API routes/controllers for expense snapshots and client mutation submission; a ClientMutationProcessor service for idempotent expense_create, expense_update, and expense_void; event recording for accepted mutations; request/service tests for duplicate protection and stale revision conflicts."
+    allowed_files:
+      - "config/routes.rb"
+      - "db/migrate/*expense*"
+      - "db/schema.rb"
+      - "app/controllers/api/expense_snapshots_controller.rb"
+      - "app/controllers/api/expense_client_mutations_controller.rb"
+      - "app/controllers/api/base_controller.rb"
+      - "app/models/expense.rb"
+      - "app/models/client_mutation.rb"
+      - "app/models/expense_event.rb"
+      - "app/services/expenses/client_mutation_processor.rb"
+      - "test/controllers/api/expense_snapshots_controller_test.rb"
+      - "test/controllers/api/expense_client_mutations_controller_test.rb"
+      - "test/services/expenses/client_mutation_processor_test.rb"
+      - "test/fixtures/client_mutations.yml"
+      - "test/fixtures/expense_events.yml"
+    verify:
+      - "bin/rails test test/services/expenses/client_mutation_processor_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/models/client_mutation_test.rb test/models/expense_test.rb"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Task should be re-scoped based on T004 receipt."
+      - "Need to redesign authentication/session handling beyond API controller scope."
+      - "Need frontend-specific payload decisions not specified by Goal 1."
+      - "Verification fails twice for the same unexplained reason."
+    receipt:
+      result: done
+      changed_files:
+        - "db/migrate/20260610000200_allow_expenses_without_legacy_payer.rb"
+        - "db/schema.rb"
+        - "config/routes.rb"
+        - "app/models/expense.rb"
+        - "app/models/client_mutation.rb"
+        - "app/controllers/api/base_controller.rb"
+        - "app/controllers/api/expense_snapshots_controller.rb"
+        - "app/controllers/api/expense_client_mutations_controller.rb"
+        - "app/services/expenses/client_mutation_processor.rb"
+        - "test/services/expenses/client_mutation_processor_test.rb"
+      - "test/controllers/api/expense_snapshots_controller_test.rb"
+      - "test/controllers/api/expense_client_mutations_controller_test.rb"
+        - "test/fixtures/client_mutations.yml"
+        - "test/fixtures/expense_events.yml"
+      commands:
+        - cmd: "bin/rails db:migrate"
+          status: pass
+        - cmd: "bin/rails test test/services/expenses/client_mutation_processor_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/models/client_mutation_test.rb test/models/expense_test.rb"
+          status: pass
+        - cmd: "bin/rails test test/models test/services/expenses test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb"
+          status: pass
+      summary: "Added same-origin API foundation for Goal 2: expense snapshot endpoint, client mutation endpoint, idempotent ClientMutationProcessor for expense_create/update/void, stale revision conflict handling, accepted sync event recording, nullable legacy payer support for placeholder trip-person payers, and request/service tests."
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Implement late-joiner and correction backend flows: API routes/controllers for trip people and split groups; services for merging trip people and retroactive include preview/apply; request/service tests for placeholder creation, link/merge, split groups, and retroactive include balance preview."
+    allowed_files:
+      - "config/routes.rb"
+      - "app/controllers/api/base_controller.rb"
+      - "app/controllers/api/trip_people_controller.rb"
+      - "app/controllers/api/split_groups_controller.rb"
+      - "app/controllers/api/retroactive_expense_inclusions_controller.rb"
+      - "app/models/trip_person.rb"
+      - "app/models/expense.rb"
+      - "app/models/split_group.rb"
+      - "app/models/split_group_membership.rb"
+      - "app/models/expense_event.rb"
+      - "app/services/expenses/trip_person_merge.rb"
+      - "app/services/expenses/retroactive_include.rb"
+      - "test/controllers/api/trip_people_controller_test.rb"
+      - "test/controllers/api/split_groups_controller_test.rb"
+      - "test/controllers/api/retroactive_expense_inclusions_controller_test.rb"
+      - "test/services/expenses/trip_person_merge_test.rb"
+      - "test/services/expenses/retroactive_include_test.rb"
+      - "test/models/expense_test.rb"
+    verify:
+      - "bin/rails test test/services/expenses/trip_person_merge_test.rb test/services/expenses/retroactive_include_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/models/trip_person_test.rb test/models/split_group_test.rb test/models/expense_test.rb test/services/expenses/ledger_test.rb"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Retroactive include semantics require product clarification beyond equal re-split of selected expenses."
+      - "Verification fails twice for the same unexplained reason."
+    receipt:
+      result: done
+      changed_files:
+        - "config/routes.rb"
+        - "app/controllers/api/base_controller.rb"
+        - "app/controllers/api/trip_people_controller.rb"
+        - "app/controllers/api/split_groups_controller.rb"
+        - "app/controllers/api/retroactive_expense_inclusions_controller.rb"
+        - "app/models/trip_person.rb"
+        - "app/models/expense.rb"
+        - "app/services/expenses/trip_person_merge.rb"
+        - "app/services/expenses/retroactive_include.rb"
+        - "test/services/expenses/trip_person_merge_test.rb"
+        - "test/services/expenses/retroactive_include_test.rb"
+        - "test/controllers/api/trip_people_controller_test.rb"
+        - "test/controllers/api/split_groups_controller_test.rb"
+        - "test/controllers/api/retroactive_expense_inclusions_controller_test.rb"
+        - "test/models/expense_test.rb"
+      commands:
+        - cmd: "bin/rails test test/services/expenses/trip_person_merge_test.rb test/services/expenses/retroactive_include_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/models/trip_person_test.rb test/models/split_group_test.rb test/models/expense_test.rb test/services/expenses/ledger_test.rb"
+          status: pass
+        - cmd: "bin/rails test test/models test/services/expenses test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+      summary: "Added late-joiner and correction backend flows: trip people API for placeholder create/link/merge, split groups API, retroactive include preview/apply service and API, merge service preserving ledger identity, event recording for link/merge/retroactive include, TripPerson display compatibility for legacy views, and a hard split-total check for all applied split sets."
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Final audit: decide whether Goal 1 backend is complete against the handoff document and oracle."
+    inputs:
+      - "All done task receipts."
+      - "Last verification."
+      - "Current dirty diff."
+      - "documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md"
+    constraints:
+      - "Read-only."
+      - "Reject completion if any required Worker task is still queued or active."
+      - "Reject completion if any backend acceptance criterion lacks implementation and test evidence."
+      - "Reject completion on planning, scaffolding, or weak proof."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Acceptance criteria mapping."
+      - "Missing evidence."
+      - "Next task if not complete."
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      summary: "Goal 1 backend is complete against the handoff oracle. The implementation provides trip-person ledger models, canonical split/balance/settlement services, idempotent offline mutation processing, stale revision conflict handling, same-origin JSON API contracts for Goal 2, late-joiner create/link/merge flows, retroactive include preview/apply, audit events, and Rails tests covering the required backend behavior."
+      acceptance_mapping:
+        - requirement: "Trip-person accounting for registered, invited, and placeholder people."
+          evidence:
+            - "app/models/trip_person.rb"
+            - "test/models/trip_person_test.rb"
+            - "test/controllers/api/trip_people_controller_test.rb"
+        - requirement: "Equal, exact, share/weight, and percentage split math with deterministic rounding and sum checks."
+          evidence:
+            - "app/services/expenses/split_calculator.rb"
+            - "app/models/expense.rb"
+            - "test/services/expenses/split_calculator_test.rb"
+            - "test/models/expense_test.rb"
+        - requirement: "Balances, settlement suggestions, and draft/needs_split exclusion."
+          evidence:
+            - "app/services/expenses/ledger.rb"
+            - "test/services/expenses/ledger_test.rb"
+            - "test/models/trip_test.rb"
+        - requirement: "Idempotent offline create/edit/void with stale revision conflicts."
+          evidence:
+            - "app/services/expenses/client_mutation_processor.rb"
+            - "app/controllers/api/expense_client_mutations_controller.rb"
+            - "test/services/expenses/client_mutation_processor_test.rb"
+            - "test/controllers/api/expense_client_mutations_controller_test.rb"
+        - requirement: "Same-origin JSON API snapshot and mutation contracts for Goal 2."
+          evidence:
+            - "app/controllers/api/expense_snapshots_controller.rb"
+            - "app/controllers/api/expense_client_mutations_controller.rb"
+            - "test/controllers/api/expense_snapshots_controller_test.rb"
+            - "test/controllers/api/expense_client_mutations_controller_test.rb"
+        - requirement: "Late joiner link/merge and retroactive include preview/apply."
+          evidence:
+            - "app/services/expenses/trip_person_merge.rb"
+            - "app/services/expenses/retroactive_include.rb"
+            - "app/controllers/api/trip_people_controller.rb"
+            - "app/controllers/api/retroactive_expense_inclusions_controller.rb"
+            - "test/services/expenses/trip_person_merge_test.rb"
+            - "test/services/expenses/retroactive_include_test.rb"
+        - requirement: "Authorization prevents non-members from reading or mutating trip expenses."
+          evidence:
+            - "app/controllers/api/base_controller.rb"
+            - "test/controllers/api/expense_snapshots_controller_test.rb"
+            - "test/controllers/api/expense_client_mutations_controller_test.rb"
+      verification:
+        - cmd: "bin/rails test test/models test/services/expenses test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+          result: "91 runs, 319 assertions, 0 failures, 0 errors"
+      residual_notes:
+        - "Full `bin/rails test` still has unrelated pre-existing CalendarSystemTest route/page expectation failures; the expense backend and legacy expense controller verification set passes."
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: pass
+    task: T999
+    commands:
+      - "bin/rails db:migrate"
+      - "bin/rails test test/models/expense_test.rb test/models/trip_test.rb test/models/trip_person_test.rb test/models/expense_split_test.rb test/models/split_group_test.rb test/models/client_mutation_test.rb test/services/expenses"
+      - "bin/rails test test/models"
+      - "bin/rails test test/services/expenses/client_mutation_processor_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/models/client_mutation_test.rb test/models/expense_test.rb"
+      - "bin/rails test test/models test/services/expenses test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb"
+      - "bin/rails test test/services/expenses/trip_person_merge_test.rb test/services/expenses/retroactive_include_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/models/trip_person_test.rb test/models/split_group_test.rb test/models/expense_test.rb test/services/expenses/ledger_test.rb"
+      - "bin/rails test test/models test/services/expenses test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/api/retroactive_expense_inclusions_controller_test.rb test/controllers/expenses_controller_test.rb"

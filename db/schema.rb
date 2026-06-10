@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_000200) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,6 +37,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "client_mutations", force: :cascade do |t|
+    t.integer "actor_id", null: false
+    t.integer "base_revision"
+    t.string "client_uuid", null: false
+    t.datetime "created_at", null: false
+    t.json "error_details"
+    t.string "mutation_type", null: false
+    t.json "payload"
+    t.string "payload_hash", null: false
+    t.integer "result_record_id"
+    t.string "result_record_type"
+    t.string "status", default: "accepted", null: false
+    t.integer "trip_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_client_mutations_on_actor_id"
+    t.index ["result_record_type", "result_record_id"], name: "idx_on_result_record_type_result_record_id_54b29c1d34"
+    t.index ["status"], name: "index_client_mutations_on_status"
+    t.index ["trip_id", "client_uuid"], name: "index_client_mutations_on_trip_id_and_client_uuid", unique: true
+    t.index ["trip_id"], name: "index_client_mutations_on_trip_id"
   end
 
   create_table "comments", force: :cascade do |t|
@@ -112,6 +133,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
     t.index ["votable_type", "votable_id"], name: "index_discussion_votes_on_votable_type_and_votable_id"
   end
 
+  create_table "expense_events", force: :cascade do |t|
+    t.integer "actor_id"
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.integer "expense_id"
+    t.json "payload"
+    t.integer "trip_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_expense_events_on_actor_id"
+    t.index ["created_at"], name: "index_expense_events_on_created_at"
+    t.index ["expense_id"], name: "index_expense_events_on_expense_id"
+    t.index ["trip_id", "event_type"], name: "index_expense_events_on_trip_id_and_event_type"
+    t.index ["trip_id"], name: "index_expense_events_on_trip_id"
+  end
+
   create_table "expense_participants", force: :cascade do |t|
     t.decimal "amount_owed", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
@@ -123,22 +159,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
     t.index ["user_id"], name: "index_expense_participants_on_user_id"
   end
 
+  create_table "expense_splits", force: :cascade do |t|
+    t.decimal "amount_owed", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.integer "expense_id", null: false
+    t.json "split_metadata"
+    t.string "split_method", null: false
+    t.decimal "split_value", precision: 12, scale: 4
+    t.integer "trip_person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_id", "trip_person_id"], name: "index_expense_splits_on_expense_id_and_trip_person_id", unique: true
+    t.index ["expense_id"], name: "index_expense_splits_on_expense_id"
+    t.index ["split_method"], name: "index_expense_splits_on_split_method"
+    t.index ["trip_person_id"], name: "index_expense_splits_on_trip_person_id"
+  end
+
   create_table "expenses", force: :cascade do |t|
     t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "category", default: "other", null: false
+    t.string "client_uuid"
     t.datetime "created_at", null: false
     t.string "currency", default: "EUR", null: false
     t.string "description", null: false
     t.date "expense_date", null: false
     t.decimal "latitude", precision: 10, scale: 6
     t.string "location"
+    t.integer "lock_version", default: 0, null: false
     t.decimal "longitude", precision: 10, scale: 6
-    t.integer "payer_id", null: false
+    t.integer "payer_id"
+    t.integer "payer_trip_person_id"
+    t.string "status", default: "active", null: false
     t.integer "trip_id", null: false
     t.datetime "updated_at", null: false
     t.index ["category"], name: "index_expenses_on_category"
     t.index ["expense_date"], name: "index_expenses_on_expense_date"
     t.index ["payer_id"], name: "index_expenses_on_payer_id"
+    t.index ["payer_trip_person_id"], name: "index_expenses_on_payer_trip_person_id"
+    t.index ["status"], name: "index_expenses_on_status"
+    t.index ["trip_id", "client_uuid"], name: "index_expenses_on_trip_id_and_client_uuid", unique: true, where: "client_uuid IS NOT NULL"
     t.index ["trip_id"], name: "index_expenses_on_trip_id"
   end
 
@@ -350,6 +408,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
     t.index ["user_id"], name: "index_shopping_sync_runs_on_user_id"
   end
 
+  create_table "split_group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "split_group_id", null: false
+    t.integer "trip_person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["split_group_id", "trip_person_id"], name: "index_split_group_memberships_uniqueness", unique: true
+    t.index ["split_group_id"], name: "index_split_group_memberships_on_split_group_id"
+    t.index ["trip_person_id"], name: "index_split_group_memberships_on_trip_person_id"
+  end
+
+  create_table "split_groups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", default: "custom", null: false
+    t.string "name", null: false
+    t.integer "trip_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id", "kind"], name: "index_split_groups_on_trip_id_and_kind"
+    t.index ["trip_id", "name"], name: "index_split_groups_on_trip_id_and_name", unique: true
+    t.index ["trip_id"], name: "index_split_groups_on_trip_id"
+  end
+
   create_table "trip_attachment_comments", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
@@ -381,6 +460,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
     t.index ["trip_id", "user_id"], name: "index_trip_members_on_trip_id_and_user_id", unique: true
     t.index ["trip_id"], name: "index_trip_members_on_trip_id"
     t.index ["user_id"], name: "index_trip_members_on_user_id"
+  end
+
+  create_table "trip_people", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "display_name", null: false
+    t.string "email"
+    t.json "metadata"
+    t.string "status", default: "active", null: false
+    t.integer "trip_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["trip_id", "email"], name: "index_trip_people_on_trip_id_and_email", where: "email IS NOT NULL"
+    t.index ["trip_id", "status"], name: "index_trip_people_on_trip_id_and_status"
+    t.index ["trip_id", "user_id"], name: "index_trip_people_on_trip_id_and_user_id", unique: true, where: "user_id IS NOT NULL"
+    t.index ["trip_id"], name: "index_trip_people_on_trip_id"
+    t.index ["user_id"], name: "index_trip_people_on_user_id"
   end
 
   create_table "trips", force: :cascade do |t|
@@ -421,6 +516,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "client_mutations", "trips"
+  add_foreign_key "client_mutations", "users", column: "actor_id"
   add_foreign_key "comments", "journal_entries"
   add_foreign_key "comments", "users"
   add_foreign_key "date_proposal_votes", "date_proposals"
@@ -433,8 +530,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
   add_foreign_key "discussion_replies", "discussion_replies", column: "parent_id"
   add_foreign_key "discussion_replies", "users"
   add_foreign_key "discussion_votes", "users"
+  add_foreign_key "expense_events", "expenses"
+  add_foreign_key "expense_events", "trips"
+  add_foreign_key "expense_events", "users", column: "actor_id"
   add_foreign_key "expense_participants", "expenses"
   add_foreign_key "expense_participants", "users"
+  add_foreign_key "expense_splits", "expenses"
+  add_foreign_key "expense_splits", "trip_people"
+  add_foreign_key "expenses", "trip_people", column: "payer_trip_person_id"
   add_foreign_key "expenses", "trips"
   add_foreign_key "expenses", "users", column: "payer_id"
   add_foreign_key "ingredients", "food_items"
@@ -463,12 +566,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
   add_foreign_key "shopping_requirements", "trips"
   add_foreign_key "shopping_sync_runs", "trips"
   add_foreign_key "shopping_sync_runs", "users"
+  add_foreign_key "split_group_memberships", "split_groups"
+  add_foreign_key "split_group_memberships", "trip_people"
+  add_foreign_key "split_groups", "trips"
   add_foreign_key "trip_attachment_comments", "trip_attachments"
   add_foreign_key "trip_attachment_comments", "users"
   add_foreign_key "trip_attachments", "trips"
   add_foreign_key "trip_attachments", "users"
   add_foreign_key "trip_members", "trips"
   add_foreign_key "trip_members", "users"
+  add_foreign_key "trip_people", "trips"
+  add_foreign_key "trip_people", "users"
   add_foreign_key "trips", "users"
   add_foreign_key "user_availabilities", "users"
 end

@@ -5,7 +5,11 @@ class Trip < ApplicationRecord
   has_many :meal_plans, dependent: :destroy
   has_many :trip_members, dependent: :destroy
   has_many :members, through: :trip_members, source: :user
+  has_many :trip_people, dependent: :destroy
   has_many :expenses, dependent: :destroy
+  has_many :split_groups, dependent: :destroy
+  has_many :expense_events, dependent: :destroy
+  has_many :client_mutations, dependent: :destroy
   has_many :invitations, dependent: :destroy
   has_many :recipes, dependent: :destroy
   has_many :shopping_lists, dependent: :destroy
@@ -18,6 +22,7 @@ class Trip < ApplicationRecord
   validates :series_name, length: { maximum: 100 }, allow_nil: true
 
   after_create :create_owner_membership
+  after_create :create_owner_trip_person
 
   scope :in_series, ->(series_name) { where(series_name: series_name) }
 
@@ -81,6 +86,7 @@ class Trip < ApplicationRecord
 
   def add_member(user, role: "member")
     trip_members.create!(user: user, role: role) unless has_member?(user)
+    trip_person_for(user)
   end
 
   def has_member?(user)
@@ -89,16 +95,45 @@ class Trip < ApplicationRecord
 
   # Expense-related methods
   def total_expenses
-    expenses.sum(:amount)
+    expense_ledger.total_expenses
   end
 
   def expenses_by_category
-    expenses.group(:category).sum(:amount)
+    expense_ledger.expenses_by_category
   end
 
   def user_balance(user)
     return 0 unless has_member?(user)
 
+    trip_person = trip_people.find_by(user: user)
+    return legacy_user_balance(user) unless trip_person
+
+    expense_ledger.balance_for(trip_person)
+  end
+
+  def settlement_suggestions
+    expense_ledger.settlement_suggestions
+  end
+
+  def trip_person_for(user)
+    TripPerson.find_or_create_for_user!(trip: self, user: user)
+  end
+
+  def expense_ledger
+    Expenses::Ledger.new(self)
+  end
+
+  private
+
+  def create_owner_membership
+    add_member(user, role: "owner")
+  end
+
+  def create_owner_trip_person
+    trip_person_for(user)
+  end
+
+  def legacy_user_balance(user)
     amount_paid = expenses.where(payer: user).sum(:amount)
     amount_owed = ExpenseParticipant
       .joins(:expense)
@@ -106,48 +141,5 @@ class Trip < ApplicationRecord
       .sum(:amount_owed)
 
     amount_paid - amount_owed
-  end
-
-  def settlement_suggestions
-    # Calculate net balances for all members
-    balances = {}
-    all_trip_users = [ user ] + active_members
-
-    all_trip_users.each do |member|
-      balances[member] = user_balance(member)
-    end
-
-    # Generate settlement suggestions (simplified version)
-    suggestions = []
-    debtors = balances.select { |_, balance| balance < 0 }
-    creditors = balances.select { |_, balance| balance > 0 }
-
-    debtors.each do |debtor_user, debt_amount|
-      debt_remaining = debt_amount.abs
-
-      creditors.each do |creditor_user, credit_amount|
-        next if credit_amount <= 0 || debt_remaining <= 0
-
-        settlement_amount = [ debt_remaining, credit_amount ].min
-        suggestions << {
-          from: debtor_user,
-          to: creditor_user,
-          amount: settlement_amount,
-          currency: "EUR" # TODO: handle multiple currencies
-        }
-
-        debt_remaining -= settlement_amount
-        creditors[creditor_user] -= settlement_amount
-        break if debt_remaining <= 0
-      end
-    end
-
-    suggestions
-  end
-
-  private
-
-  def create_owner_membership
-    add_member(user, role: "owner")
   end
 end
