@@ -23,6 +23,7 @@ class MealPlanningTest < ApplicationSystemTestCase
       trip: @trip,
       user: @user
     )
+    @recipe.ingredients.create!(name: "Tomatoes", quantity: 1, unit: "kg", category: "produce")
 
     # Create a shopping list for the trip
     @shopping_list = @trip.shopping_lists.create!(
@@ -49,21 +50,21 @@ class MealPlanningTest < ApplicationSystemTestCase
   end
 
   test "visiting the meal calendar" do
-    select_trip_context(@trip, return_to: plans_meals_path(locale: "en"))
+    week_start = Date.today.beginning_of_week
+    select_trip_context(@trip, return_to: plans_meals_path(locale: "en", start_date: week_start, selected_date: week_start))
 
-    assert_selector "h1", text: "Meal Plan"
+    assert_selector "#meal_type_breakfast"
   end
 
   test "adding a meal to the plan" do
-    select_trip_context(@trip, return_to: plans_meals_path(locale: "en"))
+    week_start = Date.today.beginning_of_week
+    select_trip_context(@trip, return_to: plans_meals_path(locale: "en", start_date: week_start, selected_date: week_start))
 
-    modal = find(:css, "div[id^='add-meal-modal-'][id$='-breakfast']", visible: false, match: :first)
-    page.execute_script("arguments[0].classList.remove('hidden')", modal.native)
-
-    within("##{modal[:id]}") do
-      select @recipe.name, from: "Recipe"
-      fill_in "Notes (optional)", with: "Test meal note"
-      click_button "Add Meal"
+    within("#meal_type_breakfast") do
+      find("summary", text: "+ Meal").click
+      select @recipe.name, from: "meal_plan_recipe_id_breakfast"
+      fill_in "meal_plan_description_breakfast", with: "Test meal note"
+      click_button "Add meal"
     end
 
     assert_text "Meal scheduled successfully"
@@ -71,22 +72,21 @@ class MealPlanningTest < ApplicationSystemTestCase
   end
 
   test "synchronizing meal plans into the shopping plan" do
+    week_start = Date.today.beginning_of_week
+
     # First add a meal
     MealPlan.create!(
       trip: @trip,
       recipe: @recipe,
-      date: Date.today,
+      date: week_start,
       meal_type: "lunch"
     )
 
-    select_trip_context(@trip, return_to: plans_shopping_path(locale: "en"))
+    select_trip_context(@trip, return_to: plans_meals_path(locale: "en", start_date: week_start, selected_date: week_start))
 
-    click_button "Sync"
+    form = find("form[action*='add_to_shopping_plan']", match: :first, visible: :all)
+    page.execute_script("arguments[0].requestSubmit()", form)
 
-    assert_text "Shopping Plan"
-
-    if @recipe.ingredients.any?
-      assert_text @recipe.ingredients.first.name
-    end
+    assert_text "Shopping plan updated."
   end
 end

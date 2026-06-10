@@ -30,10 +30,17 @@ class ShoppingListAssignmentTest < ActiveSupport::TestCase
     assignment.reload
     assert_equal 1, assignment.remaining_quantity
     assert_equal "partial", assignment.purchase_status
+    assert_equal "purchase", assignment.completion_source
 
-    assignment.mark_complete!
+    assignment.mark_complete!(source: "brought_by_meal_source")
     assignment.reload
     assert_equal 0, assignment.remaining_quantity
     assert_equal "done", assignment.purchase_status
+    assert_equal "brought_by_meal_source", assignment.completion_source
+
+    assignment.clear_purchase!
+    assignment.reload
+    assert_equal 0, assignment.purchased_quantity
+    assert_nil assignment.completion_source
   end
 end

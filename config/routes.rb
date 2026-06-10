@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     post 'plans/shopping/manual_requirement' => 'shopping_plans#create_manual_requirement', as: :plans_shopping_manual_requirement
     post 'plans/shopping/undo/:id' => 'shopping_plans#undo_sync', as: :plans_shopping_undo_sync
     post 'plans/shopping/requirements/:requirement_id/assignments' => 'shopping_plans#create_assignment', as: :plans_shopping_requirement_assignments
+    post 'plans/shopping/meal_sources/:meal_plan_id/mark_brought' => 'shopping_plans#mark_meal_source_brought', as: :plans_shopping_mark_meal_source_brought
     post 'plans/shopping/bulk_assign' => 'shopping_plans#bulk_assign', as: :plans_shopping_bulk_assign
     post 'plans/shopping/undo_bulk_assign' => 'shopping_plans#undo_bulk_assign', as: :plans_shopping_undo_bulk_assign
     post 'plans/shopping/delete_selected' => 'shopping_plans#delete_selected', as: :plans_shopping_delete_selected
@@ -41,7 +42,16 @@ Rails.application.routes.draw do
     get 'plans/templates' => 'plans#templates', as: :plans_templates
 
     # Meal plans (context-based, no trip_id)
-    resources :meal_plans, only: [:create, :update, :destroy]
+    resources :meal_plans, only: [:create, :update, :destroy] do
+      member do
+        post :duplicate
+        post :add_to_shopping_plan
+        patch :update_ingredients
+        patch :assignees, action: :set_assignees
+        get :drift_preview
+        post :resolve_drift
+      end
+    end
 
     # Memories section
     get 'memories' => 'memories#index', as: :memories

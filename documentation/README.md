@@ -1,6 +1,6 @@
 # Documentation
 
-Stand: 2026-04-09
+Stand: 2026-04-17
 
 ## Start Here
 
@@ -33,6 +33,12 @@ Stand: 2026-04-09
    - Technisches Zielmodell fuer Requirements, Listen, Assignments, Sync und die stufenweise Neuimplementierung.
 14. [shopping_ui_structure.md](./shopping_ui_structure.md)
    - UI-Struktur fuer den finalen Flow `Meal Plan -> Shopping Plan -> Shopping List` auf Basis der aktuellen Mockups.
+15. [meal_plan_finalization_spec_2026-04-17.md](./meal_plan_finalization_spec_2026-04-17.md)
+   - Verbindliche Spezifikation fuer die finale Meal-Plan-UX und die fachliche Integration in Shopping Plan und Shopping List.
+16. [date_planning_final_implementation_plan_2026-04-17.md](./date_planning_final_implementation_plan_2026-04-17.md)
+   - Verbindlicher End-to-End-Umsetzungsplan fuer Date Planning inklusive finaler Abstimmung, Trip-Date-Migration, horizontalem Kalender und zentral/dezentraler Diskussion.
+17. [expense_system_v1_plan_2026-06-10.md](./expense_system_v1_plan_2026-06-10.md)
+   - Zielbild und Umsetzungsplan fuer das neue Expense-System mit Trip-Personen, flexiblen Splits, Offline-Erfassung und Sync-Vertrauen.
 
 ## Weitere Dokumente
 

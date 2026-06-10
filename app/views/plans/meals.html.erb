@@ -1,105 +1,286 @@
-<div class="container mx-auto px-4 pt-2 pb-6" data-controller="modal-animation">
-  <div class="mb-6 flex items-center justify-between">
-
-    <div class="flex space-x-3">
-      <%= link_to plans_meals_path(start_date: @start_date - 1.week), class: "p-2 rounded-full hover:bg-gray-100 transition-colors" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      <% end %>
-      <span class="text-lg font-medium self-center">
-        <%= @start_date.strftime("%b %d") %> - <%= @end_date.strftime("%b %d") %>
-      </span>
-      <%= link_to plans_meals_path(start_date: @start_date + 1.week), class: "p-2 rounded-full hover:bg-gray-100 transition-colors" do %>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
-    <% (@start_date..@end_date).each do |date| %>
-      <div class="flex flex-col space-y-4">
-        <div class="text-center p-2 bg-gray-50 rounded-lg border border-gray-100">
-          <div class="text-sm text-gray-500 uppercase font-bold"><%= date.strftime("%a") %></div>
-          <div class="text-xl font-bold <%= date == Date.today ? 'text-primary-accent' : 'text-gray-800' %>"><%= date.day %></div>
-        </div>
-
-        <% %w[breakfast lunch dinner snack].each do |meal_type| %>
-          <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 min-h-[120px] flex flex-col relative group hover:border-primary-accent/30 transition-colors">
-            <div class="text-xs text-gray-400 uppercase font-bold mb-2 flex justify-between">
-              <%= meal_type %>
-              <button type="button" 
-                      onclick="document.getElementById('add-meal-modal-<%= date %>-<%= meal_type %>').classList.remove('hidden')"
-                      class="opacity-0 group-hover:opacity-100 text-primary-accent hover:text-primary-accent-dark transition-opacity">
-                + Add
-              </button>
-            </div>
-
-            <% if @planned_meals[date] && @planned_meals[date][meal_type] %>
-              <% @planned_meals[date][meal_type].each do |plan| %>
-                <div class="bg-green-50 border border-green-100 rounded-lg p-2 mb-2 last:mb-0 group/item relative">
-                  <div class="font-medium text-sm text-gray-800 line-clamp-2"><%= plan.recipe.name %></div>
-                  <% if plan.description.present? %>
-                    <div class="text-xs text-gray-500 mt-1 line-clamp-1"><%= plan.description %></div>
-                  <% end %>
-                  
-                  <%= button_to meal_plan_path(plan), method: :delete, class: "absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-gray-200 opacity-0 group-hover/item:opacity-100 transition-opacity text-red-500 hover:text-red-700" do %>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                  <% end %>
-                </div>
-              <% end %>
-            <% else %>
-              <div class="flex-1 flex items-center justify-center">
-                <button type="button" 
-                        onclick="document.getElementById('add-meal-modal-<%= date %>-<%= meal_type %>').classList.remove('hidden')"
-                        class="text-gray-300 hover:text-primary-accent transition-colors">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                </button>
-              </div>
-            <% end %>
-
-          </div>
+<% ingredient_categories = %w[produce dairy meat seafood pantry spices frozen other] %>
+<div class="mx-auto max-w-6xl px-4 pb-28 pt-2" data-controller="meal-plan-day">
+  <div class="mb-4 flex items-center justify-between gap-2">
+    <div class="overflow-x-auto pb-1">
+      <div class="inline-flex items-center gap-2 rounded-2xl bg-slate-100 p-1">
+        <% (@start_date..@end_date).each do |date| %>
+          <% selected = date == @selected_date %>
+          <%= link_to plans_meals_path(trip_id: @trip.id, start_date: @start_date, selected_date: date), class: [
+            "min-w-[62px] rounded-xl px-3 py-2 text-center text-sm font-semibold transition-colors",
+            selected ? "bg-primary-accent text-white shadow-sm" : "text-slate-600 hover:bg-white"
+          ].join(" ") do %>
+            <div class="leading-none"><%= date.day %></div>
+            <div class="pt-1 text-[0.65rem] font-bold uppercase tracking-wider"><%= I18n.l(date, format: "%a") %></div>
+          <% end %>
         <% end %>
       </div>
-    <% end %>
+    </div>
+    <button type="button"
+            data-action="meal-plan-day#toggleEditMode"
+            data-meal-plan-day-target="editToggle"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-meal-plan-day-target="editToggleIcon">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6.232-6.232a2.5 2.5 0 113.536 3.536L12.536 14.536A4 4 0 0110.5 15.5H7v-3.5A4 4 0 018.464 9.464L15 3" />
+      </svg>
+    </button>
+  </div>
 
+  <div class="flex items-start gap-3">
+    <aside class="sticky top-28 h-fit w-14 shrink-0">
+      <div class="space-y-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+        <% @meal_types.each do |meal_type| %>
+          <% count = Array(@day_meals[meal_type]).size %>
+          <a href="#meal_type_<%= meal_type %>"
+             data-meal-plan-day-target="chip"
+             data-meal-plan-day-type-param="<%= meal_type %>"
+             data-meal-plan-day-open-form-id-param="add_meal_<%= meal_type %>"
+             title="<%= MealPlan.meal_type_label_for(meal_type) %>"
+             aria-label="<%= MealPlan.meal_type_label_for(meal_type) %>"
+             data-action="touchstart->meal-plan-day#startLongPress touchend->meal-plan-day#cancelLongPress touchcancel->meal-plan-day#cancelLongPress mousedown->meal-plan-day#startLongPress mouseup->meal-plan-day#cancelLongPress mouseleave->meal-plan-day#cancelLongPress"
+             class="meal-type-chip relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-50">
+            <span class="text-lg leading-none"><%= MealPlan.meal_type_icon_for(meal_type) %></span>
+            <span class="absolute -right-1 -top-1 inline-flex min-w-[1.05rem] items-center justify-center rounded-full bg-slate-900 px-1 py-0 text-[0.55rem] font-semibold leading-4 text-white"><%= count.positive? ? count : "-" %></span>
+          </a>
+        <% end %>
+      </div>
+    </aside>
+
+    <div class="min-w-0 flex-1 space-y-4" data-meal-plan-day-target="scrollContainer">
+      <% @meal_types.each do |meal_type| %>
+        <% meals = Array(@day_meals[meal_type]) %>
+        <section id="meal_type_<%= meal_type %>"
+                 data-meal-plan-day-target="section"
+                 data-meal-plan-day-type-param="<%= meal_type %>"
+                 class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div class="mb-3 flex items-center justify-between gap-2">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700"><%= MealPlan.meal_type_label_for(meal_type) %></h2>
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] font-semibold text-slate-600"><%= meals.size %></span>
+          </div>
+
+          <div class="space-y-3">
+            <% meals.each do |plan| %>
+              <article class="rounded-2xl border border-slate-200 bg-white p-3 transition-colors" data-meal-plan-day-target="card">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="truncate text-base font-semibold text-slate-900"><%= plan.recipe.name %></div>
+                    <div class="mt-1 flex flex-wrap items-center gap-1">
+                      <% if plan.ingredients_missing? %>
+                        <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-amber-800">Ingredients missing</span>
+                      <% end %>
+                      <% if plan.drifted? %>
+                        <span class="rounded-full bg-red-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-red-700">Drift</span>
+                      <% end %>
+                      <% plan.assignees.each do |user| %>
+                        <span title="<%= user.email_address %>" class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-violet-50 text-[0.55rem] font-bold text-violet-700 ring-1 ring-violet-100">
+                          <%= user.email_address.to_s.first.upcase %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm font-semibold text-slate-900" data-meal-plan-day-target="displayOnly"><%= plan.servings.to_d.to_s("F").sub(/\.0+$/, "") %></span>
+                    <div class="hidden items-center gap-1" data-meal-plan-day-target="editOnly">
+                      <%= button_to meal_plan_path(plan), method: :patch, params: { trip_id: @trip.id, meal_plan: { servings: [plan.servings.to_d - 1, 1].max } }, class: "flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700" do %>
+                        -
+                      <% end %>
+                      <span class="min-w-[2ch] text-center text-sm font-semibold text-slate-900"><%= plan.servings.to_d.to_s("F").sub(/\.0+$/, "") %></span>
+                      <%= button_to meal_plan_path(plan), method: :patch, params: { trip_id: @trip.id, meal_plan: { servings: plan.servings.to_d + 1 } }, class: "flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700" do %>
+                        +
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <% if plan.description.present? %>
+                  <p class="mt-2 text-sm text-slate-500"><%= plan.description %></p>
+                <% end %>
+
+                <details class="mt-2 [&_summary::-webkit-details-marker]:hidden" data-meal-plan-day-target="displayOnly">
+                  <summary class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600" aria-label="Ingredients" title="Ingredients">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                    <div class="space-y-1 text-sm">
+                      <% if plan.ingredient_rows.any? %>
+                        <% plan.ingredient_rows.each do |ingredient| %>
+                          <% scaled = ingredient.quantity.to_d * (plan.servings.to_d / [plan.recipe.servings.to_d, 1.to_d].max) %>
+                          <div class="flex items-center justify-between gap-2 text-slate-700">
+                            <span class="truncate"><%= ingredient.name %></span>
+                            <span class="shrink-0 font-medium text-slate-500"><%= scaled.to_s("F").sub(/\.0+$/, "") %> <%= ingredient.unit %></span>
+                          </div>
+                        <% end %>
+                      <% else %>
+                        <div class="text-sm font-medium text-amber-700">No ingredients yet.</div>
+                      <% end %>
+                    </div>
+                  </div>
+                </details>
+
+                <div class="mt-3 hidden space-y-2" data-meal-plan-day-target="editOnly">
+                  <div class="flex items-center gap-2">
+                    <%= button_to add_to_shopping_plan_meal_plan_path(plan), method: :post, params: { trip_id: @trip.id }, title: "Add to shopping plan", aria: { label: "Add to shopping plan" }, class: "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700" do %>
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2m0 0L7 13h10l2-8H5.4zM7 13l-1.2 6h12.4M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z" />
+                      </svg>
+                    <% end %>
+                    <%= button_to meal_plan_path(plan),
+                          method: :delete,
+                          params: { trip_id: @trip.id },
+                          title: "Remove meal",
+                          aria: { label: "Remove meal" },
+                          class: "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-700" do %>
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    <% end %>
+                  </div>
+
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-2">
+                    <% if plan.recipe.trip_id == @trip.id %>
+                      <%= form_with url: update_ingredients_meal_plan_path(plan), method: :patch, local: true, class: "space-y-2" do %>
+                        <%= hidden_field_tag :trip_id, @trip.id %>
+                        <div class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-500">Ingredients</div>
+                        <div class="space-y-2">
+                          <% plan.recipe.ingredients.order(:id).each do |ingredient| %>
+                            <div class="grid grid-cols-[minmax(0,1fr)_88px_72px_88px] gap-2">
+                              <%= hidden_field_tag "recipe[ingredients_attributes][#{ingredient.id}][id]", ingredient.id %>
+                              <%= hidden_field_tag "recipe[ingredients_attributes][#{ingredient.id}][category]", ingredient.category %>
+                              <%= text_field_tag "recipe[ingredients_attributes][#{ingredient.id}][name]", ingredient.name, class: "rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                              <%= number_field_tag "recipe[ingredients_attributes][#{ingredient.id}][quantity]", ingredient.quantity, step: :any, min: 0, class: "rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                              <%= text_field_tag "recipe[ingredients_attributes][#{ingredient.id}][unit]", ingredient.unit, class: "rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                              <%= select_tag "recipe[ingredients_attributes][#{ingredient.id}][category]", options_for_select(ingredient_categories.map { |cat| [cat.humanize, cat] }, ingredient.category), class: "rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                            </div>
+                          <% end %>
+                        </div>
+                        <div class="grid grid-cols-[minmax(0,1fr)_88px_72px_88px] gap-2 border-t border-slate-200 pt-2">
+                          <%= text_field_tag "recipe[ingredients_attributes][new_#{plan.id}][name]", nil, placeholder: "Add ingredient", class: "rounded-lg border border-dashed border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                          <%= number_field_tag "recipe[ingredients_attributes][new_#{plan.id}][quantity]", nil, step: :any, min: 0, placeholder: "Qty", class: "rounded-lg border border-dashed border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                          <%= text_field_tag "recipe[ingredients_attributes][new_#{plan.id}][unit]", nil, placeholder: "Unit", class: "rounded-lg border border-dashed border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                          <%= select_tag "recipe[ingredients_attributes][new_#{plan.id}][category]", options_for_select(ingredient_categories.map { |cat| [cat.humanize, cat] }, "other"), class: "rounded-lg border border-dashed border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900" %>
+                        </div>
+                        <%= button_tag "Save ingredients", class: "rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white" %>
+                      <% end %>
+                    <% else %>
+                      <div class="text-xs font-semibold text-amber-700">This recipe is read-only in this view.</div>
+                    <% end %>
+                  </div>
+
+                  <details class="[&_summary::-webkit-details-marker]:hidden">
+                    <summary class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600" aria-label="Assignees" title="Assignees">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-1a4 4 0 00-5-3.87M9 20H4v-1a4 4 0 015-3.87m8-6.13a4 4 0 11-8 0 4 4 0 018 0zM5 9a3 3 0 106 0 3 3 0 00-6 0z" />
+                      </svg>
+                    </summary>
+                    <div class="mt-2 rounded-xl border border-slate-200 bg-white p-2">
+                      <%= form_with url: assignees_meal_plan_path(plan), method: :patch, local: true, class: "space-y-2" do %>
+                        <%= hidden_field_tag :trip_id, @trip.id %>
+                        <div class="flex flex-wrap gap-2">
+                          <% @trip_users.each do |user| %>
+                            <label class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                              <%= check_box_tag "assignee_ids[]", user.id, plan.assignee_ids.include?(user.id), class: "rounded border-slate-300" %>
+                              <span><%= user.email_address.to_s.split("@").first %></span>
+                            </label>
+                          <% end %>
+                        </div>
+                        <%= button_tag "Save assignees", class: "rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white" %>
+                      <% end %>
+                    </div>
+                  </details>
+
+                  <details class="[&_summary::-webkit-details-marker]:hidden">
+                    <summary class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600" aria-label="Duplicate" title="Duplicate">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 8h6a2 2 0 002-2v-6a2 2 0 00-2-2h-6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      </svg>
+                    </summary>
+                    <div class="mt-2 space-y-2 rounded-xl border border-slate-200 bg-white p-2">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <%= button_to "Next day", duplicate_meal_plan_path(plan), method: :post, params: { trip_id: @trip.id, target_mode: "next_day" }, class: "rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-700" %>
+                        <%= button_to "Rest of trip", duplicate_meal_plan_path(plan), method: :post, params: { trip_id: @trip.id, target_mode: "rest_of_trip" }, class: "rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-700" %>
+                      </div>
+
+                      <%= form_with url: duplicate_meal_plan_path(plan), method: :post, local: true, class: "space-y-2" do %>
+                        <%= hidden_field_tag :trip_id, @trip.id %>
+                        <%= hidden_field_tag :target_mode, "selected_days" %>
+                        <div class="flex flex-wrap gap-2">
+                          <% (@start_date..@end_date).each do |candidate| %>
+                            <% next if candidate == plan.date %>
+                            <label class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                              <%= check_box_tag "target_dates[]", candidate.to_s, false, class: "rounded border-slate-300" %>
+                              <span><%= candidate.strftime("%a %d") %></span>
+                            </label>
+                          <% end %>
+                        </div>
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
+                          <%= check_box_tag :link_series, 1, false, class: "rounded border-slate-300" %>
+                          <span>Link as series</span>
+                        </label>
+                        <%= button_tag "Duplicate selected days", class: "rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white" %>
+                      <% end %>
+                    </div>
+                  </details>
+
+                  <% if plan.drifted? %>
+                    <% drift = plan.drift_preview %>
+                    <details class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+                      <summary class="cursor-pointer text-[0.7rem] font-bold uppercase tracking-wider text-amber-800">Review changes</summary>
+                      <div class="mt-2 space-y-2 text-xs text-amber-900">
+                        <div class="font-semibold">
+                          + <%= drift[:added].size %> added ·
+                          - <%= drift[:removed].size %> removed ·
+                          ~ <%= drift[:changed].size %> changed
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                          <%= button_to "Accept full recipe update", resolve_drift_meal_plan_path(plan), method: :post, params: { trip_id: @trip.id, strategy: "accept_new_recipe" }, class: "rounded-lg bg-amber-600 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-white" %>
+                          <%= button_to "Keep current meal state", resolve_drift_meal_plan_path(plan), method: :post, params: { trip_id: @trip.id, strategy: "keep_current" }, class: "rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-amber-800" %>
+                        </div>
+                      </div>
+                    </details>
+                  <% end %>
+                </div>
+              </article>
+            <% end %>
+
+            <details id="add_meal_<%= meal_type %>" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2">
+              <summary class="cursor-pointer text-sm font-semibold text-slate-600">+ Meal</summary>
+              <div class="mt-3">
+                <%= form_with model: MealPlan.new, url: meal_plans_path, local: true, class: "space-y-3" do |f| %>
+                  <%= hidden_field_tag :trip_id, @trip.id %>
+                  <%= f.hidden_field :date, value: @selected_date %>
+                  <%= f.hidden_field :meal_type, value: meal_type %>
+
+                  <div class="space-y-2">
+                    <%= f.collection_select :recipe_id, @recipes, :id, :name, { prompt: "Choose recipe" }, { id: "meal_plan_recipe_id_#{meal_type}", class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" } %>
+                    <%= f.text_field :custom_name, id: "meal_plan_custom_name_#{meal_type}", placeholder: "Or free meal (without ingredients)", class: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" %>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <%= f.number_field :servings, id: "meal_plan_servings_#{meal_type}", step: :any, min: 1, value: 1, class: "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900", placeholder: "Servings" %>
+                    <%= f.text_field :description, id: "meal_plan_description_#{meal_type}", placeholder: "Note (optional)", class: "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" %>
+                  </div>
+
+                  <div class="rounded-xl border border-slate-200 bg-white p-2">
+                    <div class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Who cooks?</div>
+                    <div class="flex flex-wrap gap-2">
+                      <% @trip_users.each do |user| %>
+                        <label class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                          <%= check_box_tag "meal_plan[assignee_ids][]", user.id, false, class: "rounded border-slate-300" %>
+                          <span><%= user.email_address.to_s.split("@").first %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <%= f.submit "Add meal", class: "w-full rounded-xl bg-primary-accent px-3 py-2 text-sm font-bold text-white" %>
+                <% end %>
+              </div>
+            </details>
+          </div>
+        </section>
+      <% end %>
+    </div>
   </div>
 </div>
-
-<!-- Modals moved outside the grid to avoid stacking context issues -->
-<% (@start_date..@end_date).each do |date| %>
-  <% %w[breakfast lunch dinner snack].each do |meal_type| %>
-    <div id="add-meal-modal-<%= date %>-<%= meal_type %>" class="hidden fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('add-meal-modal-<%= date %>-<%= meal_type %>').classList.add('hidden')"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-10">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
-              Add <%= meal_type.capitalize %> for <%= date.strftime("%A, %b %d") %>
-            </h3>
-            <%= form_with model: MealPlan.new, url: meal_plans_path, local: true do |f| %>
-              <%= f.hidden_field :date, value: date %>
-              <%= f.hidden_field :meal_type, value: meal_type %>
-              
-              <div class="mb-4">
-                <%= f.label :recipe_id, "Recipe", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                <%= f.collection_select :recipe_id, @recipes, :id, :name, { prompt: "Select a recipe..." }, { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent" } %>
-              </div>
-              
-              <div class="mb-4">
-                <%= f.label :description, "Notes (optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                <%= f.text_area :description, rows: 2, placeholder: "Add any notes about this meal...", class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-transparent" %>
-              </div>
-              
-              <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
-                <button type="button" onclick="document.getElementById('add-meal-modal-<%= date %>-<%= meal_type %>').classList.add('hidden')" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-accent">
-                  Cancel
-                </button>
-                <%= f.submit "Add Meal", class: "inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-accent text-base font-medium text-white hover:bg-primary-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-accent sm:text-sm sm:w-auto" %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
-<% end %>

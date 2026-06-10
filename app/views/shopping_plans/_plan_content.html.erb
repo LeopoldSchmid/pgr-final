@@ -80,16 +80,32 @@
 
     <div class="space-y-3">
       <% @grouped_requirements.each do |group_label, requirements| %>
+        <% meal_source_ids = requirements.map(&:meal_plan_id).compact.uniq %>
+        <% meal_source_id = meal_source_ids.one? ? meal_source_ids.first : nil %>
+        <% group_open = requirements.count { |req| req.unassigned_quantity.positive? || req.shopping_list_assignments.any? { |assignment| assignment.remaining_quantity.positive? } } %>
+        <% group_done = requirements.size - group_open %>
         <details open class="overflow-hidden rounded-2xl border border-slate-200 bg-white [&_summary::-webkit-details-marker]:hidden">
           <summary class="flex cursor-pointer items-center justify-between px-4 py-3 select-none">
             <div class="flex items-center gap-3 min-w-0">
               <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
               <div class="truncate text-xs font-bold uppercase tracking-wider text-slate-700"><%= group_label %></div>
             </div>
-            <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600"><%= requirements.count %></span>
+            <div class="flex items-center gap-2">
+              <% if @grouping_mode == "source" && meal_source_id.present? %>
+                <%= button_to plans_shopping_mark_meal_source_brought_path(trip_id: @trip.id, meal_plan_id: meal_source_id), method: :post, class: "rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-emerald-700" do %>
+                  I will bring this meal
+                <% end %>
+              <% end %>
+              <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600"><%= requirements.count %></span>
+            </div>
           </summary>
 
           <div class="border-t border-slate-100 px-4 py-2">
+            <% if @grouping_mode == "source" %>
+              <div class="mb-2 text-[0.62rem] font-bold uppercase tracking-wider text-slate-500">
+                <%= group_open %> open · <%= group_done %> done
+              </div>
+            <% end %>
             <% requirements.each do |requirement| %>
               <% source_value = requirement.source_label.presence || "-" %>
               <% drift_detected = @outdated_requirement_ids.include?(requirement.id) %>

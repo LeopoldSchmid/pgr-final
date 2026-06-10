@@ -1,6 +1,6 @@
 # Testing
 
-Stand: 2026-04-09
+Stand: 2026-04-17
 
 ## Ziel
 - Tests sollen lokal reproduzierbar laufen.
@@ -17,6 +17,7 @@ Stand: 2026-04-09
 - `npx playwright test`
   - Eigenstaendige End-to-End-Tests aus `tests/`.
   - Startet standardmaessig selbst einen lokalen Rails-Testserver.
+  - Stand heute existiert noch keine separate `tests/`-Spec im Repository; Browser-Coverage liegt aktuell in Rails-Systemtests.
 
 ## Einmaliges Setup
 ```bash
@@ -60,6 +61,7 @@ PLAYWRIGHT_HEADED=1 bin/rails test test/system
 - Konfiguration in `playwright.config.ts`
 - Testdateien liegen unter `tests/`
 - Der Webserver laeuft standardmaessig unter `127.0.0.1:3200`
+- Hinweis: `tests/` ist derzeit leer. Fuer die laufende Absicherung wird `test/system/*` verwendet.
 
 Lokaler Audit gegen bereits laufende App:
 ```bash
@@ -73,6 +75,7 @@ npm run test:e2e:local:headed
 - Fuer neue UI-Tests stabile semantische Selektoren oder gezielte `data-testid`-Attribute bevorzugen.
 - Committe niemals `node_modules/`, `playwright-report/` oder `test-results/`.
 - Die operative manuelle Freigabe fuer Staging steht in [staging_smoke_checklist.md](/home/leo/dev/projects/plangoreminisce/documentation/staging_smoke_checklist.md).
+- In restriktiven Sandboxes koennen Systemtests am lokalen Testserver-Bind scheitern (`socket(2) EPERM`); lokal/CI laufen sie regulär.
 - `WickedPdf.config=` wurde auf `WickedPdf.configure` umgestellt; entsprechende Deprecation-Warnungen sollten nicht mehr auftreten.
 - Die verbleibende `VIPS`-Warnung verweist auf ein fehlendes optionales Systemmodul (`libopenslide`). Das ist aktuell kein funktionaler Blocker fuer die App.
 - Die verbleibende `marcel`-Warnung stammt aus der eingesetzten Gem-Version unter Ruby `3.4` und ist derzeit ein Upstream-/Dependency-Thema, kein bekannter App-Fehler.

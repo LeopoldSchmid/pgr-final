@@ -26,5 +26,16 @@ module Shopping
       assert_equal "in_sync", entry.attributes[:sync_status]
       assert entry.attributes[:source_signature].present?
     end
+
+    test "scales ingredient quantities based on meal servings" do
+      tomatoes = FoodItem.create!(name: "Tomatoes", standard_unit: "kg", category: "produce", unit_type: "weight")
+      recipe = Recipe.create!(name: "Soup", description: "Lunch", servings: 4, trip: @trip, user: @user)
+      recipe.ingredients.create!(name: "Tomatoes", quantity: 2, unit: "kg", category: "produce", food_item: tomatoes)
+      MealPlan.create!(trip: @trip, recipe: recipe, date: Date.current, meal_type: "lunch", servings: 2)
+
+      entry = RequirementBuilder.new(@trip).call.first
+
+      assert_equal 1.0, entry.attributes[:quantity].to_f
+    end
   end
 end

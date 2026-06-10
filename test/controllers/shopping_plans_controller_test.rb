@@ -150,4 +150,15 @@ class ShoppingPlansControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to plans_shopping_url(trip_id: @trip.id)
   end
+
+  test "marks a meal source as brought and completes related assignments" do
+    synced_requirement = Shopping::RequirementSynchronizer.new(trip: @trip, user: @user).sync!.created.first
+    synced_requirement.shopping_list_assignments.create!(shopping_list: @list, planned_quantity: synced_requirement.quantity, purchased_quantity: 0, unit: synced_requirement.unit)
+
+    post plans_shopping_mark_meal_source_brought_url(meal_plan_id: @meal_plan.id), params: { trip_id: @trip.id }
+
+    assert_redirected_to plans_shopping_url(trip_id: @trip.id)
+    assert_equal 0, synced_requirement.reload.shopping_list_assignments.first.remaining_quantity
+    assert_equal "brought_by_meal_source", synced_requirement.shopping_list_assignments.first.completion_source
+  end
 end

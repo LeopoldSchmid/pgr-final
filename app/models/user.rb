@@ -13,6 +13,8 @@ class User < ApplicationRecord
   has_many :trip_attachments, dependent: :destroy
   has_many :shopping_sync_runs, dependent: :destroy
   has_many :shopping_item_comments, dependent: :destroy
+  has_many :meal_plan_assignees, dependent: :destroy
+  has_many :assigned_meal_plans, through: :meal_plan_assignees, source: :meal_plan
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

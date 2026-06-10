@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_17_133300) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -198,15 +198,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
 
+  create_table "meal_plan_assignees", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "meal_plan_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["meal_plan_id", "user_id"], name: "index_meal_plan_assignees_on_meal_plan_id_and_user_id", unique: true
+    t.index ["meal_plan_id"], name: "index_meal_plan_assignees_on_meal_plan_id"
+    t.index ["user_id"], name: "index_meal_plan_assignees_on_user_id"
+  end
+
   create_table "meal_plans", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date"
     t.text "description"
+    t.string "drift_status", default: "in_sync", null: false
     t.string "meal_type"
     t.integer "recipe_id", null: false
+    t.json "recipe_snapshot_payload"
+    t.string "recipe_snapshot_signature"
+    t.string "series_token"
+    t.decimal "servings", precision: 6, scale: 2
     t.integer "trip_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["drift_status"], name: "index_meal_plans_on_drift_status"
     t.index ["recipe_id"], name: "index_meal_plans_on_recipe_id"
+    t.index ["series_token"], name: "index_meal_plans_on_series_token"
     t.index ["trip_id"], name: "index_meal_plans_on_trip_id"
   end
 
@@ -263,6 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
   end
 
   create_table "shopping_list_assignments", force: :cascade do |t|
+    t.string "completion_source"
     t.datetime "created_at", null: false
     t.text "notes"
     t.decimal "planned_quantity", precision: 10, scale: 2, null: false
@@ -272,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
     t.integer "shopping_requirement_id", null: false
     t.string "unit", null: false
     t.datetime "updated_at", null: false
+    t.index ["completion_source"], name: "index_shopping_list_assignments_on_completion_source"
     t.index ["shopping_list_id"], name: "index_shopping_list_assignments_on_shopping_list_id"
     t.index ["shopping_requirement_id", "shopping_list_id"], name: "index_shopping_assignments_requirement_and_list"
     t.index ["shopping_requirement_id"], name: "index_shopping_list_assignments_on_shopping_requirement_id"
@@ -424,6 +443,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_110400) do
   add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "journal_entries", "trips"
   add_foreign_key "journal_entries", "users"
+  add_foreign_key "meal_plan_assignees", "meal_plans"
+  add_foreign_key "meal_plan_assignees", "users"
   add_foreign_key "meal_plans", "recipes"
   add_foreign_key "meal_plans", "trips"
   add_foreign_key "recipes", "recipes", column: "parent_recipe_id"

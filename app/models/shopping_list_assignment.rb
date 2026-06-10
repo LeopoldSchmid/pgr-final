@@ -1,4 +1,6 @@
 class ShoppingListAssignment < ApplicationRecord
+  COMPLETION_SOURCES = %w[purchase brought_by_meal_source].freeze
+
   belongs_to :shopping_requirement
   belongs_to :shopping_list
 
@@ -7,6 +9,7 @@ class ShoppingListAssignment < ApplicationRecord
   validates :planned_quantity, presence: true, numericality: { greater_than: 0 }
   validates :purchased_quantity, numericality: { greater_than_or_equal_to: 0 }
   validates :unit, presence: true, length: { maximum: 20 }
+  validates :completion_source, inclusion: { in: COMPLETION_SOURCES }, allow_nil: true
   validate :purchased_quantity_does_not_exceed_planned_quantity
   validate :unit_matches_requirement_dimension
 
@@ -30,15 +33,18 @@ class ShoppingListAssignment < ApplicationRecord
     amount = BigDecimal(amount.to_s)
     raise ArgumentError, "Purchase amount must be positive" unless amount.positive?
 
-    update!(purchased_quantity: [ purchased_quantity.to_d + amount, planned_quantity.to_d ].min)
+    update!(
+      purchased_quantity: [ purchased_quantity.to_d + amount, planned_quantity.to_d ].min,
+      completion_source: "purchase"
+    )
   end
 
-  def mark_complete!
-    update!(purchased_quantity: planned_quantity)
+  def mark_complete!(source: "purchase")
+    update!(purchased_quantity: planned_quantity, completion_source: source)
   end
 
   def clear_purchase!
-    update!(purchased_quantity: 0)
+    update!(purchased_quantity: 0, completion_source: nil)
   end
 
   private

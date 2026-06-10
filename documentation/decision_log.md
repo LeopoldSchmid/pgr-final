@@ -105,3 +105,30 @@
   - Controllers now redirect nested shopping-list page requests to the canonical plans URL.
   - `Shopping Plan` auto-creates a default list (`Trip Shopping List`) when none exists, so assignment flow never dead-ends.
   - Redirect targets from shopping item and assignment actions stay within the plans URL structure.
+
+## 2026-04-17 - Meal Plan finalization is now specified end-to-end before implementation
+- Decision: Freeze a single implementation spec for Meal Plan UX, shopping relevance rules, assignees, duplication, and recipe-drift handling before coding further.
+- Why:
+  - The remaining work is tightly coupled between UI behavior and shopping domain logic.
+  - Parallel or ad-hoc changes without one source of truth increase rework risk.
+- Consequence:
+  - `documentation/meal_plan_finalization_spec_2026-04-17.md` becomes the implementation reference.
+  - Work proceeds in small blocks (`data model -> controller -> UI -> shopping integration -> drift -> e2e`).
+
+## 2026-04-17 - No separate meal shopping mode; use transparent completion actions
+- Decision: Replace the planned `needs_purchase/self_supplied` meal mode with a simple source-level completion action in Shopping Plan (`Diese Mahlzeit bringe ich mit`).
+- Why:
+  - Visibility is more important than hidden exclusion logic.
+  - The simpler model reduces domain complexity while keeping intent explicit.
+- Consequence:
+  - Meal-derived requirements remain visible.
+  - Source-level actions mark related shopping positions as done instead of removing or excluding them.
+
+## 2026-04-17 - Meal Plan actions keep the user on the active day
+- Decision: Meal actions (`create`, `update`, `delete`, `duplicate`, `assignees`, `resolve drift`) always redirect back to the same selected day.
+- Why:
+  - One-day-at-a-time planning is now the primary interaction model.
+  - Jumping back to week start after each action breaks flow and increases friction on mobile.
+- Consequence:
+  - Redirects include `selected_date` consistently.
+  - System and controller tests assert the day-stable behavior.

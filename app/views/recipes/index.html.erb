@@ -87,7 +87,14 @@
 
                 <div class="mb-4">
                   <%= f.label :meal_type, class: "block text-sm font-medium text-gray-700 mb-1" %>
-                  <%= f.select :meal_type, [['Breakfast', 'breakfast'], ['Lunch', 'lunch'], ['Dinner', 'dinner'], ['Snack', 'snack']], {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-primary-accent focus:ring focus:ring-primary-accent focus:ring-opacity-50" } %>
+                  <%= f.select :meal_type, [
+                    ["Breakfast", "breakfast"],
+                    ["Lunch", "lunch"],
+                    ["Dinner", "dinner"],
+                    ["Snack", "snack"],
+                    ["Miscellaneous", "miscellaneous"],
+                    ["Drinks", "drinks"]
+                  ], {}, { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-primary-accent focus:ring focus:ring-primary-accent focus:ring-opacity-50" } %>
                 </div>
 
                 <div class="mb-4">

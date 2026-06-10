@@ -23,6 +23,8 @@ module Shopping
     end
 
     def build_entry(meal_plan, ingredient)
+      @current_meal_servings = meal_plan.servings.to_d
+
       food_item = ingredient.food_item
       unit = target_unit_for(ingredient, food_item)
       quantity = target_quantity_for(ingredient, food_item, unit)
@@ -47,6 +49,8 @@ module Shopping
       }
 
       Entry.new(matching_key: matching_key_for(meal_plan, food_item, name, unit), attributes: attrs)
+    ensure
+      @current_meal_servings = nil
     end
 
     def target_unit_for(ingredient, food_item)
@@ -54,9 +58,19 @@ module Shopping
     end
 
     def target_quantity_for(ingredient, food_item, unit)
-      quantity = ingredient.quantity
+      quantity = ingredient.quantity.to_d * serving_scale_for(ingredient.recipe)
       quantity = FoodItem.convert_quantity(quantity, ingredient.unit, unit) if food_item.present?
       quantity.to_d.round(2)
+    end
+
+    def serving_scale_for(recipe)
+      recipe_servings = recipe&.servings.to_d
+      recipe_servings = 1 if recipe_servings <= 0
+
+      meal_servings = @current_meal_servings
+      meal_servings = recipe_servings if meal_servings <= 0
+
+      meal_servings / recipe_servings
     end
 
     def matching_key_for(meal_plan, food_item, name, unit)

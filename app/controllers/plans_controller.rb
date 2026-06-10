@@ -18,8 +18,13 @@ class PlansController < ApplicationController
     @recipes = accessible_recipes
     @start_date = params[:start_date] ? Date.parse(params[:start_date]) : Date.today.beginning_of_week
     @end_date = @start_date.end_of_week
+    @selected_date = params[:selected_date] ? Date.parse(params[:selected_date]) : @start_date
+    @selected_date = @selected_date.clamp(@start_date, @end_date)
+    @meal_types = MealPlan::MEAL_TYPES
+    @trip_users = @trip.trip_members.active_members.includes(:user).map(&:user)
     @meal_plans = @trip.meal_plans.includes(:recipe).ordered
     @planned_meals = @meal_plans.group_by(&:date).transform_values { |plans| plans.group_by(&:meal_type) }
+    @day_meals = @planned_meals[@selected_date] || {}
   end
 
   # Trip context: Shopping lists

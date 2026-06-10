@@ -3,6 +3,7 @@ class ShoppingPlansController < ApplicationController
   before_action :ensure_trip_context
   before_action :set_trip
   before_action :set_requirement, only: [ :create_assignment ]
+  before_action :set_meal_plan, only: [ :mark_meal_source_brought ]
   before_action :store_last_plans_tab
 
   def show
@@ -56,6 +57,11 @@ class ShoppingPlansController < ApplicationController
     redirect_to plans_shopping_path(trip_id: @trip.id), alert: "Shopping list not found."
   rescue ArgumentError => e
     redirect_to plans_shopping_path(trip_id: @trip.id), alert: e.message
+  end
+
+  def mark_meal_source_brought
+    result = Shopping::MealSourceCompleter.new(trip: @trip, meal_plan: @meal_plan).call
+    redirect_to plans_shopping_path(trip_id: @trip.id), notice: "Marked #{result.completed_assignments.size} item(s) as brought for this meal."
   end
 
   def bulk_assign
@@ -136,6 +142,10 @@ class ShoppingPlansController < ApplicationController
 
   def set_requirement
     @requirement = @trip.shopping_requirements.find(params[:requirement_id])
+  end
+
+  def set_meal_plan
+    @meal_plan = @trip.meal_plans.find(params[:meal_plan_id])
   end
 
   def active_shopping_lists
