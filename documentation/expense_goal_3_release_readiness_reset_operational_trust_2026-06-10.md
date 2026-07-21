@@ -97,6 +97,8 @@ Required automated coverage across Goals 1 and 2:
 
 ## Required Manual Acceptance Walkthrough
 
+If you are able to, do manual acceptance walkthrough. If you are too limited in running and using it, skip the acceptance walkthrough and give the product owner instructions on how to do the acceptance walkthrough himslef.
+
 Run this in a production-like local or staging environment before the product owner/operator performs the actual production deployment.
 
 1. Open the app in a normal browser tab and load an active trip online.
@@ -153,3 +155,9 @@ Run this in a production-like local or staging environment before the product ow
 ## Done For Goal 3
 
 Goal 3 is complete when the new expense system has passed automated tests, production-like offline/manual acceptance, old data reset/export handling, route cleanup, deploy-readiness documentation, and operational documentation. Actual production deployment is not part of this goal.
+
+## Implementation Runbook
+
+The concrete release-readiness runbook for the operator is maintained in [expense_release_readiness_runbook_2026-06-13.md](./expense_release_readiness_runbook_2026-06-13.md).
+
+The local acceptance evidence and owner-facing release checklist are maintained in [expense_release_acceptance_2026-06-13.md](./expense_release_acceptance_2026-06-13.md).

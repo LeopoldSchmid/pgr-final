@@ -2,6 +2,7 @@ class Api::ExpenseSnapshotsController < Api::BaseController
   before_action :set_accessible_trip
 
   def show
+    @trip.ensure_expense_people!
     ledger = @trip.expense_ledger
 
     render json: {

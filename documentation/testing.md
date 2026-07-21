@@ -17,7 +17,7 @@ Stand: 2026-04-17
 - `npx playwright test`
   - Eigenstaendige End-to-End-Tests aus `tests/`.
   - Startet standardmaessig selbst einen lokalen Rails-Testserver.
-  - Stand heute existiert noch keine separate `tests/`-Spec im Repository; Browser-Coverage liegt aktuell in Rails-Systemtests.
+  - Expense/PWA/Offline-Browser-Coverage liegt aktuell in `tests/expenses-quick-add.spec.ts`.
 
 ## Einmaliges Setup
 ```bash
@@ -61,7 +61,7 @@ PLAYWRIGHT_HEADED=1 bin/rails test test/system
 - Konfiguration in `playwright.config.ts`
 - Testdateien liegen unter `tests/`
 - Der Webserver laeuft standardmaessig unter `127.0.0.1:3200`
-- Hinweis: `tests/` ist derzeit leer. Fuer die laufende Absicherung wird `test/system/*` verwendet.
+- Expense V1 nutzt hier bewusst eine eigenstaendige Playwright-Spec fuer Quick Add, Split Editor, Offline Queue, Konflikte, PWA-Shell und Mobile-Viewport-Proof.
 
 Lokaler Audit gegen bereits laufende App:
 ```bash

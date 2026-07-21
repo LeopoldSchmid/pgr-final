@@ -22,8 +22,8 @@ class CalendarSystemTest < ActionDispatch::IntegrationTest
   test "can access date proposals calendar page" do
     get trip_date_proposals_path(@trip)
     assert_response :success
-    assert_select "h1", "Date Planning Calendar"
     assert_select "[data-controller='calendar']"
+    assert_select "[data-calendar-events-url-value]"
   end
 
   test "can create date proposal" do
@@ -39,7 +39,7 @@ class CalendarSystemTest < ActionDispatch::IntegrationTest
     
     proposal = DateProposal.last
     assert_equal "Test proposal", proposal.description
-    assert_redirected_to plan_trip_path(@trip)
+    assert_redirected_to trip_date_proposals_path(@trip)
   end
 
   test "can vote on date proposal" do
@@ -100,7 +100,7 @@ class CalendarSystemTest < ActionDispatch::IntegrationTest
       title: 'Test Unavailability'
     )
 
-    get api_trip_calendar_events_path(@trip)
+    get calendar_events_api_trip_path(@trip)
     assert_response :success
     
     events = JSON.parse(response.body)

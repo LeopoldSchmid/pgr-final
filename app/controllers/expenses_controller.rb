@@ -4,6 +4,10 @@ class ExpensesController < ApplicationController
   before_action :set_trip
   before_action :set_expense, only: [ :show, :edit, :update, :destroy, :duplicate ]
   before_action :check_expense_permissions, only: [ :create, :edit, :update, :destroy ]
+  before_action :redirect_legacy_release_path, only: [
+    :new, :create, :edit, :update, :destroy, :duplicate, :toggle_settled,
+    :by_person, :by_category, :settle
+  ]
 
   def index
     @expenses = @trip.expenses.includes(:payer, :participants).recent
@@ -30,6 +34,10 @@ class ExpensesController < ApplicationController
   def settle
     @user_balance = @trip.user_balance(Current.user)
     @settlement_suggestions = @trip.settlement_suggestions
+  end
+
+  def toggle_settled
+    redirect_to expenses_path, notice: legacy_redirect_notice
   end
 
   # Global context: Summary across trips
@@ -169,6 +177,14 @@ class ExpensesController < ApplicationController
   end
 
   private
+
+  def redirect_legacy_release_path
+    redirect_to expenses_path, notice: legacy_redirect_notice
+  end
+
+  def legacy_redirect_notice
+    "The new expense app now handles this flow."
+  end
 
   def ensure_trip_context
     unless current_trip

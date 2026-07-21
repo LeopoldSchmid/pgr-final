@@ -132,6 +132,9 @@ module NavigationHelper
       favorites: "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z",
 
       # Expenses section
+      entry: "M12 5v14m7-7H5",
+      people: "M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8zm6 0a3 3 0 10-6 0 3 3 0 006 0z",
+      activity: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
       all: "M4 6h16M4 10h16M4 14h16M4 18h16",
       by_person: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
       by_category: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
@@ -214,10 +217,10 @@ module NavigationHelper
     when :expenses
       if current_trip
         [
-          { key: :all, label: t("navigation.secondary.all"), path: expenses_path },
-          { key: :by_person, label: t("navigation.secondary.by_person"), path: expenses_by_person_path },
-          { key: :by_category, label: t("navigation.secondary.by_category"), path: expenses_by_category_path },
-          { key: :settle, label: t("navigation.secondary.settle"), path: expenses_settle_path }
+          { key: :entry, label: "Add", path: expenses_path(panel: "entry") },
+          { key: :people, label: "People", path: expenses_path(panel: "people") },
+          { key: :summary, label: "Balances", path: expenses_path(panel: "summary") },
+          { key: :activity, label: "History", path: expenses_path(panel: "activity") }
         ]
       else
         [
@@ -254,7 +257,11 @@ module NavigationHelper
     when :memories
       controller_name == "memories" && (action_name == item_key.to_s || (item_key == :feed && action_name == "index"))
     when :expenses
-      controller_name == "expenses" && (action_name == item_key.to_s || (item_key == :all && action_name == "index"))
+      if controller_name == "expenses" && action_name == "index" && current_trip
+        (params[:panel].presence || "entry") == item_key.to_s
+      else
+        controller_name == "expenses" && (action_name == item_key.to_s || (item_key == :all && action_name == "index"))
+      end
     when :home
       (controller_name == "home" && action_name == item_key.to_s) ||
       (item_key == :overview && current_page?(root_path))

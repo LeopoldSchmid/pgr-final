@@ -11,6 +11,8 @@ class Api::ExpenseClientMutationsController < Api::BaseController
       payload_hash: mutation_params[:payload_hash]
     ).call
 
+    log_sync_issue(result) if result.status.in?(%w[conflict rejected])
+
     render json: serialize_result(result), status: response_status(result.status)
   rescue ActionController::ParameterMissing => error
     render json: { error: error.message }, status: :unprocessable_entity
@@ -53,5 +55,17 @@ class Api::ExpenseClientMutationsController < Api::BaseController
     else
       :unprocessable_entity
     end
+  end
+
+  def log_sync_issue(result)
+    Rails.logger.warn(
+      "expense_client_mutation_sync_issue " \
+      "trip_id=#{@trip.id} " \
+      "actor_id=#{Current.user&.id} " \
+      "client_uuid=#{result.mutation.client_uuid} " \
+      "mutation_type=#{result.mutation.mutation_type} " \
+      "status=#{result.status} " \
+      "error=#{result.error.to_json}"
+    )
   end
 end

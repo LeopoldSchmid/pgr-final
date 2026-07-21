@@ -1,0 +1,433 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Expense Release Readiness, Reset, and Operational Trust"
+  slug: "expense-release-readiness-reset-operational-trust"
+  kind: existing_plan
+  tranche: "Validate the Goal 3 handoff, then complete successive safe release-readiness work packages until Expense System V1 is operationally ready for owner-managed deployment."
+  status: done
+  oracle:
+    signal: "Expense System V1 is release-ready when reset/export handling, route/navigation compatibility, Kamal/build/PWA operational notes, sync-failure observability, production-like offline/manual acceptance evidence or owner instructions, and final acceptance across Goals 1 and 2 are complete and verified without performing production deployment."
+    cadence: "after each Worker package and at final audit"
+    final_proof: "Receipts and passing verification cover Goal 1/2 prerequisite checks, old data reset/export decision, old expense route/navigation compatibility, deploy-readiness documentation for Kamal and asset compilation, PWA/service worker operational notes, sync-failure observability, production-like offline/manual acceptance evidence or operator instructions, and final release acceptance."
+  intake:
+    original_request: "Prepare GoalBuddy for documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md."
+    interpreted_outcome: "Use the existing Goal 3 plan to prepare and execute release-readiness work for the completed expense system without performing production deployment."
+    input_shape: existing_plan
+    audience: "PlanGoReminisce product owner/operator, future maintainers, and the implementation team preparing the release."
+    authority: requested
+    proof_type: test
+    completion_proof: "The product owner/operator has a verified release-readiness package: automated tests pass, production-like PWA/offline behavior is validated or instructions are documented, old test data reset/export handling is decided and documented, old routes/navigation are safe, Kamal/build/service worker implications are documented, sync failures are observable, and final acceptance maps back to Goals 1 and 2."
+    likely_misfire: "Treating Goal 3 as a documentation-only pass while skipping old-route cleanup, production-like PWA/offline proof, sync failure observability, reset/export decision logging, or final acceptance mapped back to Goals 1 and 2."
+    blind_spots_considered:
+      - "Actual production deployment is explicitly out of scope."
+      - "Destructive production data reset must not be performed by this goal."
+      - "The implementation team may be unable to perform the full manual acceptance walkthrough; owner-facing instructions are acceptable when local/staging constraints block direct walkthrough."
+      - "Docker/Kamal asset compilation must account for the new TypeScript bundle from Goal 2."
+      - "Service worker cache versioning and PWA behavior need production-like smoke proof to avoid stale asset confusion."
+      - "Release acceptance must not assume Goals 1 and 2 are complete without checking their receipts and current verification."
+    existing_plan_facts:
+      - "Primary plan: documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md."
+      - "Goal 3 depends on Goal 1 backend/domain/API and Goal 2 frontend/offline/PWA completion."
+      - "Kamal remains the deployment target."
+      - "No separate frontend host, API service, native app build, external sync service, or external AI service is required for V1."
+      - "Existing production expense data is test data; careful production migration is not required."
+      - "Old expense routes must redirect to the new app or be safely removed."
+      - "The release decision and reset/export handling must be recorded in documentation/decision_log.md."
+      - "Testing must continue documentation/testing.md and documentation/delivery_standards.md."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: none
+  local:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy board docs/goals/expense-release-readiness-reset-operational-trust"
+
+active_task: null
+
+tasks:
+  - id: T001
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Validate the Goal 3 release-readiness handoff against completed Goal 1 and Goal 2 board receipts plus the current repository, then choose the first safe implementation slice."
+    inputs:
+      - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+      - "documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md"
+      - "documentation/expense_goal_2_frontend_offline_pwa_2026-06-10.md"
+      - "docs/goals/expense-domain-ledger-sync-api/state.yaml"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+      - "documentation/testing.md"
+      - "documentation/delivery_standards.md"
+      - "Current routes, navigation, deployment, Docker/Kamal, PWA, expense docs, and test setup."
+    constraints:
+      - "Read-only; do not implement."
+      - "Do not perform production deployment."
+      - "Do not perform destructive production data reset."
+      - "Preserve same-origin Rails/Kamal deployment."
+      - "If direct production-like manual acceptance cannot be run locally, specify the owner-facing walkthrough instructions that must be produced later."
+      - "Choose the largest safe first Worker package with explicit allowed_files, verification commands, and stop conditions."
+    expected_output:
+      - "Decision: approved | revise_plan | blocked."
+      - "Prerequisite status for Goals 1 and 2."
+      - "Current release-readiness gaps grouped by reset/export, route/navigation, deployment docs, observability, PWA/offline proof, and acceptance documentation."
+      - "Exact Worker objective for T002."
+      - "T002 allowed_files."
+      - "T002 verify commands."
+      - "T002 stop_if conditions."
+      - "Any deferred risks that must stay visible on the board."
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      prerequisite_status:
+        goal_1: "done; docs/goals/expense-domain-ledger-sync-api/state.yaml final audit says the backend can represent trip-person expenses, settlement math, late joiners, idempotent sync, conflicts, and API contracts with targeted Rails tests."
+        goal_2: "done; docs/goals/expense-frontend-offline-pwa/state.yaml final audit says the frontend island, offline create/edit/void, split editor, roster/groups, balances, PWA shell, and mobile browser proof passed."
+      release_readiness_gaps:
+        reset_export:
+          - "documentation/decision_log.md records the TypeScript island decision but not the old data reset/export release decision required by Goal 3."
+          - "No owner-facing reset/export runbook exists yet; production reset itself remains out of scope."
+        route_navigation:
+          - "config/routes.rb still exposes legacy expense new/create/edit/update/destroy/duplicate/toggle_settled routes in context and nested trip routes."
+          - "ExpensesController still implements legacy CRUD and secondary by-person/category/settle pages against old user-bound participants."
+          - "app/views/expenses/new.html.erb, edit.html.erb, by_person.html.erb, by_category.html.erb, and settle.html.erb still provide old surfaces; the release path should redirect them or make them clearly unused."
+          - "Primary trip navigation points to expenses_path via NavigationHelper, which is correct for the new app."
+        deployment_docs:
+          - "Dockerfile runs assets:precompile but currently does not install Node/npm dependencies before asset compilation; the expense bundle depends on npm/esbuild."
+          - "config/deploy.yml uses Kamal same-origin Rails with HTTPS and asset_path bridging; this matches Goal 3 but needs operator documentation."
+          - "documentation/testing.md still says tests/ is empty even though Goal 2 added standalone Playwright specs."
+        observability:
+          - "Frontend pending mutation state is visible, but developer-facing sync failure logging/runbook is not documented yet."
+          - "No explicit release note tells operators how to inspect failed client mutations or Rails logs."
+        pwa_offline_proof:
+          - "Goal 2 has browser proof for offline shell reload after prior online use, but Goal 3 still needs production-like smoke/runbook documentation and service worker cache-version guidance."
+        acceptance_documentation:
+          - "The 22-step manual acceptance walkthrough from Goal 3 is not yet captured as an executable owner-facing checklist."
+      selected_worker: T002
+      worker_objective: "Prepare the first release-readiness package: ensure the production Docker/Kamal build compiles the expense TypeScript bundle, redirect legacy expense CRUD/secondary routes to the new expense app release path, update affected controller/navigation tests, document old data reset/export and deploy/PWA/sync-ops runbooks, and record the release/reset decision in the decision log."
+      allowed_files:
+        - "Dockerfile"
+        - "config/routes.rb"
+        - "app/controllers/expenses_controller.rb"
+        - "app/helpers/navigation_helper.rb"
+        - "app/views/expenses/**"
+        - "test/controllers/expenses_controller_test.rb"
+        - "test/helpers/navigation_helper_test.rb"
+        - "documentation/decision_log.md"
+        - "documentation/testing.md"
+        - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+        - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+        - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+      verify:
+        - "npm test"
+        - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+        - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+        - "git diff --check"
+      stop_if:
+        - "Need production credentials, staging access, or permission to perform destructive data reset."
+        - "Need files outside allowed_files."
+        - "Docker build compatibility requires a new infrastructure service instead of installing npm dependencies in the existing image."
+        - "Redirecting legacy routes would break a still-required release path that cannot be covered by the new expense app."
+        - "Verification fails twice for the same reason."
+  - id: T002
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Prepare the first release-readiness package: ensure the production Docker/Kamal build compiles the expense TypeScript bundle, redirect legacy expense CRUD/secondary routes to the new expense app release path, update affected controller/navigation tests, document old data reset/export and deploy/PWA/sync-ops runbooks, and record the release/reset decision in the decision log."
+    allowed_files:
+      - "Dockerfile"
+      - "config/routes.rb"
+      - "app/controllers/expenses_controller.rb"
+      - "app/helpers/navigation_helper.rb"
+      - "app/views/expenses/**"
+      - "test/controllers/expenses_controller_test.rb"
+      - "test/helpers/navigation_helper_test.rb"
+      - "documentation/decision_log.md"
+      - "documentation/testing.md"
+      - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+      - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+      - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need production credentials, staging access, or destructive data reset permission."
+      - "Need to change the fixed deployment architecture from same-origin Rails/Kamal."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      changed_files:
+        - "Dockerfile"
+        - "app/controllers/expenses_controller.rb"
+        - "app/helpers/navigation_helper.rb"
+        - "test/controllers/expenses_controller_test.rb"
+        - "test/helpers/navigation_helper_test.rb"
+        - "documentation/decision_log.md"
+        - "documentation/testing.md"
+        - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+        - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+        - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+      summary:
+        - "Docker production build now installs Node/npm packages and runs npm ci before Rails asset precompilation so the expense TypeScript/esbuild bundle is available in Kamal images."
+        - "Legacy expense create/edit/delete/duplicate/settlement/secondary flows now redirect to the new /expenses app surface with a release notice instead of mutating old expense records."
+        - "Expense secondary navigation in trip context now exposes only the new app entry point."
+        - "Controller and helper tests were updated to prove the legacy redirect behavior and non-mutating legacy writes."
+        - "Release/reset decision, old-data handling, Kamal/Docker notes, PWA/service worker operations, sync-ops guidance, required automated checks, and manual acceptance walkthrough were documented."
+      verification:
+        - command: "npm test"
+          result: pass
+        - command: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+          result: pass
+          detail: "54 runs, 151 assertions, 0 failures, 0 errors, 0 skips."
+        - command: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          result: pass
+          detail: "15 Playwright tests passed."
+        - command: "git diff --check"
+          result: pass
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      residual_risk:
+        - "npm audit reported 1 high severity vulnerability during Rails test setup; this did not fail verification and remains a follow-up security maintenance item."
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Tighten sync-failure observability for release readiness: inspect the current client mutation processing path, add minimal developer-visible logging or query documentation where needed, update tests/docs, and ensure operators can diagnose rejected or failed offline sync attempts without production console access."
+    allowed_files:
+      - "app/controllers/api/expense_client_mutations_controller.rb"
+      - "app/services/expenses/client_mutation_processor.rb"
+      - "test/controllers/api/expense_client_mutations_controller_test.rb"
+      - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+      - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+    verify:
+      - "RAILS_ENV=test bin/rails test test/controllers/api/expense_client_mutations_controller_test.rb"
+      - "git diff --check"
+    stop_if:
+      - "Need production data access or destructive reset permission."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      changed_files:
+        - "app/controllers/api/expense_client_mutations_controller.rb"
+        - "test/controllers/api/expense_client_mutations_controller_test.rb"
+        - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+        - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+      summary:
+        - "Rejected and conflict expense client mutation results now emit a Rails warning marker named expense_client_mutation_sync_issue with trip, actor, client UUID, mutation type, status, and error details."
+        - "Controller tests cover log emission for stale edit conflicts and semantically rejected mutation payloads."
+        - "The release runbook now names the log marker and includes Rails console queries for recent client mutations and expense events."
+      verification:
+        - command: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_client_mutations_controller_test.rb"
+          result: pass_after_clean_test_db
+          detail: "Initial focused run failed before assertions because the existing test database had stale foreign key residue. After recreating the test database, the focused suite ran 6 tests, 30 assertions, 0 failures, 0 errors, 0 skips."
+        - command: "git diff --check"
+          result: pass
+      commands:
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_client_mutations_controller_test.rb"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      residual_risk:
+        - "The test database reset again surfaced npm audit output with 1 high severity vulnerability; this remains a separate dependency maintenance follow-up."
+  - id: T004
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Prepare deployment, PWA/service worker, observability, and operations documentation once current gaps are validated."
+    allowed_files:
+      - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+    verify: []
+    stop_if:
+      - "Need production credentials or deployment execution."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      changed_files:
+        - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+      commands:
+        - cmd: "No separate command; T004 scope was completed by T002 and T003 verification."
+          status: pass
+      summary:
+        - "T002 produced the release runbook covering Kamal/Docker build, PWA/service worker operations, required checks, manual acceptance, reset/export, and deployment boundaries."
+        - "T003 added the missing sync-failure logging hook, tests, and exact operator log/query documentation."
+      superseded_by:
+        - "T002"
+        - "T003"
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Produce the final release acceptance evidence package: map Goal 3 acceptance criteria to concrete receipts, run the full automated release-readiness check set locally, document what cannot be executed without owner-managed deployment or device access, and prepare owner-facing manual PWA/offline walkthrough instructions without deploying."
+    allowed_files:
+      - "documentation/expense_release_acceptance_2026-06-13.md"
+      - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+      - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+      - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need unavailable staging/browser/device access; if blocked, produce owner-facing walkthrough instructions instead of stopping the whole goal."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      changed_files:
+        - "documentation/expense_release_acceptance_2026-06-13.md"
+        - "documentation/expense_release_readiness_runbook_2026-06-13.md"
+        - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md"
+        - "docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+      summary:
+        - "Added final release acceptance evidence mapping Goal 3 criteria to Goal 1, Goal 2, and Goal 3 receipts."
+        - "Separated local release-readiness proof from owner/operator responsibilities for production deployment, production reset, staging, and real installed-PWA device smoke testing."
+        - "Linked the acceptance evidence from the Goal 3 plan and release runbook."
+      verification:
+        - command: "npm test"
+          result: pass
+          detail: "8 JavaScript parser/split tests passed after building the expense bundle."
+        - command: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+          result: pass
+          detail: "56 runs, 166 assertions, 0 failures, 0 errors, 0 skips."
+        - command: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          result: pass
+          detail: "15 Playwright tests passed."
+        - command: "git diff --check"
+          result: pass
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      residual_risk:
+        - "Owner/operator still needs to perform the actual production deployment, optional old data export/reset, and real HTTPS installed-PWA smoke check."
+        - "npm audit reports 1 high severity advisory during Rails asset/test setup."
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Audit whether Goal 3 release readiness is complete against the full reset, deploy, offline/PWA, observability, and acceptance oracle."
+    inputs:
+      - "All done task receipts."
+      - "Last verification."
+      - "Current dirty diff."
+      - "documentation/expense_goal_3_release_readiness_reset_operational_trust_2026-06-10.md."
+      - "Goal 1 and Goal 2 board receipts."
+      - "Release/operations/manual acceptance documentation and evidence."
+    constraints:
+      - "Do not implement."
+      - "Reject completion if required Worker work is still queued or active."
+      - "Reject completion if production deployment was performed inside this goal."
+      - "Reject completion without reset/export decision documentation."
+      - "Reject completion without route/navigation compatibility proof."
+      - "Reject completion without Kamal/build/PWA operational documentation."
+      - "Reject completion without sync-failure observability evidence."
+      - "Reject completion without production-like offline/manual acceptance evidence or owner-facing walkthrough instructions."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Evidence mapped to each release acceptance criterion."
+      - "Missing evidence or next task if not complete."
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      evidence:
+        reset_export:
+          - "documentation/decision_log.md records the Expense V1 release/reset decision."
+          - "documentation/expense_release_readiness_runbook_2026-06-13.md documents non-destructive old data export/ignore handling and states production reset is owner-owned."
+        route_navigation:
+          - "Legacy expense create/edit/delete/duplicate/settlement/secondary flows redirect to /expenses."
+          - "Expense secondary navigation exposes the new app entry point only."
+          - "Focused controller/helper tests passed in the final release gate."
+        deploy_readiness:
+          - "Dockerfile installs Node/npm dependencies and runs npm ci before asset precompile."
+          - "Runbook documents same-origin Rails/Kamal deployment, asset compilation, and no new V1 infrastructure services."
+        pwa_offline:
+          - "Goal 2 receipts and final Playwright gate prove offline shell reload after prior online use, queued create/edit/void, retry, duplicate protection, conflict state, and mobile viewport behavior locally."
+          - "Runbook and acceptance evidence require owner/operator HTTPS installed-PWA smoke before production deployment."
+        observability:
+          - "Rejected/conflict client mutations emit expense_client_mutation_sync_issue Rails warnings."
+          - "Runbook includes exact Rails log marker and console queries for ClientMutation and ExpenseEvent inspection."
+        acceptance:
+          - "documentation/expense_release_acceptance_2026-06-13.md maps each Goal 3 criterion to evidence and records the boundary around owner deployment/device checks."
+          - "Goal 1 and Goal 2 boards are done and are referenced as prerequisite evidence."
+      final_verification:
+        - command: "npm test"
+          result: pass
+          detail: "8 JavaScript parser/split tests passed."
+        - command: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/expenses_controller_test.rb test/helpers/navigation_helper_test.rb test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb"
+          result: pass
+          detail: "56 runs, 166 assertions, 0 failures, 0 errors, 0 skips."
+        - command: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          result: pass
+          detail: "15 Playwright tests passed."
+        - command: "git diff --check"
+          result: pass
+        - command: "node /home/leo/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.8/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/expense-release-readiness-reset-operational-trust/state.yaml"
+          result: pass_before_final_audit
+      residual_risk:
+        - "Actual production deployment, optional old data export/reset, and real HTTPS installed-PWA smoke remain owner/operator tasks by charter."
+        - "npm audit reports 1 high severity advisory during asset/test setup."
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: unknown
+    task: null
+    commands: []

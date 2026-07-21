@@ -1,6 +1,7 @@
 # app/controllers/pwa_controller.rb
 class PwaController < ApplicationController
   skip_before_action :require_authentication # Service worker doesn't need authentication
+  skip_forgery_protection only: :service_worker
 
   def service_worker
     # Read the content of your custom service worker file

@@ -46,22 +46,22 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "should get by_person page" do
     select_trip_context
     get expenses_by_person_url
-    assert_response :success
-    assert_includes response.body, @expense.description
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
   test "should get by_category page" do
     select_trip_context
     get expenses_by_category_url
-    assert_response :success
-    assert_includes response.body, "food"
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
   test "should get settle page" do
     select_trip_context
     get expenses_settle_url
-    assert_response :success
-    assert_includes response.body, "Settle Up"
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
   test "should get summary page" do
@@ -78,13 +78,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "should get new" do
     select_trip_context
     get trip_new_expense_path
-    assert_response :success
-    assert_includes response.body, "Add New Expense"
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should create expense with equal split" do
+  test "legacy create redirects without creating expense" do
     select_trip_context
-    assert_difference("Expense.count") do
+    assert_no_difference("Expense.count") do
       post trip_expenses_index_path, params: {
         expense: {
           amount: 50.0,
@@ -98,21 +98,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    expense = Expense.last
-    assert_equal 50.0, expense.amount
-    assert_equal "Test dinner", expense.description
-    assert_equal @user, expense.payer
-    assert_equal 2, expense.expense_participants.count
-    assert_equal 25.0, expense.expense_participants.first.amount_owed
-
     assert_redirected_to expenses_path
-    follow_redirect!
-    assert_includes response.body, "Expense added successfully"
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should create expense with custom split" do
+  test "legacy custom split create redirects without creating expense" do
     select_trip_context
-    assert_difference("Expense.count") do
+    assert_no_difference("Expense.count") do
       post trip_expenses_index_path, params: {
         expense: {
           amount: 100.0,
@@ -129,22 +121,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    expense = Expense.last
-    assert_equal 100.0, expense.amount
-    assert_equal 2, expense.expense_participants.count
-
-    user_participant = expense.expense_participants.find_by(user: @user)
-    member_participant = expense.expense_participants.find_by(user: @member)
-
-    assert_equal 60.0, user_participant.amount_owed
-    assert_equal 40.0, member_participant.amount_owed
-
     assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should allow different payer than current user" do
+  test "legacy create with different payer redirects without creating expense" do
     select_trip_context
-    assert_difference("Expense.count") do
+    assert_no_difference("Expense.count") do
       post trip_expenses_index_path, params: {
         expense: {
           amount: 30.0,
@@ -158,21 +141,22 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    expense = Expense.last
-    assert_equal @member, expense.payer
     assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
   test "should get edit" do
     select_trip_context
     get trip_edit_expense_path
-    assert_response :success
-    assert_includes response.body, "Edit Expense"
-    assert_includes response.body, @expense.description
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should update expense" do
+  test "legacy update redirects without changing expense" do
     select_trip_context
+    original_description = @expense.description
+    original_amount = @expense.amount
+
     patch trip_expense_resource_path, params: {
       expense: {
         amount: 75.0,
@@ -186,15 +170,16 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     }
 
     @expense.reload
-    assert_equal 75.0, @expense.amount
-    assert_equal "Updated dinner", @expense.description
+    assert_equal original_amount, @expense.amount
+    assert_equal original_description, @expense.description
     assert_redirected_to expenses_path
-    follow_redirect!
-    assert_includes response.body, "Expense updated successfully"
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should update expense with custom split" do
+  test "legacy custom split update redirects without changing expense" do
     select_trip_context
+    original_amount = @expense.amount
+
     patch trip_expense_resource_path, params: {
       expense: {
         amount: 90.0,
@@ -211,45 +196,32 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     }
 
     @expense.reload
-    assert_equal 90.0, @expense.amount
-
-    user_participant = @expense.expense_participants.find_by(user: @user)
-    member_participant = @expense.expense_participants.find_by(user: @member)
-
-    assert_equal 30.0, user_participant.amount_owed
-    assert_equal 60.0, member_participant.amount_owed
+    assert_equal original_amount, @expense.amount
     assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should delete expense" do
+  test "legacy delete redirects without deleting expense" do
     select_trip_context
-    assert_difference("Expense.count", -1) do
+    assert_no_difference("Expense.count") do
       delete trip_expense_resource_path
     end
 
     assert_redirected_to expenses_path
-    follow_redirect!
-    assert_includes response.body, "Expense deleted successfully"
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should duplicate expense" do
+  test "legacy duplicate redirects without duplicating expense" do
     select_trip_context
-    assert_difference("Expense.count", 1) do
+    assert_no_difference("Expense.count") do
       get trip_duplicate_expense_path
     end
 
-    duplicated = Expense.last
-    assert_equal @expense.description + " (copy)", duplicated.description
-    assert_equal @expense.amount, duplicated.amount
-    assert_equal @expense.category, duplicated.category
-    assert_equal Date.current, duplicated.expense_date
-
     assert_redirected_to expenses_path
-    follow_redirect!
-    assert_includes response.body, "Expense duplicated successfully"
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should handle validation errors on create" do
+  test "legacy invalid create still redirects to new expense app" do
     select_trip_context
     post trip_expenses_index_path, params: {
       expense: {
@@ -261,11 +233,11 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :unprocessable_entity
-    assert_includes response.body, "Add New Expense" # Should render new template
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
-  test "should handle validation errors on update" do
+  test "legacy invalid update still redirects to new expense app" do
     select_trip_context
     patch trip_expense_resource_path, params: {
       expense: {
@@ -275,8 +247,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :unprocessable_entity
-    assert_includes response.body, "Edit Expense" # Should render edit template
+    assert_redirected_to expenses_path
+    assert_equal "The new expense app now handles this flow.", flash[:notice]
   end
 
   # Authentication handled by test_helper

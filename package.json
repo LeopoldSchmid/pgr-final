@@ -1,14 +1,22 @@
 {
   "private": true,
+  "type": "module",
   "devDependencies": {
     "@playwright/test": "^1.50.1",
-    "@types/node": "^22.13.8"
+    "@types/node": "^22.13.8",
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
   },
   "scripts": {
+    "build": "esbuild app/javascript/expense_application.ts --bundle --sourcemap --format=esm --outfile=app/assets/builds/expense_app.js",
+    "test": "npm run build && esbuild app/javascript/expenses/parser.ts --bundle --format=esm --outfile=tmp/expense_parser_test.js && esbuild app/javascript/expenses/splits.ts --bundle --format=esm --outfile=tmp/expense_splits_test.js && node --test test/javascript/*.test.mjs",
     "test:e2e": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --project=chromium",
     "test:e2e:headed": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 PLAYWRIGHT_HEADED=1 playwright test --project=chromium",
     "test:e2e:ui": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 playwright test --ui --project=chromium",
     "test:e2e:local": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_PORT=3001 playwright test --project=chromium --workers=1",
     "test:e2e:local:headed": "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 PLAYWRIGHT_SKIP_WEBSERVER=1 PLAYWRIGHT_PORT=3001 PLAYWRIGHT_HEADED=1 playwright test --project=chromium --workers=1"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2"
   }
 }

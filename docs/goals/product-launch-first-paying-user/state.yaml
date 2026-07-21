@@ -1,0 +1,378 @@
+version: 2
+
+goal:
+  title: "Product Launch and First Paying User"
+  slug: "product-launch-first-paying-user"
+  kind: recovery
+  tranche: "Assess the complete product, pass an owner scope gate, then execute verified launch packages continuously through the first real paying user."
+  status: active
+  oracle:
+    signal: "A real outside user discovers the public offer, pays successfully, completes onboarding, and experiences the core value."
+    cadence: "After each Worker package, at the owner scope gate, before launch, and at final audit."
+    final_proof: "Receipt-backed production funnel evidence plus evidence of the first genuine external successful payment and completed core journey."
+  intake:
+    original_request: "Assess the whole long-stalled project, finish and refine what belongs in the product, monetize and publish it, and reach the first paying user."
+    interpreted_outcome: "A deliberately scoped, trustworthy paid product is public and has delivered its core value to its first real paying user."
+    input_shape: recovery
+    audience: "Product owner and prospective paying users"
+    authority: requested
+    proof_type: metric
+    completion_proof: "At least one real outside user discovers the product, pays, completes onboarding, and experiences the central value."
+    likely_misfire: "Stopping at analysis, local polish, deployment, or a sandbox payment while no real user has paid and received value."
+    blind_spots_considered:
+      - "Scope creep disguised as valuable refinement"
+      - "Incomplete core application areas"
+      - "Offer, pricing, acquisition, payment, onboarding, trust, privacy, and operational gaps"
+      - "Stale plans and a large pre-existing dirty worktree"
+    existing_plan_facts:
+      - "Existing GoalBuddy boards and release-readiness documents must be inspected as evidence and validated for freshness."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  exact_human_approval_can_terminal_wait: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/product-launch-first-paying-user/"
+    command: "node /home/leo/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.0/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs --goal docs/goals/product-launch-first-paying-user"
+
+active_task: T007
+
+tasks:
+  - id: T001
+    type: scout
+    assignee: Scout
+    status: done
+    reasoning_hint: high
+    objective: "Perform a comprehensive read-only assessment of the complete product and its current recovery state."
+    inputs:
+      - "Entire repository"
+      - "Existing docs/goals boards and documentation"
+      - "Current branch, history, staged changes, unstaged changes, and untracked files"
+    constraints:
+      - "Read-only: do not edit product or control files."
+      - "Preserve and distinguish committed baseline, staged work, unstaged work, and stale plans."
+      - "Use concrete file-path and command evidence."
+      - "Do not recommend implementation scope before mapping user journeys, completeness, and verification health."
+    expected_output:
+      - "Product purpose and target-user hypothesis"
+      - "Architecture and feature map"
+      - "End-to-end user journey inventory with completeness and risk"
+      - "Current dirty-worktree and prior-plan reconciliation"
+      - "Verification commands and honest health baseline"
+      - "Technical, UX, security, privacy, deployment, operational, and maintainability findings"
+      - "Ranked launch blockers, valuable refinements, and deferrable polish"
+      - "Evidence-rich note suitable for the next commercial Scout and Judge tasks"
+    receipt:
+      result: done
+      summary: "Completed the full read-only recovery audit. The product has a substantial collaborative-trip core, but no coherent release candidate: Expense work spans committed, staged, unstaged and untracked layers; Rails/calendar and Expense E2E gates are red; staging returns 502; and visible placeholders, inconsistent access patterns, absent monetization/legal/monitoring and narrow browser proof block launch readiness."
+      evidence:
+        - notes/T001-complete-product-recovery-audit.md
+      note: notes/T001-complete-product-recovery-audit.md
+      harness: codex
+  - id: T002
+    type: scout
+    assignee: Scout
+    status: done
+    reasoning_hint: high
+    objective: "Assess commercial launch readiness and define evidence-backed options for positioning, pricing, monetization, trust, and first-customer acquisition."
+    inputs:
+      - "T001 receipt and note"
+      - "Existing product copy, public pages, payment or subscription code, policies, and deployment documentation"
+      - "Current primary sources and relevant comparable products where external research is needed"
+    constraints:
+      - "Read-only: do not edit product or control files."
+      - "Separate repository facts, source-backed market facts, and explicit inference."
+      - "Do not mistake generic startup advice for evidence about this product."
+      - "Do not expose secrets or customer/payment data."
+    expected_output:
+      - "Target-user and painful-job hypotheses"
+      - "Current value proposition and offer gaps"
+      - "Monetization and pricing options with tradeoffs"
+      - "Payment, onboarding, trust, legal-minimum, analytics, support, and operational readiness"
+      - "Realistic first-customer acquisition experiments"
+      - "Ranked launch blockers, refinements, and post-launch candidates"
+    receipt:
+      result: done
+      summary: "Commercial audit recommends a German-first organizer-paid wedge for 5–15-person self-organized trips, centered on meal/shopping coordination plus trustworthy expenses rather than generic itinerary or expense competition. The decision candidate is a €29 one-time Founding Trip Pass with invited members free, founder-led acquisition from ten qualified upcoming-trip organizers, and an observable paid group-value event. Payment, entitlement, legal/consumer, privacy, support, analytics and operating flows are entirely missing and are launch gates."
+      evidence:
+        - notes/T002-commercial-launch-readiness.md
+      note: notes/T002-commercial-launch-readiness.md
+      harness: codex
+  - id: T003
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: xhigh
+    objective: "Synthesize the technical/product and commercial assessments into a skeptical owner decision packet."
+    inputs:
+      - "T001 receipt and note"
+      - "T002 receipt and note"
+      - "Original request and goal oracle"
+    constraints:
+      - "Read-only and evidence-bound."
+      - "Do not implement or silently choose major product, pricing, or launch decisions for the owner."
+      - "Challenge stale assumptions and distinguish must-have product completeness from valuable refinement and delay-producing polish."
+    expected_output:
+      - "Concise current-state verdict"
+      - "Confirmed product core and unresolved product choices"
+      - "Recommended launch scope with alternatives and tradeoffs"
+      - "Ranked launch blockers and refinements"
+      - "Proposed offer, price test, publication route, and acquisition experiment"
+      - "Verification and production-readiness gates"
+      - "Exact owner decisions required at T004"
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      rationale: "Evidence supports progression to an owner decision gate, not implementation or launch. Recommended paid-beta scope is an organizer-paid German group-trip operations hub retaining Trip, meal/shopping, Expense V1 and core Memories flows while hiding Packing, Itinerary, Templates and Albums. The current worktree, gates, staging, payments, legal/privacy and operations are not launch-ready. Owner must choose scope, price, payment provider, selling identity, retention/refunds, production-data handling and acquisition authority."
+      evidence:
+        - notes/T001-complete-product-recovery-audit.md
+        - notes/T002-commercial-launch-readiness.md
+        - notes/T003-owner-decision-packet.md
+      note: notes/T003-owner-decision-packet.md
+      missing_evidence:
+        - "Owner business/tax/legal setup and payment-provider eligibility"
+        - "Production user/data sensitivity"
+        - "Prior willingness-to-pay evidence and qualified upcoming-trip prospects"
+      harness: codex
+  - id: T004
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: high
+    objective: "Present the assessment and conduct the explicit owner decision gate for product scope, refinements, offer, price test, publication, and first-customer strategy."
+    inputs:
+      - "T003 decision packet"
+    constraints:
+      - "Do not begin major implementation before recording the owner's decisions."
+      - "Make recommendations and tradeoffs concrete enough for fast decisions."
+      - "Preserve rejected and deferred work visibly without turning it into launch scope."
+    expected_output:
+      - "Owner-approved launch definition"
+      - "Required product areas and accepted refinements"
+      - "Explicitly deferred work"
+      - "Approved offer and initial pricing experiment"
+      - "Approved publication and first-customer approach"
+      - "Any exact approvals, credentials, costs, or policy choices still required"
+    receipt:
+      result: done
+      summary: "Owner approved a Wegsam paid-beta group-trip hub with monthly/annual organizer subscriptions, invited members free, global Stripe Managed Payments, read-only post-subscription archives, user-friendly refunds, protected legacy production data, focused core-journey refinement and no prospect outreach until an explicit post-readiness go/no-go."
+      evidence:
+        - notes/T004-owner-decisions.md
+      note: notes/T004-owner-decisions.md
+      harness: codex
+  - id: T005
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: xhigh
+    objective: "Convert the approved owner decisions into the largest safe sequence of coherent launch work packages and fully specify the first Worker package."
+    inputs:
+      - "T004 receipt"
+      - "T001 and T002 evidence"
+      - "Current repository state at activation time"
+    constraints:
+      - "Do not implement."
+      - "Protect all pre-existing dirty-worktree changes."
+      - "Prefer vertical user-facing or operational slices with clear oracle progress."
+    expected_output:
+      - "Sequenced launch backlog"
+      - "Dependencies and decision gates"
+      - "Exact first Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      summary: "Sequenced nine coherent recovery-to-launch packages. The first Worker must preserve and reconcile the mixed Expense V1 tree, repair the invalid fixture/database baseline, and make Rails, JavaScript and Expense Playwright gates green before branding, product refinement or billing begins."
+      evidence:
+        - notes/T005-launch-packages.md
+      note: notes/T005-launch-packages.md
+      harness: codex
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: high
+    objective: "Preserve and reconcile the current mixed Expense V1 domain/API/frontend/PWA work into one coherent local release candidate; repair the fixture/database baseline and make the complete Rails, JavaScript and Expense Playwright gates green."
+    allowed_files:
+      - "Gemfile"
+      - "Gemfile.lock"
+      - "package.json"
+      - "package-lock.json"
+      - "Procfile.dev"
+      - "Dockerfile"
+      - "playwright.config.ts"
+      - "app/controllers/expenses_controller.rb"
+      - "app/controllers/api/*expense*.rb"
+      - "app/controllers/api/split_groups_controller.rb"
+      - "app/controllers/api/trip_people_controller.rb"
+      - "app/controllers/pwa_controller.rb"
+      - "app/helpers/navigation_helper.rb"
+      - "app/javascript/custom_service_worker.js"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expenses/**"
+      - "app/models/{client_mutation,expense,expense_event,expense_participant,expense_split,split_group,split_group_membership,trip,trip_person}.rb"
+      - "app/services/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "app/views/shared/_secondary_navigation.html.erb"
+      - "app/views/layouts/application.html.erb"
+      - "db/migrate/20260610000*.rb"
+      - "db/schema.rb"
+      - "test/fixtures/**"
+      - "test/controllers/**/*expense*"
+      - "test/controllers/api/{split_groups,trip_people}_controller_test.rb"
+      - "test/models/{client_mutation,expense,expense_split,split_group,trip_person}_test.rb"
+      - "test/services/expenses/**"
+      - "test/helpers/navigation_helper_test.rb"
+      - "test/javascript/**"
+      - "test/integration/calendar_system_test.rb"
+      - "tests/expenses-quick-add.spec.ts"
+      - "documentation/expense_*.md"
+      - "documentation/testing.md"
+      - "documentation/decision_log.md"
+    verify:
+      - "bin/rails db:test:prepare"
+      - "bin/rails test"
+      - "npm test"
+      - "npx playwright test tests/expenses-quick-add.spec.ts --project=chromium --workers=1 --reporter=list"
+      - "git diff --check"
+    stop_if:
+      - "T005 has not supplied exact allowed_files and verification commands."
+      - "The package would overwrite or invalidate unexplained pre-existing user changes."
+      - "A material product, legal, pricing, spending, credential, or production decision lacks owner approval."
+      - "Verification fails twice without a new evidence-based diagnosis."
+    receipt:
+      result: done
+      summary: "Recovered the mixed Expense V1 tree without discarding owner work; repaired current calendar and panel-based browser expectations, fixed copy/sidebar/mobile-navigation defects, and isolated Playwright test data. Rails is green before and after all 16 Expense browser scenarios."
+      evidence:
+        - notes/T006-expense-v1-recovery.md
+      note: notes/T006-expense-v1-recovery.md
+      harness: codex
+  - id: T007
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: high
+    objective: "Lock the supported Wegsam product surface: apply the working brand and initial host configuration, hide deferred product areas, and align German/English navigation and public claims without a broad redesign."
+    allowed_files:
+      - "config/**"
+      - "app/assets/**"
+      - "app/helpers/navigation_helper.rb"
+      - "app/views/layouts/**"
+      - "app/views/pages/**"
+      - "app/views/shared/**"
+      - "app/views/trips/**"
+      - "app/views/pwa/**"
+      - "app/javascript/**"
+      - "test/helpers/navigation_helper_test.rb"
+      - "test/integration/**"
+      - "test/controllers/pages_controller_test.rb"
+      - "tests/**"
+      - "documentation/**"
+    verify:
+      - "bin/rails test"
+      - "npm test"
+      - "git diff --check"
+    stop_if:
+      - "A name or copy decision conflicts with T004."
+      - "Host changes require DNS, production credentials, or a production write."
+      - "Hiding a deferred area would delete or migrate its stored data rather than only removing it from the supported surface."
+      - "A broad visual redesign would be required."
+    receipt: null
+  - id: T997
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: xhigh
+    objective: "Run the pre-launch audit against the approved scope and the complete discover-pay-onboard-core-value funnel."
+    inputs:
+      - "All implementation receipts and current verification evidence"
+      - "Approved T004 launch definition"
+      - "Production-readiness evidence"
+    constraints:
+      - "Do not implement."
+      - "Reject launch readiness on weak, stale, sandbox-only, or partial funnel proof."
+      - "Specify one coherent remediation package when not ready."
+    expected_output:
+      - "ready | not_ready"
+      - "Scope acceptance map"
+      - "Funnel, security, privacy, payment, operations, rollback, analytics, and support verdicts"
+      - "Exact remediation task if not ready"
+      - "Exact production approvals or actions required if ready"
+    receipt: null
+  - id: T998
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: high
+    objective: "Complete the approved production publication and first-customer acquisition run, recording privacy-safe funnel evidence."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "T997 has not recorded ready."
+      - "Production credentials, spending, legal acceptance, or external communication lacks explicit authority."
+      - "Real customer or payment data would be exposed in repository artifacts or receipts."
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: xhigh
+    objective: "Audit the complete outcome against the original request and first-paying-user oracle."
+    inputs:
+      - "All task receipts and notes"
+      - "Latest full verification"
+      - "Production funnel and first-payment evidence"
+      - "Approved launch definition"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if required Worker work remains queued, active, or blocked."
+      - "Reject completion for internal, test, complimentary, refunded, or otherwise non-genuine payment evidence."
+      - "Protect customer privacy while requiring sufficient proof."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Oracle evidence map"
+      - "Missing evidence and exact next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: "master ahead of origin/master by 1 with substantial staged, unstaged, and untracked expense/PWA and release-readiness work present at prep time"
+  last_verification:
+    result: pass
+    task: T006
+    commands:
+      - "bin/rails test — 234 runs, 675 assertions, 0 failures, 0 errors"
+      - "npm test — 2 passed"
+      - "npx playwright test tests/expenses-quick-add.spec.ts --project=chromium --workers=1 --reporter=list — 16 passed"
+      - "bin/rails test after Playwright — 234 runs, 675 assertions, 0 failures, 0 errors"
+      - "git diff --check — pass"

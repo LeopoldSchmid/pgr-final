@@ -66,3 +66,5 @@ end
 
 gem "capybara", "~> 3.40", group: :test
 gem "capybara-playwright-driver", "~> 0.5.4", group: :test
+
+gem "jsbundling-rails", "~> 1.3"

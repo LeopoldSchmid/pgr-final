@@ -37,9 +37,9 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: `RAILS_ENV=test bin/rails db:prepare && RAILS_ENV=test bin/rails server -b 127.0.0.1 -p ${playwrightPort}`,
+        command: `RAILS_ENV=test bin/rails db:prepare && RAILS_ENV=test bin/rails runner 'user = User.find_or_initialize_by(email_address: "expense-e2e@example.com"); user.password = "password"; user.locale = "en" if user.respond_to?(:locale=); user.save!; member = User.find_or_initialize_by(email_address: "expense-member-e2e@example.com"); member.password = "password"; member.locale = "en" if member.respond_to?(:locale=); member.save!; Trip.where(name: "Playwright Expense Trip", user: user).destroy_all; trip = Trip.create!(user: user, name: "Playwright Expense Trip", start_date: Date.current, end_date: Date.current + 2.days); trip.add_member(member); trip.trip_person_for(user); trip.trip_person_for(member)' && RAILS_ENV=test bin/rails server -b 127.0.0.1 -p ${playwrightPort}`,
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
         timeout: 45 * 1000
       }
 });

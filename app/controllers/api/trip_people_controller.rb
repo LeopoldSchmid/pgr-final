@@ -4,6 +4,7 @@ class Api::TripPeopleController < Api::BaseController
   before_action :set_trip_person, only: [ :update, :link_user, :merge ]
 
   def index
+    @trip.ensure_expense_people!
     render json: @trip.trip_people.order(:display_name).map { |person| serialize(person) }
   end
 

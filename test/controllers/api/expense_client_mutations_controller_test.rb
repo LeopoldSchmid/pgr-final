@@ -83,6 +83,57 @@ class Api::ExpenseClientMutationsControllerTest < ActionDispatch::IntegrationTes
     assert body.fetch("conflict")
   end
 
+  test "stale edit logs sync issue for developers" do
+    expense = @trip.expenses.create!(
+      amount: 10,
+      description: "Server value",
+      category: "food",
+      currency: "EUR",
+      payer: @user,
+      payer_trip_person: @payer
+    )
+    stale_revision = expense.lock_version
+    expense.update!(description: "Changed already")
+
+    logs = capture_rails_logs do
+      post api_trip_expense_client_mutations_url(@trip), params: {
+        client_mutation: {
+          client_uuid: "mutation-api-log-conflict",
+          mutation_type: "expense_update",
+          payload: {
+            expense_id: expense.id,
+            base_revision: stale_revision,
+            expense: { description: "Offline value" }
+          }
+        }
+      }
+    end
+
+    assert_response :conflict
+    assert_includes logs, "expense_client_mutation_sync_issue"
+    assert_includes logs, "client_uuid=mutation-api-log-conflict"
+    assert_includes logs, "status=conflict"
+  end
+
+  test "rejected mutation logs sync issue for developers" do
+    logs = capture_rails_logs do
+      post api_trip_expense_client_mutations_url(@trip), params: {
+        client_mutation: {
+          client_uuid: "mutation-api-log-rejected",
+          mutation_type: "expense_update",
+          payload: { base_revision: 0, expense: { description: "Missing expense id" } }
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_equal "rejected", body.fetch("status")
+    assert_includes logs, "expense_client_mutation_sync_issue"
+    assert_includes logs, "client_uuid=mutation-api-log-rejected"
+    assert_includes logs, "status=rejected"
+  end
+
   test "does not allow non-member mutation" do
     other_user = User.create!(email_address: "mutation-outsider@example.com", password: "password")
     post session_url, params: { email_address: other_user.email_address, password: "password" }
@@ -118,5 +169,15 @@ class Api::ExpenseClientMutationsControllerTest < ActionDispatch::IntegrationTes
         { trip_person_id: @member.id, amount_owed: "25.00", split_method: "exact", split_value: "25.00" }
       ]
     }
+  end
+
+  def capture_rails_logs
+    output = StringIO.new
+    previous_logger = Rails.logger
+    Rails.logger = ActiveSupport::Logger.new(output)
+    yield
+    output.string
+  ensure
+    Rails.logger = previous_logger
   end
 end

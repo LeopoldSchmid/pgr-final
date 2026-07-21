@@ -119,6 +119,10 @@ class Trip < ApplicationRecord
     TripPerson.find_or_create_for_user!(trip: self, user: user)
   end
 
+  def ensure_expense_people!
+    ([ user ] + active_members).compact.uniq.each { |member| trip_person_for(member) }
+  end
+
   def expense_ledger
     Expenses::Ledger.new(self)
   end

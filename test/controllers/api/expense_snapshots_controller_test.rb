@@ -40,6 +40,27 @@ class Api::ExpenseSnapshotsControllerTest < ActionDispatch::IntegrationTest
     assert_not_empty body.fetch("settlement_suggestions")
   end
 
+  test "snapshot materializes trip members as expense people" do
+    trip = Trip.create!(
+      user: @user,
+      name: "Legacy Member Trip",
+      start_date: Date.current,
+      end_date: Date.current + 1.day
+    )
+    member = users(:member)
+    trip.trip_people.destroy_all
+    trip.trip_members.find_or_create_by!(user: member) { |membership| membership.role = "member" }
+
+    assert_difference("TripPerson.count", 2) do
+      get api_trip_expense_snapshot_url(trip)
+    end
+
+    assert_response :success
+    names = JSON.parse(response.body).fetch("trip_people").map { |person| person.fetch("display_name") }
+    assert_includes names, @user.email_address.split("@").first
+    assert_includes names, member.email_address.split("@").first
+  end
+
   test "does not expose inaccessible trip" do
     other_user = User.create!(email_address: "outsider@example.com", password: "password")
     post session_url, params: { email_address: other_user.email_address, password: "password" }

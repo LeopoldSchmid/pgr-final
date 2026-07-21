@@ -1,5 +1,28 @@
 # Decision Log
 
+## 2026-06-13 - Expense V1 release replaces legacy expense CRUD
+- Decision: Release Expense System V1 through the modern `/expenses` app and redirect legacy expense create/edit/delete/duplicate plus legacy trip-context secondary expense pages back to that app.
+- Why:
+  - Goal 2 made the new TypeScript expense app the trustworthy V1 surface for quick capture, splits, roster/groups, balances, offline queueing, and PWA behavior.
+  - Keeping the old user-bound CRUD pages active during release would preserve the implementation that V1 is replacing and create split-brain behavior.
+  - Existing production expense data is test data, so a careful legacy-data migration is not required before release.
+- Consequence:
+  - The product owner/operator may export the one test trip before rollout if it is still useful, then ignore or reset old expense records as part of release operations.
+  - Production must not seed fake expense data.
+  - The Docker/Kamal build path must install JavaScript dependencies and compile the expense bundle during asset precompile.
+  - Operational release notes live in `documentation/expense_release_readiness_runbook_2026-06-13.md`.
+
+## 2026-06-10 - Expense frontend uses a bundled TypeScript island
+- Decision: Build the V1 expense frontend as a focused TypeScript island using `jsbundling-rails` with `esbuild`, mounted from Stimulus, while keeping the existing importmap setup for the rest of the app during the transition.
+- Why:
+  - The expense workflow needs richer client behavior for quick capture, local state, offline queueing, and PWA sync than the legacy CRUD pages provide.
+  - A bundled island keeps the scope smaller than a full SPA rewrite and avoids React, Vue, Svelte, Redux, a client router, or a component framework.
+  - Preserving importmap for existing screens reduces migration risk while Goal 2 is implemented incrementally.
+- Consequence:
+  - Expense-specific JavaScript lives under `app/javascript/expenses/` and is built to `app/assets/builds/expense_app.js`.
+  - Local development and test verification must run `npm run build` when expense TypeScript changes.
+  - Production build/deployment must ensure the JavaScript build runs before asset precompile; detailed release verification remains part of the release-readiness goal.
+
 ## 2026-04-09 - Playwright replaces Selenium for browser-based test coverage
 - Decision: Use Playwright as the browser testing baseline for `plangoreminisce` and remove Selenium as the primary path.
 - Why:

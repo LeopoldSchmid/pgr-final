@@ -1,0 +1,603 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Expense Frontend Offline PWA"
+  slug: "expense-frontend-offline-pwa"
+  kind: existing_plan
+  tranche: "Build successive safe verified frontend/offline/PWA slices until the full Goal 2 expense experience is complete."
+  status: done
+  oracle:
+    signal: "The new expense UI replaces the old expense flow and passes browser-facing proof for quick add, unequal splits, pending person inclusion, offline create/edit/void, refresh/restart persistence, reconnect sync, duplicate retry protection, conflict state handling, PWA shell caching, and mobile usability."
+    cadence: "after each Worker package and at final audit"
+    final_proof: "Receipts and passing verification cover parser behavior, split editor state, IndexedDB/offline queue behavior, sync transitions, conflict handling, PWA shell caching, online quick add, unequal splits, pending person inclusion, offline create/edit/void, reconnect sync, duplicate retry protection, and legacy flow replacement."
+  intake:
+    original_request: "Prepare GoalBuddy for documentation/expense_goal_2_frontend_offline_pwa_2026-06-10.md; no UI board needed."
+    interpreted_outcome: "Use the existing Goal 2 plan to execute the modern expense frontend and offline PWA experience against the Goal 1 backend."
+    input_shape: existing_plan
+    audience: "PlanGoReminisce travelers and the development team implementing Goal 2."
+    authority: requested
+    proof_type: test
+    completion_proof: "The new expense app is implemented, replaces the old clunky flow, works offline after prior online use, preserves queued changes across refresh/restart, syncs without duplication, shows conflicts clearly, and passes the required browser-facing tests."
+    likely_misfire: "Delivering a modern-looking UI or partial quick-add surface while leaving durable offline editing, conflict states, duplicate-safe sync, API integration, mobile friction, or fixed low-dependency technology choices incomplete."
+    blind_spots_considered:
+      - "Service workers and IndexedDB work in a normal browser tab after prior online use; PWA installation is only launch convenience."
+      - "Offline editing and voiding previously synced expenses require base revision tracking and visible conflict handling."
+      - "Goal 1 API contracts must be validated before frontend slices depend on them."
+      - "Browser/PWA/offline tests may need both Rails system tests and standalone Playwright specs."
+      - "Production deployment is intentionally excluded from Goal 2."
+      - "The UI must be mobile-first and low-friction without becoming a full SPA rewrite."
+    existing_plan_facts:
+      - "Primary plan: documentation/expense_goal_2_frontend_offline_pwa_2026-06-10.md."
+      - "Goal 2 depends on Goal 1 backend/API, canonical split behavior, idempotency, revisions, and conflict semantics."
+      - "Frontend stack is plain TypeScript modules mounted by Stimulus, jsbundling-rails with esbuild, existing Tailwind, IndexedDB, optional idb helper, and a custom service worker."
+      - "Do not use React, Svelte, Vue, Redux, a client-side router, a UI component framework, Dexie, Workbox, or a full SPA rewrite for V1."
+      - "Offline V1 includes create, edit, and void for cached expenses with conflict detection."
+      - "Offline support must also work in a normal browser tab after prior online use."
+      - "Testing must continue documentation/testing.md and documentation/delivery_standards.md."
+      - "Migration of existing user data is not required for Goal 2."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: none
+  local:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy board docs/goals/expense-frontend-offline-pwa"
+
+active_task: null
+
+tasks:
+  - id: T001
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Validate the Goal 2 frontend/offline handoff against the current Rails app and completed Goal 1 backend contracts, then choose the first safe implementation slice."
+    inputs:
+      - "documentation/expense_goal_2_frontend_offline_pwa_2026-06-10.md"
+      - "documentation/expense_goal_1_domain_ledger_sync_api_2026-06-10.md"
+      - "docs/goals/expense-domain-ledger-sync-api/state.yaml"
+      - "documentation/testing.md"
+      - "documentation/delivery_standards.md"
+      - "Current Rails, Hotwire, Tailwind, JavaScript/PWA setup."
+      - "Goal 1 API controllers, routes, models, services, and tests."
+    constraints:
+      - "Read-only; do not implement."
+      - "Preserve the fixed technology choices from Goal 2."
+      - "Do not add React, Svelte, Vue, Redux, a client-side router, a UI component framework, Dexie, Workbox, or a full SPA rewrite."
+      - "Prefer a first vertical slice that proves data loading, quick capture, local state, API submission, and test wiring rather than isolated helpers only."
+      - "If Goal 1 contracts are insufficient for the first frontend slice, identify the smallest backend adapter or contract repair and encode it as Worker scope."
+    expected_output:
+      - "Decision: approved | revise_plan | blocked."
+      - "Summary of current app/frontend/PWA/test setup relevant to Goal 2."
+      - "Backend/API contract fit or gaps for the first slice."
+      - "Exact Worker objective for T002."
+      - "T002 allowed_files."
+      - "T002 verify commands."
+      - "T002 stop_if conditions."
+      - "Any deferred risks that must stay visible on the board."
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      summary: "Goal 2 is feasible but the app currently uses importmap, while the fixed Goal 2 frontend technology requires jsbundling-rails with esbuild for TypeScript. The first useful slice should establish that build path and mount a focused expense frontend island that loads the Goal 1 snapshot, supports deterministic quick-add parsing, submits a simple equal-split expense through the client mutation API, and adds focused parser/browser-facing verification."
+      evidence:
+        - "config/importmap.rb"
+        - "Gemfile"
+        - "Procfile.dev"
+        - "package.json"
+        - "app/javascript/application.js"
+        - "app/javascript/controllers/index.js"
+        - "app/javascript/custom_service_worker.js"
+        - "app/views/expenses/index.html.erb"
+        - "app/controllers/expenses_controller.rb"
+        - "app/controllers/api/expense_snapshots_controller.rb"
+        - "app/controllers/api/expense_client_mutations_controller.rb"
+        - "documentation/testing.md"
+        - "documentation/delivery_standards.md"
+        - "docs/goals/expense-domain-ledger-sync-api/state.yaml"
+      backend_contract_fit:
+        - "Snapshot endpoint returns trip, trip_people, split_groups, expenses, balances, and settlement_suggestions."
+        - "Client mutation endpoint accepts idempotent create/update/void mutation payloads and returns accepted, duplicate, rejected, or conflict-shaped responses."
+        - "Goal 1 completed targeted Rails verification for the backend API and ledger foundation."
+      backend_contract_gaps:
+        - "Snapshot lacks recent suggestion metadata; defer learned suggestions until after the first mounted slice."
+        - "Legacy ExpensesController index still computes old user-bound expense data; first slice should avoid depending on those instance variables for new app behavior."
+        - "Service worker currently uses a simple cache-first handler and older offline journal/location logic; PWA/offline queue should be a later dedicated slice."
+      selected_worker: T002
+      worker_objective: "Add the Goal 2 frontend foundation and first vertical expense app slice: configure jsbundling-rails/esbuild TypeScript output alongside existing Rails assets, mount a Stimulus-backed expense app island on expenses#index, add plain TypeScript modules for types, API snapshot loading, deterministic quick-add parsing, basic store/rendering, and online create submission through the client mutation endpoint, plus focused parser and browser-facing tests."
+      allowed_files:
+        - "Gemfile"
+        - "Gemfile.lock"
+        - "package.json"
+        - "package-lock.json"
+        - "Procfile.dev"
+        - "app/assets/builds/**"
+        - "app/javascript/application.js"
+        - "app/javascript/expense_application.ts"
+        - "app/javascript/controllers/index.js"
+        - "app/javascript/controllers/expense_app_controller.js"
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/**"
+        - "app/views/layouts/application.html.erb"
+        - "app/views/expenses/index.html.erb"
+        - "config/importmap.rb"
+        - "test/javascript/**"
+        - "tests/**"
+        - "playwright.config.ts"
+        - "documentation/decision_log.md"
+        - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+      verify:
+        - "bundle install"
+        - "npm install"
+        - "npm run build"
+        - "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+        - "npm test -- --runInBand || true"
+        - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      stop_if:
+        - "The app cannot support jsbundling-rails/esbuild without removing working importmap behavior outside the expense app."
+        - "Need to change backend mutation semantics beyond an adapter-level repair."
+        - "Need to introduce a forbidden frontend dependency."
+        - "The selected quick-add behavior cannot be tested without a larger auth/test harness decision."
+  - id: T002
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add the Goal 2 frontend foundation and first vertical expense app slice: configure jsbundling-rails/esbuild TypeScript output alongside existing Rails assets, mount a Stimulus-backed expense app island on expenses#index, add plain TypeScript modules for types, API snapshot loading, deterministic quick-add parsing, basic store/rendering, and online create submission through the client mutation endpoint, plus focused parser and browser-facing tests."
+    allowed_files:
+      - "Gemfile"
+      - "Gemfile.lock"
+      - "package.json"
+      - "package-lock.json"
+      - "Procfile.dev"
+      - "app/assets/builds/**"
+      - "app/javascript/application.js"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/controllers/index.js"
+      - "app/javascript/controllers/expense_app_controller.js"
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/layouts/application.html.erb"
+      - "app/views/expenses/index.html.erb"
+      - "config/importmap.rb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "playwright.config.ts"
+      - "documentation/decision_log.md"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "bundle install"
+      - "npm install"
+      - "npm run build"
+      - "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Goal 1 API behavior is incompatible with the selected frontend slice."
+      - "The fixed frontend technology choices would need to change."
+      - "Offline or sync semantics are ambiguous enough to risk data loss or duplication."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "Gemfile"
+        - "Gemfile.lock"
+        - "package.json"
+        - "package-lock.json"
+        - "Procfile.dev"
+        - "app/javascript/expense_application.ts"
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/api.ts"
+        - "app/javascript/expenses/parser.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/store.ts"
+        - "app/javascript/expenses/types.ts"
+        - "app/views/expenses/index.html.erb"
+        - "playwright.config.ts"
+        - "test/javascript/expense_parser.test.mjs"
+        - "tests/expenses-quick-add.spec.ts"
+        - "documentation/decision_log.md"
+      commands:
+        - cmd: "bin/rails javascript:build"
+          status: pass
+        - cmd: "npm test"
+          status: pass
+        - cmd: "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+      summary: "Added jsbundling-rails/esbuild TypeScript build support while preserving importmap, mounted a Stimulus-backed expense app island on expenses#index, added snapshot loading, deterministic quick-add parsing, equal-split create submission through the Goal 1 client mutation API, focused parser tests, and a browser smoke test for quick-add preview."
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add durable quick-add offline create queueing for the new expense app: cache the latest snapshot in IndexedDB, queue quick-add create mutations while offline or on network failure, render pending queued expenses immediately, retry queued creates on app load, online events, and explicit retry, and prove pending state persistence with browser-facing coverage."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "playwright.config.ts"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "The next slice depends on unresolved product, API, or conflict behavior."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/api.ts"
+        - "app/javascript/expenses/db.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/store.ts"
+        - "app/javascript/expenses/types.ts"
+        - "playwright.config.ts"
+        - "tests/expenses-quick-add.spec.ts"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Added direct IndexedDB storage for cached snapshots and pending quick-add create mutations, queued failed quick-add creates with client UUIDs and full split payloads, rendered pending sync state immediately, retried pending creates on load/online/retry, and added Playwright coverage proving a failed mutation is visible as pending and survives reload."
+  - id: T004
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Extend the expense app from quick-add create to V1 editing and voiding foundations: render editable expense rows, support offline edit and void mutations for cached synced expenses with base revisions, keep queued edit/void mutations durable, and show conflict/rejected states returned by the Goal 1 sync API."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "package.json"
+      - "playwright.config.ts"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+    stop_if:
+      - "Need backend API behavior beyond the existing Goal 1 mutation contract."
+      - "Conflict UX semantics are too ambiguous to implement without owner input."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/api.ts"
+        - "app/javascript/expenses/db.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/store.ts"
+        - "app/javascript/expenses/types.ts"
+        - "tests/expenses-quick-add.spec.ts"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Extended the expense app from quick-add create into synced expense edit and void foundations. Rows now expose inline edit/save/cancel and void controls, update/void mutations include base revisions, failed edit/void requests are queued durably in IndexedDB, queued mutation statuses render as pending/failed/conflict/rejected, and conflict responses from the sync API remain visible instead of being retried silently."
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Build the V1 split editor foundation into the expense app: support selected people equal, exact amounts, shares/weights, and percentages for quick-add and edit flows, show per-person owed previews and inline validation, and prove unequal split behavior with focused tests."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "package.json"
+      - "playwright.config.ts"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need backend API behavior beyond the existing split payload contract."
+      - "The UI scope expands into full people/group management instead of split editing."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/splits.ts"
+        - "app/javascript/expenses/store.ts"
+        - "app/javascript/expenses/types.ts"
+        - "package.json"
+        - "playwright.config.ts"
+        - "test/javascript/expense_splits.test.mjs"
+        - "tests/expenses-quick-add.spec.ts"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Added the V1 split editor foundation. Quick-add and edit payloads now use a shared split builder supporting selected equal, exact amounts, shares/weights, and percentages; the UI shows selectable trip people, mode-specific inputs, per-person owed previews, and inline validation. Added pure split math tests plus browser coverage for exact unequal split save, invalid exact totals, shares previews, and percentage previews."
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add roster and split group management foundations to the expense app: create placeholder people without leaving quick-add, invite by email where supported by the API, edit display names, and create/edit split groups as shortcuts for the split editor."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need backend API behavior beyond existing trip_people or split_groups contracts."
+      - "The work expands into invitation email delivery or account-claim UX beyond the existing API."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/api.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/store.ts"
+        - "app/javascript/expenses/types.ts"
+        - "app/views/expenses/index.html.erb"
+        - "tests/expenses-quick-add.spec.ts"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Added online roster and split group foundations inside the expense app. Users can add placeholder or invited travelers from the expense flow, edit traveler display names, create split groups from the effective current split selection, apply saved groups back to the split editor, and rename groups. The client now uses existing trip_people and split_groups APIs, handles Rails locale query strings when appending resource ids, and browser coverage proves late traveler inclusion plus group create/apply/rename flows."
+  - id: T007
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add the PWA shell and offline app-loading proof for the expense app: cache the expense page/app shell and bundled assets after prior online use, keep cached expense UI available in a normal browser tab when offline, expose clear offline/sync state, and verify refresh/restart offline loading without expanding deployment scope."
+    allowed_files:
+      - "app/controllers/pwa_controller.rb"
+      - "app/javascript/custom_service_worker.js"
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "app/views/layouts/application.html.erb"
+      - "public/**"
+      - "config/manifest.js"
+      - "test/javascript/**"
+      - "tests/**"
+      - "playwright.config.ts"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need deployment changes, Kamal changes, or production hosting credentials."
+      - "Need a service worker library such as Workbox instead of the fixed custom low-dependency approach."
+      - "Need to broaden offline roster/group management beyond the V1 online-only scope."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/controllers/pwa_controller.rb"
+        - "app/javascript/custom_service_worker.js"
+        - "app/javascript/expense_application.ts"
+        - "tests/expenses-quick-add.spec.ts"
+        - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Added expense PWA shell support with a custom low-dependency service worker. The expense bundle registers /service-worker, the PWA controller allows the service worker script to be fetched as a service worker, the worker uses network-first cached navigations and cache-first runtime assets, and browser coverage proves the expense app reloads while offline after prior online use using the cached app shell plus IndexedDB snapshot fallback."
+  - id: T008
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Finish the remaining V1 user-facing expense surface: render actionable balances and settlement suggestions, add a trust-oriented activity/history section from expenses and pending sync state, and add low-friction duplicate/recent expense shortcuts that prefill quick add without adding new dependencies."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "test/javascript/**"
+      - "tests/**"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Need new backend activity/event or learned suggestion endpoints beyond the current snapshot and mutation contracts."
+      - "Need settlement payment recording, automatic conflict merging, or receipt uploads."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "app/javascript/controllers/expense_app_controller.ts"
+        - "app/javascript/expenses/render.ts"
+        - "app/javascript/expenses/store.ts"
+        - "tests/expenses-quick-add.spec.ts"
+        - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Finished the remaining V1 user-facing expense surface from the current snapshot contracts. The app now renders per-person balances, current-user balance context, settlement suggestions, a recent activity/history section from pending sync and recent expenses, and row-level duplicate/copy shortcuts that prefill quick add. Browser coverage proves balances, settlements, activity, and duplicate shortcuts update after saving an expense."
+  - id: T009
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: low
+    objective: "Add browser-facing mobile viewport proof for the expense app primary workflow, including quick add, split editor, roster/groups, ledger summary, and no horizontal overflow at a phone-sized viewport."
+    allowed_files:
+      - "app/javascript/controllers/expense_app_controller.ts"
+      - "app/javascript/expense_application.ts"
+      - "app/javascript/expenses/**"
+      - "app/views/expenses/index.html.erb"
+      - "tests/**"
+      - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+    verify:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"
+    stop_if:
+      - "Mobile proof requires a broader design rewrite rather than testable responsive fixes."
+      - "Need files outside allowed_files."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      changed_files:
+        - "tests/expenses-quick-add.spec.ts"
+        - "docs/goals/expense-frontend-offline-pwa/state.yaml"
+      commands:
+        - cmd: "npm test"
+          status: pass
+        - cmd: "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+          status: pass
+        - cmd: "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Added phone-sized browser proof for the primary expense workflow. The Playwright spec sets a 390x844 viewport, verifies quick-add parsing, split editor, roster/groups, and ledger summary visibility, and asserts the page has no horizontal overflow."
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Audit whether Goal 2 is complete against the full frontend/offline/PWA oracle."
+    inputs:
+      - "All done task receipts."
+      - "Last verification."
+      - "Current dirty diff."
+      - "documentation/expense_goal_2_frontend_offline_pwa_2026-06-10.md."
+      - "Browser-facing test and walkthrough evidence."
+    constraints:
+      - "Do not implement."
+      - "Reject completion if required Worker work is still queued or active."
+      - "Reject completion if the old clunky expense flow still owns the primary path."
+      - "Reject completion without offline create/edit/void persistence and duplicate-safe sync proof."
+      - "Reject completion without clear conflict-state proof."
+      - "Reject completion without mobile usability and PWA shell proof."
+      - "Reject completion if verification excludes parser, split editor, IndexedDB/offline queue, sync transitions, conflict handling, and critical Playwright flows."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Evidence mapped to each acceptance criterion."
+      - "Missing evidence or next task if not complete."
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      evidence_map:
+        - "Frontend stack and legacy replacement: T002 added jsbundling-rails/esbuild TypeScript support, mounted the Stimulus expense app island on expenses#index, and routed quick-add through the Goal 1 mutation API."
+        - "Quick add and parser behavior: T002/T009 receipts plus npm parser tests and Playwright quick-add preview coverage."
+        - "IndexedDB/offline queue, persistence, reconnect sync, duplicate-safe mutation submission, and conflict visibility: T003/T004 receipts plus Playwright coverage for queued create/edit/void persistence and conflict states."
+        - "Unequal/flexible splits: T005 receipt plus split unit tests and Playwright coverage for exact, shares, percentage, invalid totals, and save payload behavior."
+        - "Pending person inclusion and split groups: T006 receipt plus Playwright coverage for adding late travelers, editing names, creating/applying groups, and renaming groups."
+        - "Balances, settlement suggestions, recent activity, and duplicate shortcuts: T008 receipt plus Playwright coverage after saving an expense."
+        - "PWA shell/offline tab loading: T007 receipt plus Playwright proof that the expense app reloads offline after prior online use."
+        - "Mobile usability: T009 receipt plus 390x844 viewport proof with no horizontal overflow."
+      verification:
+        - "npm test: pass"
+        - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb: pass"
+        - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium: pass"
+        - "git diff --check: pass"
+      residual_risk:
+        - "V1 uses deterministic parser/category behavior and snapshot-derived activity; richer learned suggestions, account-claim UX, settlement payment recording, and receipt upload remain outside this goal by plan."
+      summary: "Final audit accepts Goal 2 as complete for V1. The implemented expense app covers the fixed low-dependency Rails/Stimulus/TypeScript architecture, mobile quick capture, flexible splits, roster/groups, balances/settlements/activity, offline create/edit/void, conflict visibility, PWA shell caching, normal-browser offline reload after prior online use, and mobile viewport proof."
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: pass
+    task: T009
+    commands:
+      - "npm test"
+      - "RAILS_ENV=test bin/rails db:drop db:create db:migrate && RAILS_ENV=test bin/rails test test/controllers/api/expense_snapshots_controller_test.rb test/controllers/api/expense_client_mutations_controller_test.rb test/controllers/api/trip_people_controller_test.rb test/controllers/api/split_groups_controller_test.rb test/controllers/expenses_controller_test.rb"
+      - "npm run test:e2e -- tests/expenses-quick-add.spec.ts --project=chromium"
+      - "git diff --check"

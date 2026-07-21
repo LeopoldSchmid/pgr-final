@@ -209,6 +209,16 @@ class NavigationHelperTest < ActionView::TestCase
     assert items.any? { |i| i[:key] == :packing }
   end
 
+  test "secondary_nav_items returns expense app panels for trip expenses" do
+    def current_trip
+      @trip
+    end
+
+    items = secondary_nav_items(:expenses)
+    assert_equal [ :entry, :people, :summary, :activity ], items.map { |item| item[:key] }
+    assert_equal expenses_path(panel: "entry"), items.first[:path]
+  end
+
   test "secondary_nav_items returns global context items for plans when no trip" do
     def current_trip
       nil
